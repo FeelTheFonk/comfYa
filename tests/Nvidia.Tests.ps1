@@ -3,7 +3,6 @@
 
 BeforeAll {
     $Root = Join-Path $PSScriptRoot ".."
-    $Config = Import-PowerShellDataFile -Path (Join-Path $Root "config.psd1")
     Import-Module (Join-Path $Root "lib\Nvidia.psm1") -Force
 }
 

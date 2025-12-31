@@ -19,8 +19,8 @@ function Invoke-ElevatedRestart {
     
     $hostExe = if ($PSVersionTable.PSVersion.Major -ge 6) { "pwsh.exe" } else { "powershell.exe" }
     
-    if (Get-Command Write-Log -ErrorAction SilentlyContinue) {
-        Write-Log "Elevating privileges using $hostExe for $ScriptPath..." -Level WARN
+    if (Get-Command Write-ComfyLog -ErrorAction SilentlyContinue) {
+        Write-ComfyLog "Elevating privileges using $hostExe for $ScriptPath..." -Level WARN
     } else {
         Write-Host "Elevating privileges..." -ForegroundColor Yellow
     }
@@ -36,7 +36,7 @@ function Invoke-ElevatedRestart {
 }
 
 function Export-ComfyConfig {
-    [CmdletBinding()]
+    [CmdletBinding(SupportsShouldProcess)]
     param(
         [Parameter(Mandatory)]
         [hashtable]$Config,
@@ -45,14 +45,19 @@ function Export-ComfyConfig {
     )
     
     $Target = Join-Path $InstallPath "config.json"
-    $Config | ConvertTo-Json -Depth 10 | Out-File -FilePath $Target -Encoding UTF8
-    Write-Log "Configuration bridge exported to $Target" -Level DEBUG
+    if ($PSCmdlet.ShouldProcess($Target, "Export Configuration")) {
+        $Config | ConvertTo-Json -Depth 10 | Out-File -FilePath $Target -Encoding UTF8
+        Write-ComfyLog "Configuration bridge exported to $Target" -Level DEBUG
+    }
 }
 
 function Update-EnvironmentPath {
-    $machinePath = [Environment]::GetEnvironmentVariable("Path", "Machine")
-    $userPath = [Environment]::GetEnvironmentVariable("Path", "User")
-    $env:Path = "$machinePath;$userPath"
+    [CmdletBinding(SupportsShouldProcess)]
+    if ($PSCmdlet.ShouldProcess("Environment Path", "Refresh")) {
+        $machinePath = [Environment]::GetEnvironmentVariable("Path", "Machine")
+        $userPath = [Environment]::GetEnvironmentVariable("Path", "User")
+        $env:Path = "$machinePath;$userPath"
+    }
 }
 
 function Invoke-SafeWebRequest {
@@ -72,7 +77,7 @@ function Invoke-SafeWebRequest {
         try {
             $params = @{
                 Uri             = $Uri
-                Headers         = @{ "User-Agent" = "comfYa/0.2.0" }
+                Headers         = @{ "User-Agent" = "comfYa/0.2.1" }
                 UseBasicParsing = $true
                 TimeoutSec      = 120
                 ErrorAction     = 'Stop'
@@ -100,9 +105,9 @@ function Invoke-SafeWebRequest {
     }
 }
 
-function Test-SystemRequirements {
+function Test-SystemRequirement {
     [CmdletBinding()]
-    param([hashtable]$Config)
+    param()
     
     # Disk Space Check
     $drive = Get-PSDrive -Name ($PSScriptRoot[0])
@@ -141,7 +146,7 @@ Export-ModuleMember -Function @(
     'Invoke-ElevatedRestart'
     'Update-EnvironmentPath'
     'Invoke-SafeWebRequest'
-    'Test-SystemRequirements'
+    'Test-SystemRequirement'
     'Test-PowerShellVersion'
     'Export-ComfyConfig'
 )

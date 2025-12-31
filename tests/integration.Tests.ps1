@@ -13,7 +13,8 @@ Describe "Pre-Installation Checks" {
         }
         
         It "Should have internet connectivity" {
-            $result = Test-NetConnection -ComputerName "github.com" -Port 443 -WarningAction SilentlyContinue
+            $TargetHost = "github.com"
+            $result = Test-NetConnection -ComputerName $TargetHost -Port 443 -WarningAction SilentlyContinue
             $result.TcpTestSucceeded | Should -Be $true
         }
         
@@ -25,9 +26,9 @@ Describe "Pre-Installation Checks" {
     Context "NVIDIA Environment" {
         BeforeAll {
             if (-not (Get-Command nvidia-smi -ErrorAction SilentlyContinue)) {
-                # Mock nvidia-smi for CI environments
-                function nvidia-smi {
-                    param($query_gpu, $format)
+                # Mock nvidia-smi for CI environments using Pester's Mocking
+                Mock nvidia-smi {
+                    param($query_gpu)
                     if ($query_gpu -match "name") { return "NVIDIA GeForce RTX 4090" }
                     if ($query_gpu -match "driver_version") { return "570.00" }
                     if ($query_gpu -match "compute_cap") { return "8.9" }

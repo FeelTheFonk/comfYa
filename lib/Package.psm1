@@ -30,8 +30,8 @@ function Install-VCRedist {
 function Install-Git {
     if (Get-Command git -ErrorAction SilentlyContinue) { return $true }
     
-    if (Get-Command Write-Log -ErrorAction SilentlyContinue) {
-        Write-Log "Installing Git via winget..." -Level INFO
+    if (Get-Command Write-ComfyLog -ErrorAction SilentlyContinue) {
+        Write-ComfyLog "Installing Git via winget..." -Level INFO
     } else {
         Write-Host "Installing Git via winget..." -ForegroundColor Cyan
     }
@@ -49,7 +49,7 @@ function Install-Uv {
     $hash = $Config.Sources.Dependencies.UvHash
     $temp = Join-Path $env:TEMP "uv-install.ps1"
     
-    Write-Log "Downloading uv installer with security verification..." -Level INFO
+    Write-ComfyLog "Downloading uv installer with security verification..." -Level INFO
     Invoke-SafeWebRequest -Uri $url -OutFile $temp -ExpectedHash $hash
     
     # Run installer
@@ -66,13 +66,13 @@ function Install-Uv {
         if (Test-Path $bin) {
             if ($bin -notin ($env:Path -split ';')) {
                 $env:Path = "$bin;$env:Path"
-                Write-Log "Added $bin to environment path." -Level DEBUG
+                Write-ComfyLog "Added $bin to environment path." -Level DEBUG
             }
         }
     }
     
     Update-EnvironmentPath
-    return (Get-Command uv -ErrorAction SilentlyContinue) -ne $null
+    return $null -ne (Get-Command uv -ErrorAction SilentlyContinue)
 }
 
 function Repair-Environment {
@@ -83,13 +83,13 @@ function Repair-Environment {
     
     # 1. Base Environment Restoration
     if (-not (Test-Path $VenvPath) -or $Force) {
-        Write-Log "Initializing/Resetting virtual environment..." -Level WARN
+        Write-ComfyLog "Initializing/Resetting virtual environment..." -Level WARN
         if (Test-Path $VenvPath) { Remove-Item $VenvPath -Recurse -Force -ErrorAction SilentlyContinue }
         & uv venv $VenvPath --python $Config.Python.Version
     }
     
     # 2. Dependency SOTA Audit
-    Write-Log "Auditing and aligning SOTA dependencies..." -Level INFO
+    Write-ComfyLog "Auditing and aligning SOTA dependencies..." -Level INFO
     
     # Core Application Requirements
     $ReqFile = Join-Path $InstallPath "ComfyUI\requirements.txt"
@@ -101,10 +101,10 @@ function Repair-Environment {
     try {
         $gpu = Get-NvidiaGpuInfo -Config $Config
         $IndexUrl = $Config.Sources.PyTorch.IndexUrls[$gpu.CudaVersion]
-        Write-Log "Ensuring PyTorch Nightly alignment for $($gpu.CudaVersion)..." -Level VERBOSE
+        Write-ComfyLog "Ensuring PyTorch Nightly alignment for $($gpu.CudaVersion)..." -Level VERBOSE
         & uv pip install --pre torch torchvision torchaudio --index-url $IndexUrl --python $Python
     } catch {
-        Write-Log "GPU detection failed during repair, skipping Torch alignment." -Level WARN
+        Write-ComfyLog "GPU detection failed during repair, skipping Torch alignment." -Level WARN
     }
     
     # Cleanup & Optimization

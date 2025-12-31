@@ -8,7 +8,7 @@ param(
     [ValidateSet("setup", "run", "doctor", "update")]
     [string]$Command = "run",
     
-    [string]$Home,
+    [string]$InstallHome,
     [switch]$Force,
     [switch]$NonInteractive,
     
@@ -30,7 +30,7 @@ Import-Module (Join-Path $LibDir "Lifecycle.psm1") -Force
 # 2. Configuration Initialization
 try {
     $Config = Import-PowerShellDataFile -Path (Join-Path $Root "config.psd1")
-    $InstallPath = if ($Home) { $Home } else { 
+    $InstallPath = if ($InstallHome) { $InstallHome } else { 
         if ($env:COMFYUI_HOME) { $env:COMFYUI_HOME } else { $Root }
     }
     
@@ -49,12 +49,12 @@ switch ($Command) {
         Write-Step "Bootstrap" "System" "Starting installation at $InstallPath"
         
         if (-not (Test-Administrator)) {
-            Invoke-ElevatedRestart -ScriptPath $PSCommandPath -Parameters @{ Command = "setup"; Home = $InstallPath }
+            Invoke-ElevatedRestart -ScriptPath $PSCommandPath -Parameters @{ Command = "setup"; InstallHome = $InstallPath }
             exit
         }
         
         # Base Requirements & Dependencies
-        Test-SystemRequirements -Config $Config | Out-Null
+        Test-SystemRequirement | Out-Null
         Install-VCRedist -Config $Config
         Install-Git
         Install-Uv -Config $Config

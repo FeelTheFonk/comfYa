@@ -4,10 +4,8 @@ comfYa Installation Validator (SOTA Edition)
 Synchronized with config.psd1 to eliminate configuration gaps.
 """
 import sys
-import os
-import re
 from pathlib import Path
-from typing import Tuple, List, Dict
+from typing import Tuple, Dict
 
 # =============================================================================
 # CONFIG SYNCHRONIZATION (SSA)
@@ -80,16 +78,16 @@ def test_hardware(config: Dict) -> Tuple[bool, str]:
 def test_acceleration() -> Tuple[bool, str]:
     """Verify SOTA kernels (Triton & Sage)"""
     results = []
-    try:
+    import importlib.util
+    if importlib.util.find_spec("triton"):
         import triton
         results.append(f"Triton v{triton.__version__}")
-    except ImportError:
+    else:
         results.append("Triton missing")
         
-    try:
-        import sageattention
+    if importlib.util.find_spec("sageattention"):
         results.append("SageAttn OK")
-    except ImportError:
+    else:
         results.append("SageAttn missing")
         
     return True, " | ".join(results)

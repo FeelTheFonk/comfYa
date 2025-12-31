@@ -54,7 +54,8 @@ function Initialize-Logging {
     }
 }
 
-function Write-Log {
+[Diagnostics.CodeAnalysis.SuppressMessage("PSAvoidUsingWriteHost", "")]
+function Write-ComfyLog {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory)]
@@ -110,28 +111,30 @@ function Write-Log {
 
 function Write-Step {
     param([string]$Phase, [string]$Step, [string]$Message)
-    Write-Log -Message $Message -Level INFO -Phase $Phase -Step $Step
+    Write-ComfyLog -Message $Message -Level INFO -Phase $Phase -Step $Step
 }
 
 function Write-Success {
     param([string]$Message)
-    Write-Log -Message $Message -Level SUCCESS
+    Write-ComfyLog -Message $Message -Level SUCCESS
 }
 
 function Write-ComfyWarning {
     param([string]$Message)
-    Write-Log -Message $Message -Level WARN
+    Write-ComfyLog -Message $Message -Level WARN
 }
 
+[Diagnostics.CodeAnalysis.SuppressMessage("PSAvoidUsingWriteHost", "")]
 function Write-Fatal {
     param([string]$Message, [string]$Suggestion)
-    Write-Log -Message $Message -Level ERROR
+    Write-ComfyLog -Message $Message -Level ERROR
     if ($Suggestion) {
         Write-Host "    → $Suggestion" -ForegroundColor DarkYellow
     }
     throw $Message
 }
 
+[Diagnostics.CodeAnalysis.SuppressMessage("PSAvoidUsingWriteHost", "")]
 function Show-ComfyHeader {
     param([string]$Version)
     $msg = "--- comfYa v$Version ---"
@@ -140,7 +143,7 @@ function Show-ComfyHeader {
 
 Export-ModuleMember -Function @(
     'Initialize-Logging'
-    'Write-Log'
+    'Write-ComfyLog'
     'Write-Step'
     'Write-Success'
     'Write-ComfyWarning'

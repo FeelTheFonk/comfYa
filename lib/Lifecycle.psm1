@@ -4,7 +4,7 @@
 #Requires -Version 5.1
 
 function Install-ComfyProject {
-    [CmdletBinding()]
+    [CmdletBinding(SupportsShouldProcess)]
     param(
         [Parameter(Mandatory)]
         [hashtable]$Config,
@@ -12,6 +12,8 @@ function Install-ComfyProject {
         [string]$InstallPath,
         [switch]$SkipValidation
     )
+    
+    if (-not $PSCmdlet.ShouldProcess($InstallPath, "Install ComfyUI Project")) { return }
     
     $GPU = Get-NvidiaGpuInfo -Config $Config
     
@@ -51,7 +53,7 @@ function Install-ComfyProject {
     $SageKey = "$($GPU.CudaVersion)_py$PyVerShort"
     $SageUrl = $Config.Sources.FallbackWheels.SageAttention[$SageKey]
     if ($SageUrl) {
-        Write-Log "Injecting SageAttention via SOTA wheel: $SageKey" -Level VERBOSE
+        Write-ComfyLog "Injecting SageAttention via SOTA wheel: $SageKey" -Level VERBOSE
         & uv pip install $SageUrl --python $VenvPython
     }
     
@@ -88,7 +90,7 @@ function Install-ComfyProject {
 }
 
 function Start-ComfyProject {
-    [CmdletBinding()]
+    [CmdletBinding(SupportsShouldProcess)]
     param(
         [Parameter(Mandatory)]
         [hashtable]$Config,
@@ -98,6 +100,8 @@ function Start-ComfyProject {
         [string]$Mode = "Auto"
     )
     
+    if (-not $PSCmdlet.ShouldProcess($InstallPath, "Start ComfyUI")) { return }
+    
     # 1. Proactive Mode Detection
     if ($Mode -eq "Auto") {
         try {
@@ -106,10 +110,10 @@ function Start-ComfyProject {
             if ($totalVram -ge 12000) { $Mode = "HighVram" }
             elseif ($totalVram -ge 6000) { $Mode = "Default" }
             else { $Mode = "LowVram" }
-            Write-Log "Auto-detected VRAM: ${totalVram}MB. Selecting mode: $Mode" -Level INFO
+            Write-ComfyLog "Auto-detected VRAM: ${totalVram}MB. Selecting mode: $Mode" -Level INFO
         }
         catch {
-            Write-Log "GPU Detection failed, falling back to Default." -Level WARN
+            Write-ComfyLog "GPU Detection failed, falling back to Default." -Level WARN
             $Mode = "Default"
         }
     }
@@ -137,7 +141,7 @@ function Start-ComfyProject {
     $PythonExe = Join-Path $VenvPath "Scripts\python.exe"
     $LaunchArgs = @($MainScript) + $Config.LaunchArgs[$Mode]
     
-    Write-Log "Launching comfYa [$Mode]..." -Level SUCCESS
+    Write-ComfyLog "Launching comfYa [$Mode]..." -Level SUCCESS
     Push-Location $InstallPath
     try {
         & $PythonExe @LaunchArgs
@@ -148,13 +152,15 @@ function Start-ComfyProject {
 }
 
 function Update-ComfyProject {
-    [CmdletBinding()]
+    [CmdletBinding(SupportsShouldProcess)]
     param(
         [Parameter(Mandatory)]
         [hashtable]$Config,
         [Parameter(Mandatory)]
         [string]$InstallPath
     )
+    
+    if (-not $PSCmdlet.ShouldProcess($InstallPath, "Update ComfyUI Project")) { return }
     
     Write-Step "Update" "Init" "Synchronizing with SOTA repositories..."
     $PythonExe = Join-Path $InstallPath ".venv\Scripts\python.exe"
@@ -168,7 +174,7 @@ function Update-ComfyProject {
     foreach ($name in $Repos.Keys) {
         $r = $Repos[$name]
         if (Test-Path $r.Path) {
-            Write-Log "Updating $name..." -Level VERBOSE
+            Write-ComfyLog "Updating $name..." -Level VERBOSE
             Push-Location $r.Path
             try {
                 & git fetch origin
@@ -183,12 +189,12 @@ function Update-ComfyProject {
     Write-Step "Update" "Deps" "Aligning dependencies via uv"
     & uv pip install -r (Join-Path $InstallPath "ComfyUI\requirements.txt") --python $PythonExe
     
-    Write-Log "Enforcing Optimization Stack (Triton, TorchAO)..." -Level VERBOSE
+    Write-ComfyLog "Enforcing Optimization Stack (Triton, TorchAO)..." -Level VERBOSE
     & uv pip install --upgrade @($Config.Packages.Optimization) --python $PythonExe
     
     # 3. SageAttention Synchronization
     try {
-        Write-Log "Checking for SageAttention updates..." -Level VERBOSE
+        Write-ComfyLog "Checking for SageAttention updates..." -Level VERBOSE
         $GPU = Get-NvidiaGpuInfo -Config $Config
         $PyVerShort = $Config.Python.Version -replace '\.', ''
         $SageKey = "$($GPU.CudaVersion)_py$PyVerShort"
@@ -197,7 +203,7 @@ function Update-ComfyProject {
             & uv pip install --upgrade $SageUrl --python $PythonExe
         }
     } catch {
-        Write-Log "SageAttention update skipped (Non-critical)" -Level WARN
+        Write-ComfyLog "SageAttention update skipped (Non-critical)" -Level WARN
     }
     
     Write-Success "comfYa - All components synchronized."
