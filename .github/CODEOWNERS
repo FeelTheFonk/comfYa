@@ -1,0 +1,16 @@
+# comfYa CODEOWNERS
+# Default owner for all files
+* @FeelTheFonk
+
+# PowerShell scripts
+*.ps1 @FeelTheFonk
+*.psm1 @FeelTheFonk
+
+# Python
+*.py @FeelTheFonk
+
+# Configuration
+config.psd1 @FeelTheFonk
+
+# CI/CD
+.github/ @FeelTheFonk

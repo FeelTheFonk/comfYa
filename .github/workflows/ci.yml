@@ -1,0 +1,133 @@
+# comfYa - CI Validation Workflow
+# Triggered on push and pull requests to main/develop
+
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  validate-powershell:
+    name: Validate PowerShell
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      
+      - name: Install PSScriptAnalyzer
+        shell: pwsh
+        run: |
+          Install-Module -Name PSScriptAnalyzer -Force -SkipPublisherCheck
+      
+      - name: Run PSScriptAnalyzer
+        shell: pwsh
+        run: |
+          $results = @()
+          $scripts = Get-ChildItem -Path . -Include *.ps1,*.psm1 -Recurse -Exclude .venv
+          foreach ($script in $scripts) {
+            $analysis = Invoke-ScriptAnalyzer -Path $script.FullName -Severity Warning,Error
+            if ($analysis) {
+              $results += $analysis
+              Write-Host "Issues in $($script.Name):" -ForegroundColor Yellow
+              $analysis | Format-Table -Property Severity,RuleName,Message -AutoSize
+            }
+          }
+          if ($results.Count -gt 0) {
+            Write-Host "::warning::Found $($results.Count) PSScriptAnalyzer issues"
+          }
+      
+      - name: Validate PowerShell Syntax
+        shell: pwsh
+        run: |
+          $errors = @()
+          $scripts = Get-ChildItem -Path . -Include *.ps1,*.psm1 -Recurse -Exclude .venv
+          foreach ($script in $scripts) {
+            $tokens = $null
+            $parseErrors = $null
+            [System.Management.Automation.Language.Parser]::ParseFile($script.FullName, [ref]$tokens, [ref]$parseErrors) | Out-Null
+            if ($parseErrors) {
+              $errors += @{ File = $script.Name; Errors = $parseErrors }
+            }
+          }
+          if ($errors.Count -gt 0) {
+            foreach ($e in $errors) {
+              Write-Host "Syntax errors in $($e.File):" -ForegroundColor Red
+              $e.Errors | ForEach-Object { Write-Host "  Line $($_.Extent.StartLineNumber): $($_.Message)" }
+            }
+            exit 1
+          }
+          Write-Host "All PowerShell scripts have valid syntax" -ForegroundColor Green
+
+  validate-python:
+    name: Validate Python
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      
+      - name: Setup Python
+        uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b # v5.3.0
+        with:
+          python-version: '3.12'
+      
+      - name: Install ruff
+        run: pip install ruff
+      
+      - name: Run ruff
+        run: |
+          ruff check . --output-format=github || true
+          ruff check . --statistics
+      
+      - name: Validate Python Syntax
+        run: |
+          python -m py_compile validate.py
+          echo "Python syntax valid"
+
+  test-pester:
+    name: Run Pester Tests
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      
+      - name: Install Pester
+        shell: pwsh
+        run: |
+          Install-Module -Name Pester -Force -SkipPublisherCheck -MinimumVersion 5.0
+      
+      - name: Run Tests
+        shell: pwsh
+        run: |
+          $config = New-PesterConfiguration
+          $config.Run.Path = "./tests"
+          $config.Output.Verbosity = "Detailed"
+          $config.Run.Exit = $true
+          Invoke-Pester -Configuration $config
+
+  validate-config:
+    name: Validate Configuration
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      
+      - name: Validate config.psd1
+        shell: pwsh
+        run: |
+          try {
+            $config = Import-PowerShellDataFile -Path ./config.psd1
+            Write-Host "Configuration loaded successfully" -ForegroundColor Green
+            Write-Host "Python version: $($config.Python.Version)"
+            Write-Host "CUDA versions: $($config.Sources.PyTorch.IndexUrls.Keys -join ', ')"
+          } catch {
+            Write-Host "Configuration validation failed: $_" -ForegroundColor Red
+            exit 1
+          }

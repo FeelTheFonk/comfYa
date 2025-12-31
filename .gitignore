@@ -1,0 +1,98 @@
+# comfYa .gitignore
+
+# =============================================================================
+# Python
+# =============================================================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+# lib/  # Commented: conflicts with lib/core.psm1
+# lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+.pytest_cache/
+.coverage
+htmlcov/
+
+# =============================================================================
+# Virtual Environments
+# =============================================================================
+.venv/
+venv/
+ENV/
+env/
+
+# =============================================================================
+# PowerShell
+# =============================================================================
+*.log
+*.tmp
+
+# =============================================================================
+# IDE / Editors
+# =============================================================================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.pydevproject
+.settings/
+
+# =============================================================================
+# OS Generated
+# =============================================================================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# =============================================================================
+# comfYa Specific
+# =============================================================================
+# Triton cache
+.triton_cache/
+
+# Models (large files)
+models/
+!models/.gitkeep
+
+# Output directory
+output/
+!output/.gitkeep
+
+# Input directory
+input/
+!input/.gitkeep
+
+# Installation logs
+logs/
+!logs/.gitkeep
+
+# Local configuration overrides
+*.local
+config.local.psd1
+
+# ComfyUI directory (installed separately)
+ComfyUI/
+
+# Agent workflows (internal)
+.agent/

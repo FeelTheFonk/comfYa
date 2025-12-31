@@ -1,0 +1,48 @@
+# Changelog
+
+All notable changes to comfYa will be documented in this file.
+
+Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+
+## [0.1.0] - 2025-12-31
+
+### Added
+- **CI/CD**: 5 GitHub Actions workflows (ci, release, dependency-check, security-scan, stale)
+- **Dependabot**: Automatic GitHub Actions updates
+- **Templates**: Bug report, feature request, pull request templates
+- **Configuration**: Centralized `config.psd1` with environment overrides
+- **Module**: `lib/core.psm1` with reusable functions
+- **Tests**: Pester test suite
+- **Repository**: `.gitignore`, `LICENSE`, `CODEOWNERS`
+
+### Changed
+- **Naming**: Renamed to "comfYa" throughout
+- **Paths**: Dynamic resolution via `$PSScriptRoot` / `%~dp0` / `$env:COMFYUI_HOME`
+- **Install**: Refactored to use config.psd1 for all settings
+- **Launchers**: Now read from config for environment and launch args
+- **GPU support**: Extended to RTX 20xx+ (Compute Capability 7.5+)
+
+### Fixed
+- **DRY Violation**: Removed duplicated fallback code from `install.ps1`
+- **Version Sync**: All version references unified
+- **User-Agent**: Unified across all files via `config.UserAgent`
+- **README**: Fixed invalid Release badge URL
+- **run.ps1/run.bat**: Added `TORCH_COMPILE_BACKEND=inductor`
+
+### Removed
+- Hardcoded paths (`C:\AI\ComfyUI`)
+- "SOTA" marketing terminology
+- Dead code in install.ps1
+
+### Security
+- TLS 1.2+ enforcement
+- `Invoke-SafeWebRequest` with retry logic
+- CodeQL and TruffleHog in CI
+- Pinned GitHub Actions to SHA
+
+## [0.0.1-legacy] - 2025-12-30
+
+### Added
+- Initial installer prototype
+- PyTorch Nightly, Triton, SageAttention support
+- ComfyUI-Manager integration

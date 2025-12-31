@@ -1,0 +1,88 @@
+# comfYa - Dependency Check Workflow
+# Weekly check for new versions of key dependencies
+
+name: Dependency Check
+
+on:
+  schedule:
+    - cron: '0 8 * * 1'  # Every Monday at 8:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  check-dependencies:
+    name: Check Dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      
+      - name: Check PyTorch Nightly
+        id: pytorch
+        run: |
+          LATEST=$(curl -s https://download.pytorch.org/whl/nightly/cu128/ | grep -oP 'torch-[0-9]+\.[0-9]+\.[0-9]+\.dev[0-9]+' | sort -V | tail -1)
+          echo "latest=$LATEST" >> $GITHUB_OUTPUT
+          echo "PyTorch Nightly: $LATEST"
+      
+      - name: Check triton-windows
+        id: triton
+        run: |
+          LATEST=$(curl -s https://api.github.com/repos/woct0rdho/triton-windows/releases/latest | jq -r '.tag_name')
+          echo "latest=$LATEST" >> $GITHUB_OUTPUT
+          echo "triton-windows: $LATEST"
+      
+      - name: Check SageAttention
+        id: sage
+        run: |
+          LATEST=$(curl -s https://api.github.com/repos/woct0rdho/SageAttention/releases/latest | jq -r '.tag_name')
+          echo "latest=$LATEST" >> $GITHUB_OUTPUT
+          echo "SageAttention: $LATEST"
+      
+      - name: Check ComfyUI
+        id: comfyui
+        run: |
+          LATEST=$(curl -s https://api.github.com/repos/comfyanonymous/ComfyUI/commits/master | jq -r '.sha[:7]')
+          echo "latest=$LATEST" >> $GITHUB_OUTPUT
+          echo "ComfyUI: $LATEST"
+      
+      - name: Create summary issue
+        if: always()
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        with:
+          script: |
+            const pytorch = '${{ steps.pytorch.outputs.latest }}';
+            const triton = '${{ steps.triton.outputs.latest }}';
+            const sage = '${{ steps.sage.outputs.latest }}';
+            const comfyui = '${{ steps.comfyui.outputs.latest }}';
+            
+            const body = `## Dependency Check - ${new Date().toISOString().split('T')[0]}
+            
+            | Package | Latest Version |
+            |---------|----------------|
+            | PyTorch Nightly | \`${pytorch}\` |
+            | triton-windows | \`${triton}\` |
+            | SageAttention | \`${sage}\` |
+            | ComfyUI | \`${comfyui}\` |
+            
+            Review if any fallback URLs in \`config.psd1\` need updating.`;
+            
+            // Check for existing open issue
+            const issues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: 'dependencies',
+              state: 'open'
+            });
+            
+            if (issues.data.length === 0) {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: `Dependency Check - ${new Date().toISOString().split('T')[0]}`,
+                body: body,
+                labels: ['dependencies']
+              });
+            }
