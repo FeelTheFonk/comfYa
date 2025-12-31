@@ -38,21 +38,15 @@ Describe "Pre-Installation Checks" {
 }
 
 Describe "Script Syntax Validation" {
-    $scripts = @(
-        "install.ps1",
-        "run.ps1",
-        "update.ps1"
-    )
+    $scripts = "install.ps1", "run.ps1", "update.ps1"
     
-    foreach ($script in $scripts) {
-        It "$script should have valid PowerShell syntax" {
-            $path = Join-Path $Script:ProjectRoot $script
-            if (Test-Path $path) {
-                $errors = $null
-                $tokens = $null
-                [System.Management.Automation.Language.Parser]::ParseFile($path, [ref]$tokens, [ref]$errors) | Out-Null
-                $errors.Count | Should -Be 0
-            }
+    It "<_> should have valid PowerShell syntax" -TestCases $scripts {
+        $path = Join-Path $Script:ProjectRoot $_
+        if (Test-Path $path) {
+            $errors = $null
+            $tokens = $null
+            [System.Management.Automation.Language.Parser]::ParseFile($path, [ref]$tokens, [ref]$errors) | Out-Null
+            $errors.Count | Should -Be 0
         }
     }
 }
@@ -63,20 +57,22 @@ Describe "Configuration Validation" {
     }
     
     It "Should have all required top-level keys" {
-        $requiredKeys = @("Python", "Cuda", "Gpu", "Sources", "Packages", "Environment")
+        $requiredKeys = "Python", "Cuda", "Gpu", "Sources", "Packages", "Environment"
         foreach ($key in $requiredKeys) {
             $Script:Config.ContainsKey($key) | Should -Be $true -Because "$key is required"
         }
     }
     
     It "Should have valid PyTorch index URLs" {
-        foreach ($url in $Script:Config.Sources.PyTorch.IndexUrls.Values) {
+        $urls = $Script:Config.Sources.PyTorch.IndexUrls.Values
+        foreach ($url in $urls) {
             $url | Should -Match "^https://download\.pytorch\.org/"
         }
     }
     
     It "Should have valid repository URLs" {
-        foreach ($url in $Script:Config.Sources.Repositories.Values) {
+        $urls = $Script:Config.Sources.Repositories.Values
+        foreach ($url in $urls) {
             $url | Should -Match "^https://github\.com/"
         }
     }

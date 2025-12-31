@@ -73,25 +73,13 @@ Initialize-Logging -Level $logLevel -LogDirectory $logDir -LogFileName "install.
 $Script:UserAgent = if ($Script:Config.UserAgent) { $Script:Config.UserAgent } else { "comfYa/0.1.0" }
 
 #region Phase 1: System Bootstrap
-function Test-Administrator {
-    $identity = [Security.Principal.WindowsIdentity]::GetCurrent()
-    $principal = New-Object Security.Principal.WindowsPrincipal($identity)
-    return $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
-}
-
-function Invoke-ElevatedRestart {
-    if (-not (Test-Administrator)) {
-        Write-Warning2 "Restarting with administrator privileges..."
-        $scriptPath = if ($PSCommandPath) { $PSCommandPath } else { $MyInvocation.ScriptName }
-        $argList = @("-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "`"$scriptPath`"")
-        if ($InstallPath) { $argList += @("-InstallPath", "`"$InstallPath`"") }
-        if ($SkipValidation) { $argList += "-SkipValidation" }
-        Start-Process pwsh -Verb RunAs -ArgumentList $argList
-        exit
-    }
-}
+# Note: Phase 1 bootstrapping functions (Test-Administrator, Invoke-ElevatedRestart) 
+# are loaded from lib/core.psm1
 
 function Get-NvidiaGpuInfo {
+    [CmdletBinding()]
+    [OutputType([void])]
+    param()
     Write-Step "1" "2" "NVIDIA GPU Detection"
     
     $nvidiaSmi = Get-Command nvidia-smi -ErrorAction SilentlyContinue
@@ -148,6 +136,9 @@ function Get-NvidiaGpuInfo {
 }
 
 function Install-VCRedist {
+    [CmdletBinding()]
+    [OutputType([void])]
+    param()
     Write-Step "1" "3" "Visual C++ Redistributable Check"
     
     $regPath = "HKLM:\SOFTWARE\Microsoft\VisualStudio\14.0\VC\Runtimes\x64"
@@ -176,6 +167,9 @@ function Install-VCRedist {
 }
 
 function Install-Git {
+    [CmdletBinding()]
+    [OutputType([void])]
+    param()
     Write-Step "1" "4" "Git Check"
     
     $git = Get-Command git -ErrorAction SilentlyContinue
@@ -199,21 +193,22 @@ function Install-Git {
 }
 
 function Install-Uv {
-    Write-Step "1" "5" "uv Package Manager Check"
-    
+    [CmdletBinding()]
+    [OutputType([void])]
+    param()
+    Write-Step "1" "5" "uv Check"
     $uv = Get-Command uv -ErrorAction SilentlyContinue
     if ($uv) {
-        $version = & uv --version
-        Write-Success "uv present: $version"
+        Write-Success "uv already installed"
         return
     }
+
+    $uvUrl = "https://astral.sh/uv/install.ps1"
+    $installerPath = Join-Path $env:TEMP "uv-installer.ps1"
+    Invoke-SafeWebRequest -Uri $uvUrl -OutFile $installerPath
     
-    Write-Warning2 "Installing uv..."
-    $uvUrl = $Script:Config.Sources.Dependencies.Uv
-    
-    # Use safe web request
-    $installerContent = (Invoke-SafeWebRequest -Uri $uvUrl).Content
-    Invoke-Expression $installerContent
+    & $installerPath
+    Remove-Item $installerPath -Force -ErrorAction SilentlyContinue
     
     # Refresh PATH
     $env:Path = [Environment]::GetEnvironmentVariable("Path", "Machine") + ";" + [Environment]::GetEnvironmentVariable("Path", "User")
@@ -230,6 +225,9 @@ function Install-Uv {
 }
 
 function Set-DefenderExclusion {
+    [CmdletBinding()]
+    [OutputType([void])]
+    param()
     Write-Step "1" "6" "Windows Defender Configuration"
     
     try {
@@ -244,6 +242,9 @@ function Set-DefenderExclusion {
 
 #region Phase 2: Python Environment
 function New-DirectoryStructure {
+    [CmdletBinding()]
+    [OutputType([void])]
+    param()
     Write-Step "2" "1" "Creating directory structure"
     
     $installPath = $Script:State.InstallPath
@@ -272,6 +273,9 @@ function New-DirectoryStructure {
 }
 
 function Install-Python {
+    [CmdletBinding()]
+    [OutputType([void])]
+    param()
     Write-Step "2" "2" "Python Installation"
     
     $pyVersion = $Script:Config.Python.Version
@@ -288,6 +292,9 @@ function Install-Python {
 }
 
 function New-VirtualEnv {
+    [CmdletBinding()]
+    [OutputType([void])]
+    param()
     Write-Step "2" "3" "Virtual environment creation"
     
     $pyVersion = $Script:Config.Python.Version
@@ -303,6 +310,9 @@ function New-VirtualEnv {
 }
 
 function Copy-PythonHeaders {
+    [CmdletBinding()]
+    [OutputType([void])]
+    param()
     Write-Step "2" "4" "Python headers configuration (Triton support)"
     
     $pyVersion = $Script:Config.Python.Version
@@ -333,6 +343,9 @@ function Copy-PythonHeaders {
 
 #region Phase 3: Package Installation
 function Install-PyTorchNightly {
+    [CmdletBinding()]
+    [OutputType([void])]
+    param()
     Write-Step "3" "1" "PyTorch Nightly Installation"
     
     $cudaVersion = $Script:State.CudaVersion
@@ -364,6 +377,9 @@ function Install-PyTorchNightly {
 }
 
 function Install-TritonWindows {
+    [CmdletBinding()]
+    [OutputType([void])]
+    param()
     Write-Step "3" "2" "Triton Windows Installation"
     
     & uv pip install triton-windows
@@ -380,6 +396,9 @@ function Install-TritonWindows {
 }
 
 function Install-SageAttention {
+    [CmdletBinding()]
+    [OutputType([void])]
+    param()
     Write-Step "3" "3" "SageAttention Installation"
     
     try {
@@ -425,6 +444,9 @@ function Install-SageAttention {
 }
 
 function Install-OptionalPackages {
+    [CmdletBinding()]
+    [OutputType([void])]
+    param()
     Write-Step "3" "4" "Additional packages installation"
     
     # TorchAO
@@ -450,6 +472,9 @@ function Install-OptionalPackages {
 
 #region Phase 4: ComfyUI
 function Install-ComfyUI {
+    [CmdletBinding()]
+    [OutputType([void])]
+    param()
     Write-Step "4" "1" "ComfyUI Clone"
     
     $repoUrl = $Script:Config.Sources.Repositories.ComfyUI
@@ -471,6 +496,9 @@ function Install-ComfyUI {
 }
 
 function Install-ComfyUIRequirements {
+    [CmdletBinding()]
+    [OutputType([void])]
+    param()
     Write-Step "4" "2" "ComfyUI dependencies installation"
     
     $torchBefore = & python -c "import torch; print(torch.__version__)" 2>&1
@@ -488,6 +516,9 @@ function Install-ComfyUIRequirements {
 }
 
 function Install-ComfyUIManager {
+    [CmdletBinding()]
+    [OutputType([void])]
+    param()
     Write-Step "4" "3" "ComfyUI-Manager Installation"
     
     $managerPath = "ComfyUI\custom_nodes\ComfyUI-Manager"
@@ -513,6 +544,9 @@ function Install-ComfyUIManager {
 
 #region Phase 5: Finalization
 function Set-EnvironmentVariables {
+    [CmdletBinding()]
+    [OutputType([void])]
+    param()
     Write-Step "5" "1" "Environment configuration"
     
     # Set environment variables from config
@@ -527,6 +561,9 @@ function Set-EnvironmentVariables {
 }
 
 function Invoke-Validation {
+    [CmdletBinding()]
+    [OutputType([void])]
+    param()
     if ($SkipValidation) {
         Write-Warning2 "Validation skipped (-SkipValidation)"
         return
@@ -550,6 +587,9 @@ function Invoke-Validation {
 
 #region Main Execution
 function Invoke-Installation {
+    [CmdletBinding()]
+    [OutputType([void])]
+    param()
     $startTime = Get-Date
     
     Write-Host ""

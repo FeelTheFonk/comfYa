@@ -15,6 +15,7 @@ function Get-ComfyConfig {
         Hashtable containing merged configuration.
     #>
     [CmdletBinding()]
+    [OutputType([hashtable])]
     param(
         [string]$ConfigPath
     )
@@ -57,8 +58,7 @@ function Get-InstallPath {
     
     # 1. Parameter override
     if ($ProvidedPath -and $ProvidedPath -ne "") {
-        return Resolve-Path -Path $ProvidedPath -ErrorAction SilentlyContinue | 
-               Select-Object -ExpandProperty Path -ErrorAction SilentlyContinue
+        return $ProvidedPath
     }
     
     # 2. Environment variable
@@ -177,7 +177,7 @@ function Write-Log {
     # File output
     if ($Script:LogConfig.FileEnabled -and $Script:LogConfig.FilePath) {
         $logLine = "[$timestamp] [$Level] $prefix $Message"
-        Add-Content -Path $Script:LogConfig.FilePath -Value $logLine -Encoding UTF8
+        $logLine | Out-File -FilePath $Script:LogConfig.FilePath -Append -Encoding UTF8
     }
 }
 
@@ -287,6 +287,7 @@ function Invoke-SafeWebRequest {
         Secure web request with TLS enforcement and error handling.
     #>
     [CmdletBinding()]
+    [OutputType([PSCustomObject], [bool])]
     param(
         [Parameter(Mandatory)]
         [string]$Uri,
@@ -319,7 +320,8 @@ function Invoke-SafeWebRequest {
                 Invoke-WebRequest @params
                 return $true
             } else {
-                return Invoke-WebRequest @params
+                $response = Invoke-WebRequest @params
+                return $response
             }
         }
         catch {

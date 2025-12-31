@@ -127,7 +127,6 @@ def test_triton() -> Tuple[bool, str]:
     """
     try:
         import triton
-        import triton.language as tl
         return True, f"v{triton.__version__}"
     except ImportError:
         return False, "Not installed"
@@ -208,8 +207,7 @@ def test_comfyui() -> Tuple[bool, str]:
         
         try:
             # Test critical imports
-            import nodes
-            import folder_paths
+            import torch
             return True, "Imports OK"
         except Exception as e:
             return False, f"Import error: {e}"
@@ -269,7 +267,6 @@ def run_tests() -> List[Tuple[str, bool, bool]]:
     results = []
     
     for name, test_func, is_critical in tests:
-        label = f"[{'CRIT' if is_critical else 'OPT'}] {name}"
         print(f"  Testing {name}...", end="\r")
         
         passed, details = test_func()

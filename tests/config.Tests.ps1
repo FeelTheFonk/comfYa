@@ -5,11 +5,14 @@ BeforeAll {
     $configPath = Join-Path $PSScriptRoot "..\config.psd1"
     if (Test-Path $configPath) {
         $Script:Config = Import-PowerShellDataFile -Path $configPath
+    } else {
+        Write-Error "CRITICAL: config.psd1 NOT FOUND at $configPath"
     }
 }
 
 Describe "Config Schema Integrity" {
     It "Should load as a hashtable" {
+        $Script:Config | Should -Not -BeNull
         $Script:Config | Should -BeOfType [hashtable]
     }
 
@@ -26,11 +29,9 @@ Describe "Config Schema Integrity" {
     }
 
     Context "Mandatory Sections" {
-        $sections = @("Python", "Cuda", "Gpu", "Sources", "Directories", "Environment", "LaunchArgs", "Packages", "Logging", "Security")
-        foreach ($section in $sections) {
-            It "Should contain section: $section" {
-                $Script:Config.ContainsKey($section) | Should -Be $true
-            }
+        $sections = "Python", "Cuda", "Gpu", "Sources", "Directories", "Environment", "LaunchArgs", "Packages", "Logging", "Security"
+        It "Should contain section: <_>" -TestCases $sections {
+            $Script:Config.ContainsKey($_) | Should -Be $true
         }
     }
 
