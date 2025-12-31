@@ -1,4 +1,4 @@
-# comfYa
+# comfYa v0.2.3
 
 > ComfyUI Automated Installer for Windows NVIDIA
 

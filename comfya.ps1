@@ -1,4 +1,4 @@
-# comfYa - Unified Orchestrator CLI (v0.2.2)
+# comfYa - Unified Orchestrator CLI (v0.2.3)
 # Professional management for peak hardware performance
 
 #Requires -Version 5.1
@@ -18,15 +18,13 @@ param(
     [string]$Mode = "Auto"
 )
 
-# 1. Environment & Module Loading
+# 1. Module Loading
 $Root = $PSScriptRoot
 $LibDir = Join-Path $Root "lib"
 
-# Load Core Modules
 try {
     Import-Module (Join-Path $LibDir "Logging.psm1") -Force
-    # [2] Start Sandbox Logging immediately to catch pre-elevation issues
-    Start-SandboxLogging
+    Start-SandboxLogging # Early-stage capture
     
     Import-Module (Join-Path $LibDir "SystemUtils.psm1") -Force
     Import-Module (Join-Path $LibDir "Nvidia.psm1") -Force
@@ -37,24 +35,22 @@ try {
     exit 1
 }
 
-# [1] EARLY-EXIT REFACTORING: Elevation check BEFORE config/logging persistence
+# 2. Global Path Resolution (SOT)
+$InstallPath = if ($InstallHome) { $InstallHome } 
+               elseif ($env:COMFYUI_HOME) { $env:COMFYUI_HOME } 
+               else { $Root }
+
+# 3. Elevation & Post-Elevation Initialization
 if ($Command -eq "setup" -and -not (Test-Administrator)) {
-    $InstallPath = if ($InstallHome) { $InstallHome } else { 
-        if ($env:COMFYUI_HOME) { $env:COMFYUI_HOME } else { $Root }
-    }
-    Write-ComfyLog "Elevation required for setup. Restarting..." -Level WARN
+    Write-ComfyLog "Elevation required for installation. Restarting..." -Level WARN
     Invoke-ElevatedRestart -ScriptPath $PSCommandPath -Parameters @{ Command = "setup"; InstallHome = $InstallPath }
     exit
 }
 
-# 2. Configuration Initialization
 try {
+    # Initialize session after elevation check to avoid dual-logging/sync
     $Config = Import-PowerShellDataFile -Path (Join-Path $Root "config.psd1")
-    $InstallPath = if ($InstallHome) { $InstallHome } else { 
-        if ($env:COMFYUI_HOME) { $env:COMFYUI_HOME } else { $Root }
-    }
     
-    # [1] Initialize persistent logging and export bridge only after potential elevation
     Initialize-Logging -Config $Config -InstallPath $InstallPath
     Export-ComfyConfig -Config $Config -InstallPath $InstallPath
     Show-ComfyHeader -Version $Config.Version
@@ -66,24 +62,24 @@ catch {
 # 3. Command Logic
 switch ($Command) {
     "setup" {
-        Write-Step "Bootstrap" "System" "Commencing Pinnacle Installation at: $InstallPath"
-        
-        # Admin check already performed during early-exit
-        
-        # Base Requirements
-        $SysInfo = Test-SystemRequirement -Config $Config
-        Install-VCRedist -Config $Config
-        Install-Git
-        Install-Uv -Config $Config
-        Update-EnvironmentPath
-        
-        # Lifecycle execution
-        Install-ComfyProject -Config $Config -InstallPath $InstallPath -Simulate:$Simulate
-        
-        # [12] Post-Install Cleanup
-        Invoke-PostInstallCleanup
-        
-        Show-ComfyFooter
+        try {
+            Write-Step "Bootstrap" "System" "Commencing Pinnacle Installation at: $InstallPath"
+            
+            # Base Requirements
+            $SysInfo = Test-SystemRequirement -Config $Config
+            Install-VCRedist -Config $Config
+            Install-Git
+            Install-Uv -Config $Config
+            Update-EnvironmentPath
+            
+            # Lifecycle execution
+            Install-ComfyProject -Config $Config -InstallPath $InstallPath -Simulate:$Simulate
+        }
+        finally {
+            # [SOTA] Reliable Sanitation: Cleanup artifacts even on failure
+            Invoke-PostInstallCleanup
+            Show-ComfyFooter
+        }
     }
     
     "run" {

@@ -125,8 +125,8 @@ function Write-ComfyLog {
         Default   { " " }
     }
 
-    # Attempt to use Unicode if the host supports it
-    if ($OutputEncoding.WebName -eq "utf-8" -or $PSVersionTable.PSVersion.Major -ge 7) {
+    # [SOTA] Unicode Detection: Improved resilience across Windows Terminal, VSCode and Legacy Hosts
+    if ($OutputEncoding.WebName -eq "utf-8" -or $env:TERM_PROGRAM -eq "vscode" -or $env:WT_SESSION) {
         $symbol = switch ($Level) {
             "SUCCESS" { [char]0x2714 } # ✔
             "WARN"    { [char]0x26A0 } # ⚠

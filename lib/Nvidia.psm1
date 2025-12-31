@@ -23,15 +23,22 @@ function Get-NvidiaGpuInfo {
         $parts = $line -split ','
         $invCulture = [System.Globalization.CultureInfo]::InvariantCulture
         
-        # [8] Hardening: Trim and handle potential localized decimal separators
-        $cleanCC = $parts[2].Trim() -replace ',', '.'
-        $cleanVram = $parts[3].Trim()
+        # [SOTA] Robust Parsing: handle cases where CC might contain a comma causing extra split parts
+        # Standard columns: 0:Name, 1:Driver, 2:CC, 3:Vram
+        # If CC is "8,9", we get 5 parts: [2]=8, [3]=9, [4]=Vram
+        $ccPart = $parts[2].Trim()
+        $vramPart = $parts[3].Trim()
+        
+        if ($parts.Count -gt 4) {
+            $ccPart = "$($parts[2]).$($parts[3])".Trim()
+            $vramPart = $parts[4].Trim()
+        }
         
         $gpuInfo = @{
             Name              = $parts[0].Trim()
             Driver            = $parts[1].Trim()
-            ComputeCapability = [double]::Parse($cleanCC, $invCulture)
-            Vram              = [int]::Parse($cleanVram, $invCulture)
+            ComputeCapability = [double]::Parse(($ccPart -replace ',', '.'), $invCulture)
+            Vram              = [int]::Parse($vramPart, $invCulture)
         }
         $gpuList += New-Object PSObject -Property $gpuInfo
     }

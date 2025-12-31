@@ -1,4 +1,4 @@
-# Architecture comfYa v0.2.2
+# Architecture comfYa v0.2.3
 
 ## Modern Modular Orchestrator
 
@@ -47,10 +47,11 @@ graph TD
 
 | Module | Responsibility | Key Features |
 | :--- | :--- | :--- |
-| **Nvidia.psm1** | Hardware Intel | Locale-Invariant CC Detection, Multi-GPU Auto-selection |
-| **Logging.psm1** | Truth Stream | Structured ANSI output, Automated Log Rotation |
-| **SystemUtils.psm1** | Environment | Pre-flight checks, Secure Downloads, Registry |
+| **Nvidia.psm1** | Hardware Intel | Robust CC Parsing (Locale-Invariant), Multi-GPU Auto-selection |
+| **Logging.psm1** | Truth Stream | Structured ANSI output, SOTA Terminal Detection |
+| **SystemUtils.psm1** | Core Utilities | Recursive Placeholder Engine, Environment Syncing, Secure Downloads |
 | **Package.psm1** | Dependency Mgmt | Side-loading `uv`, `git` and binary redistributables |
+| **Lifecycle.psm1** | Lifecycle Logic | Centralized Directory Init, Installation & Update Orchestration |
 
 ---
 
@@ -58,4 +59,4 @@ graph TD
 
 -   **PyTorch Nightly**: Direct access to inductive optimizations.
 -   **Triton-Windows**: JIT-compiled attention kernels.
--   **SageAttention 2.1**: Dynamic wheel injection for Ada/Blackwell architectures.
+-   **SageAttention 2.2**: Dynamic wheel injection for Ada/Blackwell architectures.

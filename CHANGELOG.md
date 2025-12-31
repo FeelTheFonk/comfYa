@@ -4,6 +4,19 @@ All notable changes to comfYa will be documented in this file.
 
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.2.3] - 2025-12-31
+### Added
+- **Recursive Placeholder Engine**: Expanded environment resolution to support nested and recursive `{Dir:Key}` placeholders in `config.psd1`.
+- **Try/Finally Setup Guard**: Implementation of guaranteed post-install cleanup of temporary orchestration artifacts, even on failure.
+
+### Changed
+- **Architectural Purity (Cleaning)**: Consolidated `$InstallPath` resolution and elevation logic in the orchestrator to eliminate redundancy.
+- **Module Hardening**: Centralized directory management in `Lifecycle.psm1` and moved environment syncing logic to `SystemUtils.psm1`.
+- **Improved Visual Consistency**: Standardized Unicode symbol detection for superior cross-terminal feedback (VSCode, Windows Terminal).
+
+### Fixed
+- **Robust GPU Parsing**: Enhanced Compute Capability detection to handle localized decimal separators (e.g., European `8,9` format) without loss of precision.
+
 ## [0.2.2] - 2025-12-31
 ### Added
 - **Automated Dependency Discovery**: Implementation of dynamic asset resolution via GitHub API for third-party components (SageAttention, Triton).

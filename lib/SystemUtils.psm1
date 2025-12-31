@@ -91,7 +91,7 @@ function Invoke-SafeWebRequest {
         try {
             $params = @{
                 Uri             = $Uri
-                Headers         = @{ "User-Agent" = "comfYa/0.2.2" }
+                Headers         = @{ "User-Agent" = "comfYa/0.2.3" }
                 UseBasicParsing = $true
                 TimeoutSec      = 120
                 ErrorAction     = 'Stop'
@@ -212,6 +212,48 @@ function Get-SecurePath {
     return $fullPath
 }
 
+function Resolve-ComfyEnvironment {
+    param(
+        [hashtable]$Config,
+        [string]$InstallPath
+    )
+    $EnvMap = @{}
+    $dirs = $Config.Directories
+    
+    foreach ($key in $Config.Environment.Keys) {
+        $val = $Config.Environment[$key]
+        
+        # [SOTA] Recursive expansion loop (limited to 3 for safety)
+        for ($i=0; $i -lt 3; $i++) {
+            $oldVal = $val
+            $val = $val -replace '\{InstallPath\}', $InstallPath
+            
+            if ($val -match '\{Dir:(.*?)\}') {
+                $dirKey = $Matches[1]
+                if ($dirs.ContainsKey($dirKey)) {
+                    $val = $val -replace "\{Dir:$dirKey\}", $dirs[$dirKey]
+                }
+            }
+            if ($val -eq $oldVal) { break }
+        }
+        $EnvMap[$key] = $val
+    }
+    return $EnvMap
+}
+
+function Sync-ComfyEnvironment {
+    param([hashtable]$EnvMap, [bool]$Persist = $false)
+    foreach ($key in $EnvMap.Keys) {
+        $val = $EnvMap[$key]
+        Set-Item -Path "env:$key" -Value $val
+        # [SOTA] Isolation: Persistent environment only during session-agnostic setup
+        if ($Persist) {
+            Write-ComfyLog "Hardening: Persisting environment variable: $key" -Level DEBUG
+            [Environment]::SetEnvironmentVariable($key, $val, "User")
+        }
+    }
+}
+
 function Test-PowerShellVersion {
     param([hashtable]$Config)
     $minPs = if ($Config.Requirements.MinPsVer) { $Config.Requirements.MinPsVer } else { 5.1 }
@@ -231,4 +273,6 @@ Export-ModuleMember -Function @(
     'Export-ComfyConfig'
     'Add-DefenderExclusion'
     'Get-SecurePath'
+    'Resolve-ComfyEnvironment'
+    'Sync-ComfyEnvironment'
 )

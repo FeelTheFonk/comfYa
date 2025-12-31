@@ -7,37 +7,6 @@
 # INTERNAL HELPERS
 # -----------------------------------------------------------------------------
 
-function Resolve-ComfyEnvironment {
-    param(
-        [hashtable]$Config,
-        [string]$InstallPath
-    )
-    $EnvMap = @{}
-    foreach ($key in $Config.Environment.Keys) {
-        $val = $Config.Environment[$key] -replace '\{InstallPath\}', $InstallPath
-        if ($val -match '\{Dir:(.*?)\}') {
-            $dirKey = $Matches[1]
-            if ($Config.Directories.ContainsKey($dirKey)) {
-                $val = $val -replace '\{Dir:.*?\}', $Config.Directories[$dirKey]
-            }
-        }
-        $EnvMap[$key] = $val
-    }
-    return $EnvMap
-}
-
-function Sync-ComfyEnvironment {
-    param([hashtable]$EnvMap, [bool]$Persist = $false)
-    foreach ($key in $EnvMap.Keys) {
-        $val = $EnvMap[$key]
-        Set-Item -Path "env:$key" -Value $val
-        # [4] Isolation: Only persist if absolutely necessary and in setup mode
-        if ($Persist) {
-            Write-ComfyLog "Persisting environment variable: $key" -Level DEBUG
-            [Environment]::SetEnvironmentVariable($key, $val, "User")
-        }
-    }
-}
 
 function Check-UvAvailability {
     [CmdletBinding()]
@@ -48,6 +17,31 @@ function Check-UvAvailability {
         Update-EnvironmentPath
         if (-not (Get-Command uv -ErrorAction SilentlyContinue)) {
             Write-Fatal "uv is not available in the current session." -Suggestion "Please restart your terminal or ensure uv is in your PATH."
+        }
+    }
+}
+
+function Initialize-ComfyDirectories {
+    param(
+        [hashtable]$Config,
+        [string]$InstallPath
+    )
+    Write-Step "Init" "FS" "Synchronizing directory structure"
+    $dirs = $Config.Directories
+    $PathsToCreate = @($InstallPath)
+    
+    foreach($d in $dirs.Values) {
+        if ($d -is [hashtable]) {
+            foreach($sd in $d.Values) { $PathsToCreate += Join-Path $InstallPath $sd }
+        } else {
+            $PathsToCreate += Join-Path $InstallPath $d
+        }
+    }
+    
+    foreach($p in $PathsToCreate) { 
+        if (-not (Test-Path $p)) {
+            New-Item -ItemType Directory -Force -Path $p | Out-Null 
+            Write-ComfyLog "Created directory: $p" -Level DEBUG
         }
     }
 }
@@ -74,21 +68,7 @@ function Install-ComfyProject {
     $GPU = Get-NvidiaGpuInfo -Config $Config
     
     # 1. Directory Structure
-    Write-Step "Install" "Env" "Initializing professional directory structure"
-    $dirs = $Config.Directories
-    $PathsToCreate = @($InstallPath)
-    foreach($d in $dirs.Values) {
-        if ($d -is [hashtable]) {
-            foreach($sd in $d.Values) { $PathsToCreate += Join-Path $InstallPath $sd }
-        } else {
-            $PathsToCreate += Join-Path $InstallPath $d
-        }
-    }
-    foreach($p in $PathsToCreate) { 
-        if (-not (Test-Path $p)) {
-            New-Item -ItemType Directory -Force -Path $p | Out-Null 
-        }
-    }
+    Initialize-ComfyDirectories -Config $Config -InstallPath $InstallPath
     
     # 2. Python Environment
     Write-Step "Install" "Python" "Managing standalone Python $($Config.Python.Version)"
