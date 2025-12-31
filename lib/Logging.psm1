@@ -118,7 +118,7 @@ function Write-Success {
     Write-Log -Message $Message -Level SUCCESS
 }
 
-function Write-Warning2 {
+function Write-WarningComfy {
     param([string]$Message)
     Write-Log -Message $Message -Level WARN
 }
@@ -132,11 +132,18 @@ function Write-Fatal {
     throw $Message
 }
 
+function Show-ComfyHeader {
+    param([string]$Version)
+    $msg = "--- comfYa v$Version ---"
+    Write-Host "`n$msg" -ForegroundColor Cyan
+}
+
 Export-ModuleMember -Function @(
     'Initialize-Logging'
     'Write-Log'
     'Write-Step'
     'Write-Success'
-    'Write-Warning2'
+    'Write-WarningComfy'
     'Write-Fatal'
+    'Show-ComfyHeader'
 )

@@ -22,7 +22,7 @@ cd comfYa
 
 ```powershell
 # Right-click PowerShell → Run as Administrator
-.\install.ps1
+.\comfya.ps1 setup
 ```
 
 The installer will:
@@ -39,7 +39,7 @@ The installer will:
 ```powershell
 .\run.bat
 # or
-.\run.ps1
+.\comfya.ps1 run
 ```
 
 Open browser: **http://127.0.0.1:8188**
@@ -47,7 +47,7 @@ Open browser: **http://127.0.0.1:8188**
 ## Verify Installation
 
 ```powershell
-python validate.py
+.\comfya.ps1 doctor
 ```
 
 Expected output:
@@ -61,14 +61,14 @@ ComfyUI.................. OK (Imports OK)
 ## Update
 
 ```powershell
-.\update.ps1
+.\comfya.ps1 update
 ```
 
 ## Custom Install Path
 
 ```powershell
 $env:COMFYUI_HOME = "D:\MyComfyUI"
-.\install.ps1
+.\comfya.ps1 setup
 ```
 
 ## Next Steps

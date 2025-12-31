@@ -10,7 +10,11 @@ param(
     
     [string]$Home,
     [switch]$Force,
-    [switch]$NonInteractive
+    [switch]$NonInteractive,
+    
+    # Run specific params
+    [ValidateSet("Auto", "Default", "HighVram", "LowVram", "Cpu")]
+    [string]$Mode = "Auto"
 )
 
 # 1. Environment & Module Loading
@@ -21,6 +25,7 @@ Import-Module (Join-Path $LibDir "Logging.psm1") -Force
 Import-Module (Join-Path $LibDir "SystemUtils.psm1") -Force
 Import-Module (Join-Path $LibDir "Nvidia.psm1") -Force
 Import-Module (Join-Path $LibDir "Package.psm1") -Force
+Import-Module (Join-Path $LibDir "Lifecycle.psm1") -Force
 
 # 2. Configuration Initialization
 try {
@@ -30,9 +35,11 @@ try {
     }
     
     Initialize-Logging -Config $Config -InstallPath $InstallPath
+    Export-ComfyConfig -Config $Config -InstallPath $InstallPath
+    Show-ComfyHeader -Version $Config.Version
 }
 catch {
-    Write-Error "Critical Failure: Could not load configuration or logging. $_"
+    Write-Error "Critical Failure: Could not load configuration. $_"
     exit 1
 }
 
@@ -41,43 +48,33 @@ switch ($Command) {
     "setup" {
         Write-Step "Bootstrap" "System" "Starting installation at $InstallPath"
         
-        # Admin check
         if (-not (Test-Administrator)) {
             Invoke-ElevatedRestart -ScriptPath $PSCommandPath -Parameters @{ Command = "setup"; Home = $InstallPath }
             exit
         }
         
-        # Requirements
-        $sys = Test-SystemRequirements -Config $Config
-        Write-Log "System: $($sys.FreeDisk)GB free, $($sys.TotalRAM)GB RAM" -Level VERBOSE
-        
-        # Dependencies
+        # Base Requirements & Dependencies
+        Test-SystemRequirements -Config $Config | Out-Null
         Install-VCRedist -Config $Config
         Install-Git
         Install-Uv -Config $Config
-        
         Update-EnvironmentPath
-        Write-Success "Base system ready."
         
-        # Trigger actual install script (to be refactored next)
-        & (Join-Path $Root "install.ps1") -Home $InstallPath
+        # Lifecycle Execution
+        Install-ComfyProject -Config $Config -InstallPath $InstallPath
     }
     
     "run" {
-        & (Join-Path $Root "run.ps1") -Home $InstallPath
+        Start-ComfyProject -Config $Config -InstallPath $InstallPath -Mode $Mode
     }
     
     "doctor" {
         Write-Step "Diagnostics" "Check" "Running deep system validation..."
         
-        # Pre-flight
         Test-PowerShellVersion
-        $sys = Test-SystemRequirements -Config $Config
+        Test-SystemRequirements -Config $Config | Out-Null
         
-        # Validation script
-        python (Join-Path $Root "validate.py")
-        
-        # GPU Info
+        # GPU Diagnostics
         try {
             $gpu = Get-NvidiaGpuInfo -Config $Config
             Write-Success "GPU Detected: $($gpu.Name) (CUDA: $($gpu.CudaVersion))"
@@ -86,7 +83,15 @@ switch ($Command) {
             Write-Fatal "GPU Diagnostics failed" -Suggestion "Ensure NVIDIA drivers are installed and nvidia-smi works."
         }
         
-        # Self-Healing prompt
+        # Environment Validation
+        $VenvPython = Join-Path $InstallPath ".venv\Scripts\python.exe"
+        if (Test-Path $VenvPython) {
+            & $VenvPython (Join-Path $Root "validate.py")
+        } else {
+            Write-WarningComfy "Virtual environment not found."
+        }
+        
+        # Self-Healing
         if (-not $NonInteractive) {
             $answer = Read-Host "Would you like to run environment self-healing? (y/N)"
             if ($answer -match "y") {
@@ -96,6 +101,7 @@ switch ($Command) {
     }
     
     "update" {
-        & (Join-Path $Root "update.ps1")
+        Update-ComfyProject -Config $Config -InstallPath $InstallPath
     }
 }
+

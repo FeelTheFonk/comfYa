@@ -13,26 +13,30 @@ from typing import Tuple, List, Dict
 # CONFIG SYNCHRONIZATION (SSA)
 # =============================================================================
 
+import json
+
 class ComfyConfig:
-    """Zero-delta configuration mirror."""
+    """Zero-delta configuration mirror via JSON bridge."""
     @staticmethod
-    def load_from_psd1(path: Path) -> Dict:
-        """Simple regex-based PSD1 parser for critical values."""
-        if not path.exists():
+    def load_bridge(path: Path) -> Dict:
+        """Load configuration from exported JSON bridge."""
+        bridge_path = path / "config.json"
+        if not bridge_path.exists():
             return {}
         
-        content = path.read_text(encoding="utf-8")
-        config = {}
-        
-        # Extract MinComputeCapability
-        match_cc = re.search(r"MinComputeCapability\s*=\s*([\d\.]+)", content)
-        config["min_cc"] = float(match_cc.group(1)) if match_cc else 7.5
-        
-        # Extract Python Version
-        match_py = re.search(r'Version\s*=\s*"([\d\.]+)"', content)
-        config["py_version"] = match_py.group(1) if match_py else "3.12"
-        
-        return config
+        try:
+            with open(bridge_path, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except Exception:
+            return {}
+
+    @staticmethod
+    def get_min_cc(config: Dict) -> float:
+        return float(config.get("Gpu", {}).get("MinComputeCapability", 7.5))
+
+    @staticmethod
+    def get_py_version(config: Dict) -> str:
+        return config.get("Python", {}).get("Version", "3.12")
 
 # =============================================================================
 # OUTPUT FORMATTING
@@ -65,8 +69,9 @@ def test_hardware(config: Dict) -> Tuple[bool, str]:
         capability = torch.cuda.get_device_capability(0)
         cc = float(f"{capability[0]}.{capability[1]}")
         
-        if cc < config.get("min_cc", 7.5):
-            return False, f"Incompatible GPU (CC {cc})"
+        min_cc = ComfyConfig.get_min_cc(config)
+        if cc < min_cc:
+            return False, f"Incompatible GPU (CC {cc} < {min_cc})"
             
         return True, f"{gpu} [CC {cc}]"
     except Exception as e:
@@ -91,7 +96,7 @@ def test_acceleration() -> Tuple[bool, str]:
 
 def main():
     root = Path(__file__).parent
-    config = ComfyConfig.load_from_psd1(root / "config.psd1")
+    config = ComfyConfig.load_bridge(root)
     
     print(f"\n{Colors.MAGENTA}--- comfYa SOTA Validation ---{Colors.RESET}\n")
     

@@ -17,8 +17,10 @@ function Invoke-ElevatedRestart {
     
     if (Test-Administrator) { return $false }
     
+    $hostExe = if ($PSVersionTable.PSVersion.Major -ge 6) { "pwsh.exe" } else { "powershell.exe" }
+    
     if (Get-Command Write-Log -ErrorAction SilentlyContinue) {
-        Write-Log "Elevating privileges for $ScriptPath..." -Level WARN
+        Write-Log "Elevating privileges using $hostExe for $ScriptPath..." -Level WARN
     } else {
         Write-Host "Elevating privileges..." -ForegroundColor Yellow
     }
@@ -29,8 +31,22 @@ function Invoke-ElevatedRestart {
         $argList += "`"$($Parameters[$key])`""
     }
     
-    Start-Process pwsh -Verb RunAs -ArgumentList $argList
+    Start-Process $hostExe -Verb RunAs -ArgumentList $argList
     return $true
+}
+
+function Export-ComfyConfig {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)]
+        [hashtable]$Config,
+        [Parameter(Mandatory)]
+        [string]$InstallPath
+    )
+    
+    $Target = Join-Path $InstallPath "config.json"
+    $Config | ConvertTo-Json -Depth 10 | Out-File -FilePath $Target -Encoding UTF8
+    Write-Log "Configuration bridge exported to $Target" -Level DEBUG
 }
 
 function Update-EnvironmentPath {
@@ -92,8 +108,8 @@ function Test-SystemRequirements {
     $drive = Get-PSDrive -Name ($PSScriptRoot[0])
     $freeGB = [math]::Round($drive.Free / 1GB, 2)
     if ($freeGB -lt 20) {
-        if (Get-Command Write-Warning2 -ErrorAction SilentlyContinue) {
-            Write-Warning2 "Low disk space: $freeGB GB. Installation might fail."
+        if (Get-Command Write-WarningComfy -ErrorAction SilentlyContinue) {
+            Write-WarningComfy "Low disk space: $freeGB GB. Installation might fail."
         } else {
             Write-Warning "Low disk space: $freeGB GB. Installation might fail."
         }
@@ -103,8 +119,8 @@ function Test-SystemRequirements {
     $mem = Get-CimInstance Win32_OperatingSystem | Select-Object TotalVisibleMemorySize
     $totalRAM = [math]::Round($mem.TotalVisibleMemorySize / 1MB, 2)
     if ($totalRAM -lt 16) {
-        if (Get-Command Write-Warning2 -ErrorAction SilentlyContinue) {
-            Write-Warning2 "Low RAM detected: $totalRAM GB. 16GB+ recommended."
+        if (Get-Command Write-WarningComfy -ErrorAction SilentlyContinue) {
+            Write-WarningComfy "Low RAM detected: $totalRAM GB. 16GB+ recommended."
         } else {
             Write-Warning "Low RAM detected: $totalRAM GB. 16GB+ recommended."
         }
@@ -127,4 +143,5 @@ Export-ModuleMember -Function @(
     'Invoke-SafeWebRequest'
     'Test-SystemRequirements'
     'Test-PowerShellVersion'
+    'Export-ComfyConfig'
 )

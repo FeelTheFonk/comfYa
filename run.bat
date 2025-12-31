@@ -5,7 +5,7 @@
 setlocal
 cd /d "%~dp0"
 
-powershell -NoProfile -ExecutionPolicy Bypass -File "run.ps1" -Mode Auto
+powershell -NoProfile -ExecutionPolicy Bypass -File "comfya.ps1" run -Mode Auto
 
 if %errorlevel% neq 0 (
     echo.

@@ -46,18 +46,32 @@ function Install-Uv {
     if (Get-Command uv -ErrorAction SilentlyContinue) { return $true }
     
     $url = $Config.Sources.Dependencies.Uv
+    $hash = $Config.Sources.Dependencies.UvHash
     $temp = Join-Path $env:TEMP "uv-install.ps1"
     
-    Invoke-SafeWebRequest -Uri $url -OutFile $temp
-    & $temp /S # Silent install if supported, else standard
+    Write-Log "Downloading uv installer with security verification..." -Level INFO
+    Invoke-SafeWebRequest -Uri $url -OutFile $temp -ExpectedHash $hash
+    
+    # Run installer
+    powershell -ExecutionPolicy Bypass -File $temp /S # Silent install
     Remove-Item $temp -Force -ErrorAction SilentlyContinue
     
-    # Path Update
-    $uvBin = Join-Path $env:USERPROFILE ".local\bin"
-    if ($uvBin -notin ($env:Path -split ';')) {
-        $env:Path = "$uvBin;$env:Path"
+    # Adaptive Path Update
+    $possibleBins = @(
+        (Join-Path $env:USERPROFILE ".local\bin"),
+        (Join-Path $env:APPDATA "uv\bin")
+    )
+    
+    foreach ($bin in $possibleBins) {
+        if (Test-Path $bin) {
+            if ($bin -notin ($env:Path -split ';')) {
+                $env:Path = "$bin;$env:Path"
+                Write-Log "Added $bin to environment path." -Level DEBUG
+            }
+        }
     }
     
+    Update-EnvironmentPath
     return (Get-Command uv -ErrorAction SilentlyContinue) -ne $null
 }
 

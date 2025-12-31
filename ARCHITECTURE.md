@@ -12,20 +12,21 @@ graph TD
     CLI --> N[lib/Nvidia.psm1]
     CLI --> S[lib/SystemUtils.psm1]
     CLI --> P[lib/Package.psm1]
-
-    CLI --> Setup[install.ps1]
-    CLI --> Run[run.ps1]
-    CLI --> Update[update.ps1]
-    CLI --> Doctor[validate.py]
+    CLI --> Life[lib/Lifecycle.psm1]
 
     subgraph "Single Source of Truth"
-        Config[(config.psd1)]
+        ConfigPSD[(config.psd1)]
+        ConfigJSON[(config.json)]
+        CLI -.-> ConfigPSD
+        ConfigPSD -- "Export" --> ConfigJSON
     end
 
-    Setup -.-> Config
-    Run -.-> Config
-    Update -.-> Config
-    Doctor -.-> Config
+    Life --> Setup[Install-ComfyProject]
+    Life --> Run[Start-ComfyProject]
+    Life --> Update[Update-ComfyProject]
+    CLI --> Doctor[validate.py]
+    
+    Doctor -.-> ConfigJSON
 ```
 
 ### Core Principles

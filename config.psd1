@@ -81,6 +81,7 @@
             VCRedist     = "https://aka.ms/vs/17/release/vc_redist.x64.exe"
             VCRedistHash = "06A42E40B7E1B3E0C8C38B21F7B8B67D688D235F8E165E04F2F6C27E4B2E5C9F" # Verified SHA256 (v14.4x)
             Uv           = "https://astral.sh/uv/install.ps1"
+            UvHash       = $null # Set to verify specific installer versions
         }
         
         # Fallback wheel URLs (updated periodically)

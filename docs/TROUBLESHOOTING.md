@@ -30,7 +30,7 @@ Common issues and solutions.
 **Solution**:
 ```powershell
 cd C:\path\to\comfYa  # Navigate to correct folder
-.\install.ps1
+.\comfya.ps1 setup
 ```
 
 ---
@@ -42,7 +42,7 @@ cd C:\path\to\comfYa  # Navigate to correct folder
 **Solution**:
 1. Download manually: [aka.ms/vs/17/release/vc_redist.x64.exe](https://aka.ms/vs/17/release/vc_redist.x64.exe)
 2. Run installer as admin
-3. Re-run `.\install.ps1`
+3. Re-run `.\comfya.ps1 setup`
 
 ---
 
@@ -155,8 +155,6 @@ git stash pop  # Optional: restore local changes
 
 ## Still Having Issues?
 
-1. Run validation: `python validate.py`
+1. Run validation: `.\comfya.ps1 doctor`
 2. Check logs: `logs/install.log`
 3. Open issue: [GitHub Issues](https://github.com/FeelTheFonk/comfYa/issues)
-</Parameter>
-<parameter name="Complexity">4

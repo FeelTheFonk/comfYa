@@ -37,9 +37,9 @@ All settings in [`config.psd1`](../config.psd1):
 
 ## Scripts
 
-| Script | Purpose |
+| Command | Purpose |
 |--------|---------|
-| `install.ps1` | Full installation (run as admin) |
-| `run.ps1` / `run.bat` | Launch ComfyUI |
-| `update.ps1` | Update ComfyUI and dependencies |
-| `validate.py` | Verify installation |
+| `comfya.ps1 setup` | Full installation (run as admin) |
+| `run.bat` / `comfya.ps1 run` | Launch ComfyUI |
+| `comfya.ps1 update` | Update ComfyUI and dependencies |
+| `comfya.ps1 doctor` | Verify installation & self-healing |
