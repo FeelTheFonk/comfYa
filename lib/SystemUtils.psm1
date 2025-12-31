@@ -109,36 +109,65 @@ function Invoke-SafeWebRequest {
 
 function Test-SystemRequirement {
     [CmdletBinding()]
-    param()
+    param([hashtable]$Config)
+    
+    $req = $Config.Requirements
     
     # Disk Space Check
     $drive = Get-PSDrive -Name ($PSScriptRoot[0])
     $freeGB = [math]::Round($drive.Free / 1GB, 2)
-    if ($freeGB -lt 20) {
+    $minDisk = if ($req.MinDiskGB) { $req.MinDiskGB } else { 20 }
+    
+    if ($freeGB -lt $minDisk) {
         if (Get-Command Write-ComfyWarning -ErrorAction SilentlyContinue) {
-            Write-ComfyWarning "Low disk space: $freeGB GB. Installation might fail."
+            Write-ComfyWarning "Low disk space: $freeGB GB. < $minDisk GB requirement."
         } else {
-            Write-Warning "Low disk space: $freeGB GB. Installation might fail."
+            Write-Warning "Low disk space: $freeGB GB. < $minDisk GB requirement."
         }
     }
     
     # RAM Check
     $mem = Get-CimInstance Win32_OperatingSystem | Select-Object TotalVisibleMemorySize
     $totalRAM = [math]::Round($mem.TotalVisibleMemorySize / 1MB, 2)
-    if ($totalRAM -lt 16) {
+    $minRam = if ($req.MinRamGB) { $req.MinRamGB } else { 16 }
+    
+    if ($totalRAM -lt $minRam) {
         if (Get-Command Write-ComfyWarning -ErrorAction SilentlyContinue) {
-            Write-ComfyWarning "Low RAM detected: $totalRAM GB. 16GB+ recommended."
+            Write-ComfyWarning "Low RAM detected: $totalRAM GB. < $minRam GB requirement."
         } else {
-            Write-Warning "Low RAM detected: $totalRAM GB. 16GB+ recommended."
+            Write-Warning "Low RAM detected: $totalRAM GB. < $minRam GB requirement."
         }
     }
     
     return @{ FreeDisk = $freeGB; TotalRAM = $totalRAM }
 }
 
+function Add-DefenderExclusion {
+    [CmdletBinding(SupportsShouldProcess)]
+    param([string]$Path)
+    
+    if (-not (Test-Administrator)) {
+        Write-ComfyLog "Elevation required for Defender exclusion. Skipping." -Level DEBUG
+        return $false
+    }
+    
+    if ($PSCmdlet.ShouldProcess($Path, "Add Windows Defender Exclusion")) {
+        try {
+            Add-MpPreference -ExclusionPath $Path -ErrorAction Stop
+            Write-ComfyLog "Secure: Added Defender exclusion for $Path" -Level SUCCESS
+            return $true
+        } catch {
+            Write-ComfyWarning "Failed to add Defender exclusion: $_"
+            return $false
+        }
+    }
+}
+
 function Test-PowerShellVersion {
-    if ($PSVersionTable.PSVersion.Major -lt 5) {
-        throw "PowerShell 5.1 or 7+ is required. Current: $($PSVersionTable.PSVersion)"
+    param([hashtable]$Config)
+    $minPs = if ($Config.Requirements.MinPsVer) { $Config.Requirements.MinPsVer } else { 5.1 }
+    if ($PSVersionTable.PSVersion.Major -lt $minPs) {
+        throw "PowerShell $minPs or 7+ is required. Current: $($PSVersionTable.PSVersion)"
     }
     return $true
 }
@@ -151,4 +180,5 @@ Export-ModuleMember -Function @(
     'Test-SystemRequirement'
     'Test-PowerShellVersion'
     'Export-ComfyConfig'
+    'Add-DefenderExclusion'
 )

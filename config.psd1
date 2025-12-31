@@ -10,6 +10,15 @@
     UserAgent = "comfYa/0.2.1"
     
     # =============================================================================
+    # SYSTEM REQUIREMENTS
+    # =============================================================================
+    Requirements = @{
+        MinRamGB   = 16
+        MinDiskGB  = 20
+        MinPsVer   = 5.1
+    }
+
+    # =============================================================================
     # PYTHON CONFIGURATION
     # =============================================================================
     Python = @{
@@ -68,8 +77,16 @@
         }
         
         Repositories = @{
-            ComfyUI        = "https://github.com/comfyanonymous/ComfyUI.git"
-            ComfyUIManager = "https://github.com/Comfy-Org/ComfyUI-Manager.git"
+            ComfyUI = @{
+                Url    = "https://github.com/comfyanonymous/ComfyUI.git"
+                Branch = "master"
+                Path   = "ComfyUI"
+            }
+            ComfyUIManager = @{
+                Url    = "https://github.com/Comfy-Org/ComfyUI-Manager.git"
+                Branch = "main"
+                Path   = "ComfyUI/custom_nodes/ComfyUI-Manager"
+            }
         }
         
         APIs = @{

@@ -85,8 +85,9 @@ Describe "Configuration Validation" {
     }
     
     It "Should have valid repository URLs" {
-        $urls = $Script:Config.Sources.Repositories.Values
-        foreach ($url in $urls) {
+        $repos = $Script:Config.Sources.Repositories.Values
+        foreach ($repo in $repos) {
+            $url = if ($repo -is [hashtable]) { $repo.Url } else { $repo }
             $url | Should -Match "^https://github\.com/"
         }
     }

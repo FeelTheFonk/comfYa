@@ -102,17 +102,24 @@ function Install-ComfyProject {
     
     # 4. Application Cloning
     Write-Step "Install" "App" "Cloning ComfyUI Core"
-    $AppPath = Join-Path $InstallPath "ComfyUI"
+    $Repo = $Config.Sources.Repositories.ComfyUI
+    $AppPath = Join-Path $InstallPath $Repo.Path
     if (-not (Test-Path $AppPath)) {
         try {
-            & git clone --depth 1 $Config.Sources.Repositories.ComfyUI $AppPath
+            & git clone --depth 1 $Repo.Url $AppPath
         } catch {
             Write-Fatal "Cloning failed" -Suggestion "Check your git installation and internet connection."
         }
     }
     & uv pip install -r (Join-Path $AppPath "requirements.txt") --python $VenvPython
     
-    # 5. Environment Finalization
+    # 5. Security & Exclusions
+    if ($Config.Security.DefenderExclusion) {
+        Write-Step "Install" "Security" "Applying Windows Defender exclusions"
+        Add-DefenderExclusion -Path $InstallPath
+    }
+    
+    # 6. Environment Finalization
     Write-Step "Install" "Final" "Configuring environment variables"
     $EnvMap = Resolve-ComfyEnvironment -Config $Config -InstallPath $InstallPath
     Sync-ComfyEnvironment -EnvMap $EnvMap -Persist $true
@@ -195,21 +202,19 @@ function Update-ComfyProject {
     $PythonExe = Join-Path $InstallPath ".venv\Scripts\python.exe"
     
     # 1. Repository Synchronization
-    $Repos = @{
-        "ComfyUI Core"    = @{ Path = (Join-Path $InstallPath "ComfyUI"); Branch = "master" }
-        "ComfyUI Manager" = @{ Path = (Join-Path $InstallPath "ComfyUI\custom_nodes\ComfyUI-Manager"); Branch = "main" }
-    }
+    $Repos = $Config.Sources.Repositories
     
-    foreach ($name in $Repos.Keys) {
-        $r = $Repos[$name]
-        if (Test-Path $r.Path) {
-            Write-ComfyLog "Updating $name..." -Level VERBOSE
-            Push-Location $r.Path
+    foreach ($key in $Repos.Keys) {
+        $r = $Repos[$key]
+        $fullPath = Join-Path $InstallPath $r.Path
+        if (Test-Path $fullPath) {
+            Write-ComfyLog "Updating $key ($($r.Path))..." -Level VERBOSE
+            Push-Location $fullPath
             try {
                 & git fetch origin
                 & git reset --hard "origin/$($r.Branch)"
             } catch {
-                Write-ComfyWarning "Failed to update $name. Repository might be locked or dirty."
+                Write-ComfyWarning "Failed to update $key. Repository might be locked or dirty."
             } finally {
                 Pop-Location
             }

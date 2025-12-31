@@ -22,7 +22,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v6.0.1
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           fetch-depth: 0
       
@@ -69,7 +69,7 @@ jobs:
             -x ".agent/*"
       
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2.5.0
+        uses: softprops/action-gh-release@c95fe1489396fe8a9eb87c0abf8ad5bf06c33534 # v2.2.1
         with:
           name: comfYa ${{ steps.version.outputs.version }}
           body_path: RELEASE_NOTES.md

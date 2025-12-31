@@ -108,8 +108,10 @@ function Write-ComfyLog {
     if ($symbol -ne " ") {
         Write-Host "$symbol " -NoNewline -ForegroundColor $color
     }
+    
     if ($prefix) {
-        $pad = 18 - $prefix.Length
+        # SOT: Standardized 20-char padding for phase::step alignment
+        $pad = 20 - $prefix.Length
         $paddedPrefix = if ($pad -gt 0) { $prefix + (" " * $pad) } else { $prefix }
         Write-Host "$paddedPrefix " -NoNewline -ForegroundColor Cyan
     }
@@ -135,6 +137,25 @@ function Write-Success {
 function Write-ComfyWarning {
     param([string]$Message)
     Write-ComfyLog -Message $Message -Level WARN
+}
+
+function Write-Diagnostic {
+    param([string]$Test, [string]$Status, [string]$Details)
+    
+    $color = switch ($Status) {
+        "OK"   { "Green" }
+        "FAIL" { "Red" }
+        "WARN" { "Yellow" }
+        Default { "Gray" }
+    }
+    
+    $timestamp = Get-Date -Format "HH:mm:ss"
+    Write-Host "[$timestamp] " -NoNewline -ForegroundColor DarkGray
+    Write-Host " (DIAG) " -NoNewline -ForegroundColor Magenta
+    Write-Host "  $($Test.PadRight(25, '.')) " -NoNewline -ForegroundColor White
+    Write-Host "[$Status]" -ForegroundColor $color -NoNewline
+    if ($Details) { Write-Host " ($Details)" -ForegroundColor Gray }
+    Write-Host ""
 }
 
 [Diagnostics.CodeAnalysis.SuppressMessage("PSAvoidUsingWriteHost", "")]
@@ -180,6 +201,7 @@ Export-ModuleMember -Function @(
     'Write-Success'
     'Write-ComfyWarning'
     'Write-Fatal'
+    'Write-Diagnostic'
     'Show-ComfyHeader'
     'Show-ComfyFooter'
 )

@@ -60,7 +60,7 @@ switch ($Command) {
         }
         
         # Base Requirements
-        $SysInfo = Test-SystemRequirement
+        $SysInfo = Test-SystemRequirement -Config $Config
         Install-VCRedist -Config $Config
         Install-Git
         Install-Uv -Config $Config
@@ -79,17 +79,27 @@ switch ($Command) {
     "doctor" {
         Write-Step "Diagnostics" "Check" "Running deep system validation..."
         
-        Test-PowerShellVersion
-        $sys = Test-SystemRequirement
-        Write-ComfyLog "Memory: $($sys.TotalRAM) GB | Storage: $($sys.FreeDisk) GB" -Level INFO
+        try {
+            Test-PowerShellVersion -Config $Config
+            Write-Diagnostic "PowerShell" "OK" "$($PSVersionTable.PSVersion)"
+        } catch {
+            Write-Diagnostic "PowerShell" "FAIL" "$_"
+        }
+
+        $sys = Test-SystemRequirement -Config $Config
+        Write-Diagnostic "Memory" "OK" "$($sys.TotalRAM) GB"
+        Write-Diagnostic "Disk Space" "OK" "$($sys.FreeDisk) GB"
         
         # GPU Diagnostics
         try {
             $gpu = Get-NvidiaGpuInfo -Config $Config
-            Write-Success "Hardware: $($gpu.Name) [$($gpu.SmArch)] | Driver: $($gpu.Driver)"
+            Write-Diagnostic "Hardware" "OK" "$($gpu.Name) [$($gpu.SmArch)]"
+            Write-Diagnostic "Driver" "OK" "$($gpu.Driver)"
+            Write-Diagnostic "CUDA Target" "OK" "$($gpu.CudaVersion)"
         }
         catch {
-            Write-Fatal "GPU Diagnostics failed" -Suggestion "Ensure NVIDIA drivers are installed and nvidia-smi works."
+            Write-Diagnostic "GPU Intel" "FAIL" "$_"
+            Write-ComfyWarning "Ensure NVIDIA drivers are installed and nvidia-smi works."
         }
         
         # Environment Validation
