@@ -4,23 +4,24 @@ All notable changes to comfYa will be documented in this file.
 
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
-## [0.2.1] - 2025-12-31
+## [0.2.1] - 2025-12-31 (Pinnacle)
 
 ### Added
-- **Security Hardening**: Enforced mandatory SHA256 checksum verification for `uv` and VS++ redistributables.
-- **Placeholder Engine**: Implemented internal configuration placeholders (`{Dir:Key}`) in `config.psd1` for DRY environment management.
+- **Pinnacle Visual System**: Professional ANSI header, unified step alignment, and context-aware status symbols (✔/⚠/✘).
+- **Operation Finalization**: New `Show-ComfyFooter` for clear completion feedback.
+- **Environment Resolution Engine**: Centralized recursive path and environment variable resolution.
 - **Multi-GPU Optimization**: Automated selection of the highest performance GPU based on CC and VRAM.
 
 ### Changed
+- **Logic Deduplication**: Unified environment synchronization across setup/run/update flows.
+- **Enhanced Bootstrapping**: Improved error handling and suggestion engine for `git` and `uv` failures.
 - **Nvidia Module**: Refactored hardware detection for **Locale-Independence** (fixes CC parsing on international Windows).
-- **Diagnostics**: `doctor` command upgraded with dynamic path validation for custom installation homes.
-- **Documentation**: Exhaustive audit and alignment of all `.md` files (README, Arch, contributing, etc.) with v0.2.1.
-- **Tests**: Refactored Pester suite with hardware mocking for CI reliability.
+- **Diagnostics**: `doctor` command upgraded with dynamic path validation and "Pinnacle" formatting.
 
 ### Fixed
+- **PowerShell Compatibility**: Fixed attribute placement parser errors in PS 5.1.
+- **UTF-8 Encoding**: Resolved mangled status symbols in terminal output.
 - **Validation Gap**: Fixed `validate.py` failing when `COMFYUI_HOME` was set outside the script root.
-- **Parsing**: Stabilized float parsing for GPU Compute Capability.
-- **Standardization**: Unified internal logging function nomenclature.
 
 
 ### Added

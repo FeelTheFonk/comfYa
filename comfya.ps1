@@ -1,4 +1,4 @@
-# comfYa - Unified Orchestrator CLI (v0.2.0)
+# comfYa - Unified Orchestrator CLI (v0.2.1)
 # Professional management for peak hardware performance
 
 #Requires -Version 5.1
@@ -21,11 +21,17 @@ param(
 $Root = $PSScriptRoot
 $LibDir = Join-Path $Root "lib"
 
-Import-Module (Join-Path $LibDir "Logging.psm1") -Force
-Import-Module (Join-Path $LibDir "SystemUtils.psm1") -Force
-Import-Module (Join-Path $LibDir "Nvidia.psm1") -Force
-Import-Module (Join-Path $LibDir "Package.psm1") -Force
-Import-Module (Join-Path $LibDir "Lifecycle.psm1") -Force
+# Load Core Modules
+try {
+    Import-Module (Join-Path $LibDir "Logging.psm1") -Force
+    Import-Module (Join-Path $LibDir "SystemUtils.psm1") -Force
+    Import-Module (Join-Path $LibDir "Nvidia.psm1") -Force
+    Import-Module (Join-Path $LibDir "Package.psm1") -Force
+    Import-Module (Join-Path $LibDir "Lifecycle.psm1") -Force
+} catch {
+    Write-Error "Critical Failure: Could not load library modules."
+    exit 1
+}
 
 # 2. Configuration Initialization
 try {
@@ -46,22 +52,24 @@ catch {
 # 3. Command Logic
 switch ($Command) {
     "setup" {
-        Write-Step "Bootstrap" "System" "Starting installation at $InstallPath"
+        Write-Step "Bootstrap" "System" "Commencing Pinnacle Installation at: $InstallPath"
         
         if (-not (Test-Administrator)) {
             Invoke-ElevatedRestart -ScriptPath $PSCommandPath -Parameters @{ Command = "setup"; InstallHome = $InstallPath }
             exit
         }
         
-        # Base Requirements & Dependencies
-        Test-SystemRequirement | Out-Null
+        # Base Requirements
+        $SysInfo = Test-SystemRequirement
         Install-VCRedist -Config $Config
         Install-Git
         Install-Uv -Config $Config
         Update-EnvironmentPath
         
-        # Lifecycle Execution
+        # Lifecycle execution
         Install-ComfyProject -Config $Config -InstallPath $InstallPath
+        
+        Show-ComfyFooter
     }
     
     "run" {
@@ -72,12 +80,13 @@ switch ($Command) {
         Write-Step "Diagnostics" "Check" "Running deep system validation..."
         
         Test-PowerShellVersion
-        Test-SystemRequirement | Out-Null
+        $sys = Test-SystemRequirement
+        Write-ComfyLog "Memory: $($sys.TotalRAM) GB | Storage: $($sys.FreeDisk) GB" -Level INFO
         
         # GPU Diagnostics
         try {
             $gpu = Get-NvidiaGpuInfo -Config $Config
-            Write-Success "GPU Detected: $($gpu.Name) (CUDA: $($gpu.CudaVersion))"
+            Write-Success "Hardware: $($gpu.Name) [$($gpu.SmArch)] | Driver: $($gpu.Driver)"
         }
         catch {
             Write-Fatal "GPU Diagnostics failed" -Suggestion "Ensure NVIDIA drivers are installed and nvidia-smi works."
@@ -86,22 +95,27 @@ switch ($Command) {
         # Environment Validation
         $VenvPython = Join-Path $InstallPath ".venv\Scripts\python.exe"
         if (Test-Path $VenvPython) {
+            Write-Step "Diagnostics" "Venv" "Verifying Python dependencies..."
             & $VenvPython (Join-Path $Root "validate.py") --path $InstallPath
         } else {
-            Write-ComfyWarning "Virtual environment not found."
+            Write-ComfyWarning "Virtual environment not found at $VenvPython"
         }
         
         # Self-Healing
         if (-not $NonInteractive) {
-            $answer = Read-Host "Would you like to run environment self-healing? (y/N)"
+            Write-Host "`n"
+            $answer = Read-Host "    [?] Run environment self-healing? (y/N)"
             if ($answer -match "y") {
                 Repair-Environment -Config $Config -InstallPath $InstallPath -Force:$Force
             }
         }
+        
+        Show-ComfyFooter
     }
     
     "update" {
         Update-ComfyProject -Config $Config -InstallPath $InstallPath
+        Show-ComfyFooter
     }
 }
 

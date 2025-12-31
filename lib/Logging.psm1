@@ -54,8 +54,8 @@ function Initialize-Logging {
     }
 }
 
+[Diagnostics.CodeAnalysis.SuppressMessage("PSAvoidUsingWriteHost", "")]
 function Write-ComfyLog {
-    [Diagnostics.CodeAnalysis.SuppressMessage("PSAvoidUsingWriteHost", "")]
     [CmdletBinding()]
     param(
         [Parameter(Mandatory)]
@@ -68,15 +68,15 @@ function Write-ComfyLog {
         [string]$Step
     )
     
-    $timestamp = Get-Date -Format "HH:mm:ss.fff"
-    $prefix = if ($Phase -and $Step) { "[$Phase.$Step]" } elseif ($Phase) { "[$Phase]" } else { "" }
-    
     # Threshold check
     if ($Script:LogLevel[$Level] -lt $Script:LogLevel[$Script:LogConfig.Level]) {
         return
     }
+
+    $timestamp = Get-Date -Format "HH:mm:ss"
+    $prefix = if ($Phase -and $Step) { "[$Phase::$Step]" } elseif ($Phase) { "[$Phase]" } else { "" }
     
-    # Console output
+    # Visual Mapping
     $color = switch ($Level) {
         "DEBUG"   { "DarkGray" }
         "VERBOSE" { "Gray" }
@@ -87,18 +87,31 @@ function Write-ComfyLog {
     }
     
     $symbol = switch ($Level) {
-        "SUCCESS" { "âœ“" }
-        "WARN"    { "âš " }
-        "ERROR"   { "âœ—" }
+        "SUCCESS" { "v" } # Use safe characters for broad compatibility or specific Unicode if confirmed
+        "WARN"    { "!" }
+        "ERROR"   { "x" }
         Default   { " " }
     }
+
+    # Attempt to use Unicode if the host supports it
+    if ($OutputEncoding.WebName -eq "utf-8" -or $PSVersionTable.PSVersion.Major -ge 7) {
+        $symbol = switch ($Level) {
+            "SUCCESS" { [char]0x2714 } # ✔
+            "WARN"    { [char]0x26A0 } # ⚠
+            "ERROR"   { [char]0x2718 } # ✘
+            Default   { " " }
+        }
+    }
     
+    # Console output
     Write-Host "[$timestamp] " -NoNewline -ForegroundColor DarkGray
     if ($symbol -ne " ") {
         Write-Host "$symbol " -NoNewline -ForegroundColor $color
     }
     if ($prefix) {
-        Write-Host "$prefix " -NoNewline -ForegroundColor Cyan
+        $pad = 18 - $prefix.Length
+        $paddedPrefix = if ($pad -gt 0) { $prefix + (" " * $pad) } else { $prefix }
+        Write-Host "$paddedPrefix " -NoNewline -ForegroundColor Cyan
     }
     Write-Host $Message -ForegroundColor $color
     
@@ -124,21 +137,40 @@ function Write-ComfyWarning {
     Write-ComfyLog -Message $Message -Level WARN
 }
 
+[Diagnostics.CodeAnalysis.SuppressMessage("PSAvoidUsingWriteHost", "")]
 function Write-Fatal {
-    [Diagnostics.CodeAnalysis.SuppressMessage("PSAvoidUsingWriteHost", "")]
     param([string]$Message, [string]$Suggestion)
-    Write-ComfyLog -Message $Message -Level ERROR
+    Write-ComfyLog -Message $Message -Level ERROR -Phase "FATAL"
     if ($Suggestion) {
-        Write-Host "    â†’ $Suggestion" -ForegroundColor DarkYellow
+        Write-Host "`n    [TIP] " -NoNewline -ForegroundColor Cyan
+        Write-Host "$Suggestion`n" -ForegroundColor Gray
     }
     throw $Message
 }
 
+[Diagnostics.CodeAnalysis.SuppressMessage("PSAvoidUsingWriteHost", "")]
 function Show-ComfyHeader {
-    [Diagnostics.CodeAnalysis.SuppressMessage("PSAvoidUsingWriteHost", "")]
     param([string]$Version)
-    $msg = "--- comfYa v$Version ---"
-    Write-Host "`n$msg" -ForegroundColor Cyan
+    
+    Clear-Host
+    $title = "  comfYa Pinnacle v$Version  "
+    $width = $title.Length + 4
+    $line = "═" * $width
+    
+    Write-Host "`n  ╔$line╗" -ForegroundColor Cyan
+    Write-Host "  ║  $title║" -ForegroundColor White -BackgroundColor Black
+    Write-Host "  ╚$line╝`n" -ForegroundColor Cyan
+    
+    Write-Host " [System] " -NoNewline -ForegroundColor Cyan
+    Write-Host "Initializing hardware-accelerated orchestrator...`n" -ForegroundColor Gray
+}
+
+[Diagnostics.CodeAnalysis.SuppressMessage("PSAvoidUsingWriteHost", "")]
+function Show-ComfyFooter {
+    param()
+    Write-Host "`n  " -NoNewline
+    Write-Host ("─" * 40) -ForegroundColor DarkGray
+    Write-Host "  Operation completed successfully.`n" -ForegroundColor Green
 }
 
 Export-ModuleMember -Function @(
@@ -149,4 +181,5 @@ Export-ModuleMember -Function @(
     'Write-ComfyWarning'
     'Write-Fatal'
     'Show-ComfyHeader'
+    'Show-ComfyFooter'
 )

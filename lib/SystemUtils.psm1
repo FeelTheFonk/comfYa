@@ -19,7 +19,6 @@ function Invoke-ElevatedRestart {
     
     $hostExe = if ($PSVersionTable.PSVersion.Major -ge 6) { "pwsh.exe" } else { "powershell.exe" }
     
-    [Diagnostics.CodeAnalysis.SuppressMessage("PSAvoidUsingWriteHost", "")]
     if (Get-Command Write-ComfyLog -ErrorAction SilentlyContinue) {
         Write-ComfyLog "Elevating privileges using $hostExe for $ScriptPath..." -Level WARN
     } else {

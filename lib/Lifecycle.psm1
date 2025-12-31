@@ -3,6 +3,44 @@
 
 #Requires -Version 5.1
 
+# -----------------------------------------------------------------------------
+# INTERNAL HELPERS
+# -----------------------------------------------------------------------------
+
+function Resolve-ComfyEnvironment {
+    param(
+        [hashtable]$Config,
+        [string]$InstallPath
+    )
+    $EnvMap = @{}
+    foreach ($key in $Config.Environment.Keys) {
+        $val = $Config.Environment[$key] -replace '\{InstallPath\}', $InstallPath
+        if ($val -match '\{Dir:(.*?)\}') {
+            $dirKey = $Matches[1]
+            if ($Config.Directories.ContainsKey($dirKey)) {
+                $val = $val -replace '\{Dir:.*?\}', $Config.Directories[$dirKey]
+            }
+        }
+        $EnvMap[$key] = $val
+    }
+    return $EnvMap
+}
+
+function Sync-ComfyEnvironment {
+    param([hashtable]$EnvMap, [bool]$Persist = $false)
+    foreach ($key in $EnvMap.Keys) {
+        $val = $EnvMap[$key]
+        Set-Item -Path "env:$key" -Value $val
+        if ($Persist) {
+            [Environment]::SetEnvironmentVariable($key, $val, "User")
+        }
+    }
+}
+
+# -----------------------------------------------------------------------------
+# PUBLIC FUNCTIONS
+# -----------------------------------------------------------------------------
+
 function Install-ComfyProject {
     [CmdletBinding(SupportsShouldProcess)]
     param(
@@ -17,7 +55,7 @@ function Install-ComfyProject {
     
     $GPU = Get-NvidiaGpuInfo -Config $Config
     
-    # 1. Directory Structure Implementation
+    # 1. Directory Structure
     Write-Step "Install" "Env" "Initializing professional directory structure"
     $dirs = $Config.Directories
     $PathsToCreate = @($InstallPath)
@@ -36,8 +74,13 @@ function Install-ComfyProject {
     
     # 2. Python Environment
     Write-Step "Install" "Python" "Managing standalone Python $($Config.Python.Version)"
-    & uv python install $Config.Python.Version
-    & uv venv (Join-Path $InstallPath ".venv") --python $Config.Python.Version
+    try {
+        & uv python install $Config.Python.Version
+        & uv venv (Join-Path $InstallPath ".venv") --python $Config.Python.Version
+    } catch {
+        Write-Fatal "Python/Venv initialization failed" -Suggestion "Ensure 'uv' is working and you have internet access."
+    }
+    
     $VenvPython = Join-Path $InstallPath ".venv\Scripts\python.exe"
     
     # 3. Acceleration Stack
@@ -61,25 +104,20 @@ function Install-ComfyProject {
     Write-Step "Install" "App" "Cloning ComfyUI Core"
     $AppPath = Join-Path $InstallPath "ComfyUI"
     if (-not (Test-Path $AppPath)) {
-        & git clone --depth 1 $Config.Sources.Repositories.ComfyUI $AppPath
+        try {
+            & git clone --depth 1 $Config.Sources.Repositories.ComfyUI $AppPath
+        } catch {
+            Write-Fatal "Cloning failed" -Suggestion "Check your git installation and internet connection."
+        }
     }
     & uv pip install -r (Join-Path $AppPath "requirements.txt") --python $VenvPython
     
     # 5. Environment Finalization
     Write-Step "Install" "Final" "Configuring environment variables"
-    foreach ($key in $Config.Environment.Keys) {
-        $val = $Config.Environment[$key] -replace '\{InstallPath\}', $InstallPath
-        if ($val -match '\{Dir:(.*?)\}') {
-            $dirKey = $Matches[1]
-            if ($Config.Directories.ContainsKey($dirKey)) {
-                $val = $val -replace '\{Dir:.*?\}', $Config.Directories[$dirKey]
-            }
-        }
-        [Environment]::SetEnvironmentVariable($key, $val, "User")
-    }
+    $EnvMap = Resolve-ComfyEnvironment -Config $Config -InstallPath $InstallPath
+    Sync-ComfyEnvironment -EnvMap $EnvMap -Persist $true
     
     if (-not $SkipValidation) {
-        # Note: validate.py expects to be in the root of the project (usually $InstallPath or where comfya.ps1 is)
         $ValidatorPath = Join-Path $PSScriptRoot "..\validate.py"
         if (Test-Path $ValidatorPath) {
             & $VenvPython $ValidatorPath --path $InstallPath
@@ -124,17 +162,8 @@ function Start-ComfyProject {
         Write-Fatal "Environment not found" -Suggestion "Run 'comfya setup' first."
     }
     
-    # Environment Variables Sync
-    foreach ($key in $Config.Environment.Keys) {
-        $val = $Config.Environment[$key] -replace '\{InstallPath\}', $InstallPath
-        if ($val -match '\{Dir:(.*?)\}') {
-            $dirKey = $Matches[1]
-            if ($Config.Directories.ContainsKey($dirKey)) {
-                $val = $val -replace '\{Dir:.*?\}', $Config.Directories[$dirKey]
-            }
-        }
-        Set-Item -Path "env:$key" -Value $val
-    }
+    $EnvMap = Resolve-ComfyEnvironment -Config $Config -InstallPath $InstallPath
+    Sync-ComfyEnvironment -EnvMap $EnvMap
     
     # 3. Execution
     $MainScript = Join-Path $InstallPath "ComfyUI\main.py"
@@ -179,6 +208,8 @@ function Update-ComfyProject {
             try {
                 & git fetch origin
                 & git reset --hard "origin/$($r.Branch)"
+            } catch {
+                Write-ComfyWarning "Failed to update $name. Repository might be locked or dirty."
             } finally {
                 Pop-Location
             }
