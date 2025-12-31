@@ -30,6 +30,7 @@ function Install-VCRedist {
 function Install-Git {
     if (Get-Command git -ErrorAction SilentlyContinue) { return $true }
     
+    [Diagnostics.CodeAnalysis.SuppressMessage("PSAvoidUsingWriteHost", "")]
     if (Get-Command Write-ComfyLog -ErrorAction SilentlyContinue) {
         Write-ComfyLog "Installing Git via winget..." -Level INFO
     } else {
@@ -37,7 +38,7 @@ function Install-Git {
     }
     & winget install --id Git.Git -e --silent --accept-source-agreements --accept-package-agreements | Out-Null
     
-    return (Get-Command git -ErrorAction SilentlyContinue) -ne $null
+    return $null -ne (Get-Command git -ErrorAction SilentlyContinue)
 }
 
 function Install-Uv {

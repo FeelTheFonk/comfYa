@@ -19,6 +19,7 @@ function Invoke-ElevatedRestart {
     
     $hostExe = if ($PSVersionTable.PSVersion.Major -ge 6) { "pwsh.exe" } else { "powershell.exe" }
     
+    [Diagnostics.CodeAnalysis.SuppressMessage("PSAvoidUsingWriteHost", "")]
     if (Get-Command Write-ComfyLog -ErrorAction SilentlyContinue) {
         Write-ComfyLog "Elevating privileges using $hostExe for $ScriptPath..." -Level WARN
     } else {
@@ -53,6 +54,8 @@ function Export-ComfyConfig {
 
 function Update-EnvironmentPath {
     [CmdletBinding(SupportsShouldProcess)]
+    param()
+    
     if ($PSCmdlet.ShouldProcess("Environment Path", "Refresh")) {
         $machinePath = [Environment]::GetEnvironmentVariable("Path", "Machine")
         $userPath = [Environment]::GetEnvironmentVariable("Path", "User")

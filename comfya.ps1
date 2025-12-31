@@ -72,7 +72,7 @@ switch ($Command) {
         Write-Step "Diagnostics" "Check" "Running deep system validation..."
         
         Test-PowerShellVersion
-        Test-SystemRequirements -Config $Config | Out-Null
+        Test-SystemRequirement | Out-Null
         
         # GPU Diagnostics
         try {

@@ -28,7 +28,7 @@ Describe "Pre-Installation Checks" {
             if (-not (Get-Command nvidia-smi -ErrorAction SilentlyContinue)) {
                 # Mock nvidia-smi for CI environments using Pester's Mocking
                 Mock nvidia-smi {
-                    param($query_gpu)
+                    param($query_gpu, $format)
                     if ($query_gpu -match "name") { return "NVIDIA GeForce RTX 4090" }
                     if ($query_gpu -match "driver_version") { return "570.00" }
                     if ($query_gpu -match "compute_cap") { return "8.9" }

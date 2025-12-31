@@ -1,4 +1,4 @@
-# comfYa - Logging Module
+﻿# comfYa - Logging Module
 # Professional structured logging with CLI and file support
 
 #Requires -Version 5.1
@@ -54,8 +54,8 @@ function Initialize-Logging {
     }
 }
 
-[Diagnostics.CodeAnalysis.SuppressMessage("PSAvoidUsingWriteHost", "")]
 function Write-ComfyLog {
+    [Diagnostics.CodeAnalysis.SuppressMessage("PSAvoidUsingWriteHost", "")]
     [CmdletBinding()]
     param(
         [Parameter(Mandatory)]
@@ -87,9 +87,9 @@ function Write-ComfyLog {
     }
     
     $symbol = switch ($Level) {
-        "SUCCESS" { "✓" }
-        "WARN"    { "⚠" }
-        "ERROR"   { "✗" }
+        "SUCCESS" { "âœ“" }
+        "WARN"    { "âš " }
+        "ERROR"   { "âœ—" }
         Default   { " " }
     }
     
@@ -124,18 +124,18 @@ function Write-ComfyWarning {
     Write-ComfyLog -Message $Message -Level WARN
 }
 
-[Diagnostics.CodeAnalysis.SuppressMessage("PSAvoidUsingWriteHost", "")]
 function Write-Fatal {
+    [Diagnostics.CodeAnalysis.SuppressMessage("PSAvoidUsingWriteHost", "")]
     param([string]$Message, [string]$Suggestion)
     Write-ComfyLog -Message $Message -Level ERROR
     if ($Suggestion) {
-        Write-Host "    → $Suggestion" -ForegroundColor DarkYellow
+        Write-Host "    â†’ $Suggestion" -ForegroundColor DarkYellow
     }
     throw $Message
 }
 
-[Diagnostics.CodeAnalysis.SuppressMessage("PSAvoidUsingWriteHost", "")]
 function Show-ComfyHeader {
+    [Diagnostics.CodeAnalysis.SuppressMessage("PSAvoidUsingWriteHost", "")]
     param([string]$Version)
     $msg = "--- comfYa v$Version ---"
     Write-Host "`n$msg" -ForegroundColor Cyan
