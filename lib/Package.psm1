@@ -76,26 +76,42 @@ function Install-Uv {
 }
 
 function Repair-Environment {
-    param([hashtable]$Config, [string]$InstallPath)
+    param([hashtable]$Config, [string]$InstallPath, [switch]$Force)
     
     $VenvPath = Join-Path $InstallPath ".venv"
-    if (-not (Test-Path $VenvPath)) {
-        if (Get-Command Write-Log -ErrorAction SilentlyContinue) {
-            Write-Log "Recreating missing .venv..." -Level WARN
-        } else {
-            Write-Host "Recreating missing .venv..." -ForegroundColor Yellow
-        }
+    $Python = Join-Path $VenvPath "Scripts\python.exe"
+    
+    # 1. Base Environment Restoration
+    if (-not (Test-Path $VenvPath) -or $Force) {
+        Write-Log "Initializing/Resetting virtual environment..." -Level WARN
+        if (Test-Path $VenvPath) { Remove-Item $VenvPath -Recurse -Force -ErrorAction SilentlyContinue }
         & uv venv $VenvPath --python $Config.Python.Version
     }
     
-    $Python = Join-Path $VenvPath "Scripts\python.exe"
-    if (Get-Command Write-Log -ErrorAction SilentlyContinue) {
-        Write-Log "Auditing dependencies..." -Level INFO
-    } else {
-        Write-Host "Auditing dependencies..." -ForegroundColor Cyan
-    }
-    & uv pip install -r (Join-Path $InstallPath "ComfyUI\requirements.txt") --python $Python
+    # 2. Dependency SOTA Audit
+    Write-Log "Auditing and aligning SOTA dependencies..." -Level INFO
     
+    # Core Application Requirements
+    $ReqFile = Join-Path $InstallPath "ComfyUI\requirements.txt"
+    if (Test-Path $ReqFile) {
+        & uv pip install -r $ReqFile --python $Python
+    }
+    
+    # Acceleration Stack (Torch & Friends)
+    try {
+        $gpu = Get-NvidiaGpuInfo -Config $Config
+        $IndexUrl = $Config.Sources.PyTorch.IndexUrls[$gpu.CudaVersion]
+        Write-Log "Ensuring PyTorch Nightly alignment for $($gpu.CudaVersion)..." -Level VERBOSE
+        & uv pip install --pre torch torchvision torchaudio --index-url $IndexUrl --python $Python
+    } catch {
+        Write-Log "GPU detection failed during repair, skipping Torch alignment." -Level WARN
+    }
+    
+    # Cleanup & Optimization
+    & uv pip install @($Config.Packages.Optimization) --python $Python
+    & uv pip install @($Config.Packages.Core) @($Config.Packages.ML) --python $Python
+    
+    Write-Success "Self-healing completed for environment at $InstallPath"
     return $true
 }
 

@@ -95,8 +95,17 @@ def test_acceleration() -> Tuple[bool, str]:
     return True, " | ".join(results)
 
 def main():
-    root = Path(__file__).parent
+    import argparse
+    parser = argparse.ArgumentParser(description="comfYa SOTA Validation")
+    parser.add_argument("--path", type=str, help="Installation path containing config.json")
+    args = parser.parse_args()
+
+    root = Path(args.path) if args.path else Path(__file__).parent
     config = ComfyConfig.load_bridge(root)
+    
+    if args.path and not config:
+        print(f"{Colors.RED}Error: config.json not found in {args.path}{Colors.RESET}")
+        sys.exit(1)
     
     print(f"\n{Colors.MAGENTA}--- comfYa SOTA Validation ---{Colors.RESET}\n")
     

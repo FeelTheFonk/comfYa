@@ -1,4 +1,4 @@
-# Architecture comfYa v0.2.0 (Pinnacle)
+# Architecture comfYa v0.2.1 (Pinnacle)
 
 ## Modern Modular Orchestrator
 
@@ -31,12 +31,13 @@ graph TD
 
 ### Core Principles
 
-1.  **SSA (Single Source of Truth)**: No hardcoded version mappings. If `config.psd1` says CUDA 12.8, the entire stack (PowerShell & Python) respects it.
+1.  **SSA (Single Source of Truth)**: No hardcoded version mappings. If `config.psd1` says CUDA 12.8, the entire stack (PowerShell & Python) respects it. Includes a **Recursive Placeholder Engine** (`{Dir:Key}`) for zero-redundancy pathing.
 2.  **Domain Isolation**: GPU logic is isolated from OS logic, which is isolated from logging. This ensures "Pro" grade maintainability.
 3.  **Proactive DX (Developer Experience)**:
-    - **Smart Launcher**: Automatically detects VRAM to select the best performance profile.
+    - **Smart Launcher**: Automatically detects VRAM and **picks the best GPU** on multi-GPU systems.
     - **Self-Healing**: `doctor` command can reconstruct environments and fix common dependency failures.
-4.  **Security Hardened**: Downloads are verified via SHA256 hashes, and TLS 1.3 is enforced by default.
+4.  **Hardware Invariance**: Detection logic is **locale-independent**, ensuring perfect parsing on any Windows international configuration.
+5.  **Security Hardened**: Downloads (uv, VC++ Redist) are verified via SHA256 hashes, and TLS 1.3 is enforced.
 
 ---
 
@@ -44,7 +45,7 @@ graph TD
 
 | Module | Responsibility | Key Features |
 | :--- | :--- | :--- |
-| **Nvidia.psm1** | Hardware Intel | CC Detection, Driver-to-CUDA Mapping |
+| **Nvidia.psm1** | Hardware Intel | Locale-Invariant CC Detection, Multi-GPU Auto-selection |
 | **Logging.psm1** | Truth Stream | Structured ANSI output, Automated Log Rotation |
 | **SystemUtils.psm1** | Environment | Pre-flight checks, Secure Downloads, Registry |
 | **Package.psm1** | Dependency Mgmt | Side-loading `uv`, `git` and binary redistributables |

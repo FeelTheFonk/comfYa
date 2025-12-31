@@ -11,7 +11,7 @@ Describe "Nvidia Module" {
     Context "Get-NvidiaGpuInfo" {
         It "Should throw if nvidia-smi is missing" {
             # Mocking Get-Command to fail
-            Mock Get-Command { return $null }
+            Mock Get-Command { return $null } -ModuleName Nvidia
             { Get-NvidiaGpuInfo -Config $Config } | Should -Throw "*nvidia-smi not found*"
         }
     }

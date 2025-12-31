@@ -5,9 +5,9 @@
     # =============================================================================
     # METADATA
     # =============================================================================
-    Version   = "0.2.0"
+    Version   = "0.2.1"
     Schema    = 1
-    UserAgent = "comfYa/0.2.0"
+    UserAgent = "comfYa/0.2.1"
     
     # =============================================================================
     # PYTHON CONFIGURATION
@@ -81,7 +81,7 @@
             VCRedist     = "https://aka.ms/vs/17/release/vc_redist.x64.exe"
             VCRedistHash = "06A42E40B7E1B3E0C8C38B21F7B8B67D688D235F8E165E04F2F6C27E4B2E5C9F" # Verified SHA256 (v14.4x)
             Uv           = "https://astral.sh/uv/install.ps1"
-            UvHash       = $null # Set to verify specific installer versions
+            UvHash       = "B47A318D964256F7DEDB874538B2B9889EF52D719F2ECB816390ADFFF0A3F14D" # Verified SHA256
         }
         
         # Fallback wheel URLs (updated periodically)
@@ -120,7 +120,7 @@
     Environment = @{
         CUDA_MODULE_LOADING      = "LAZY"
         PYTORCH_CUDA_ALLOC_CONF  = "expandable_segments:True"
-        TRITON_CACHE_DIR         = "{InstallPath}/.triton_cache"
+        TRITON_CACHE_DIR         = "{InstallPath}/{Dir:TritonCache}"
         TORCH_COMPILE_BACKEND    = "inductor"
     }
     

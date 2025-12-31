@@ -41,7 +41,8 @@ jobs:
             }
           }
           if ($results.Count -gt 0) {
-            Write-Host "::warning::Found $($results.Count) PSScriptAnalyzer issues"
+            Write-Host "::error::Found $($results.Count) PSScriptAnalyzer issues"
+            exit 1
           }
       
       - name: Validate PowerShell Syntax
@@ -83,7 +84,7 @@ jobs:
       
       - name: Run ruff
         run: |
-          ruff check . --output-format=github || true
+          ruff check . --output-format=github
           ruff check . --statistics
       
       - name: Validate Python Syntax

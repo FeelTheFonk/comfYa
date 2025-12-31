@@ -67,6 +67,12 @@ function Install-ComfyProject {
     Write-Step "Install" "Final" "Configuring environment variables"
     foreach ($key in $Config.Environment.Keys) {
         $val = $Config.Environment[$key] -replace '\{InstallPath\}', $InstallPath
+        if ($val -match '\{Dir:(.*?)\}') {
+            $dirKey = $Matches[1]
+            if ($Config.Directories.ContainsKey($dirKey)) {
+                $val = $val -replace '\{Dir:.*?\}', $Config.Directories[$dirKey]
+            }
+        }
         [Environment]::SetEnvironmentVariable($key, $val, "User")
     }
     
@@ -74,7 +80,7 @@ function Install-ComfyProject {
         # Note: validate.py expects to be in the root of the project (usually $InstallPath or where comfya.ps1 is)
         $ValidatorPath = Join-Path $PSScriptRoot "..\validate.py"
         if (Test-Path $ValidatorPath) {
-            & $VenvPython $ValidatorPath
+            & $VenvPython $ValidatorPath --path $InstallPath
         }
     }
     
@@ -95,7 +101,8 @@ function Start-ComfyProject {
     # 1. Proactive Mode Detection
     if ($Mode -eq "Auto") {
         try {
-            $totalVram = Get-NvidiaVram
+            $gpu = Get-NvidiaGpuInfo -Config $Config
+            $totalVram = $gpu.Vram
             if ($totalVram -ge 12000) { $Mode = "HighVram" }
             elseif ($totalVram -ge 6000) { $Mode = "Default" }
             else { $Mode = "LowVram" }
@@ -115,8 +122,14 @@ function Start-ComfyProject {
     
     # Environment Variables Sync
     foreach ($key in $Config.Environment.Keys) {
-        $envValue = $Config.Environment[$key] -replace '\{InstallPath\}', $InstallPath
-        Set-Item -Path "env:$key" -Value $envValue
+        $val = $Config.Environment[$key] -replace '\{InstallPath\}', $InstallPath
+        if ($val -match '\{Dir:(.*?)\}') {
+            $dirKey = $Matches[1]
+            if ($Config.Directories.ContainsKey($dirKey)) {
+                $val = $val -replace '\{Dir:.*?\}', $Config.Directories[$dirKey]
+            }
+        }
+        Set-Item -Path "env:$key" -Value $val
     }
     
     # 3. Execution

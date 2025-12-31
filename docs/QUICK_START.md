@@ -50,12 +50,11 @@ Open browser: **http://127.0.0.1:8188**
 .\comfya.ps1 doctor
 ```
 
-Expected output:
-```
-PyTorch CUDA............. OK (RTX 4090, CUDA 12.8)
-Triton................... OK (v3.x)
-SageAttention............ OK (Functional)
-ComfyUI.................. OK (Imports OK)
+```text
+--- comfYa SOTA Validation ---
+
+  Hardware/CUDA............ OK   (RTX 4090 [CC 8.9])
+  Acceleration............. SKIP (Triton v3.x | SageAttn missing)
 ```
 
 ## Update

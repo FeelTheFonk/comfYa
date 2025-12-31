@@ -25,7 +25,7 @@ Common issues and solutions.
 
 ### "config.psd1 not found"
 
-**Cause**: Running install.ps1 from wrong directory or incomplete download.
+**Cause**: Running commands from wrong directory or incomplete download.
 
 **Solution**:
 ```powershell
@@ -58,13 +58,13 @@ cd C:\path\to\comfYa  # Navigate to correct folder
 nvidia-smi
 
 # Verify PyTorch
-.\.venv\Scripts\activate.ps1
-python -c "import torch; print(torch.cuda.is_available())"
+.\comfya.ps1 doctor
 ```
 
-If `False`, reinstall PyTorch:
+If `False`, reinstall PyTorch using the configuration-aware command:
 ```powershell
-uv pip install --pre torch torchvision torchaudio --index-url https://download.pytorch.org/whl/nightly/cu128 --force-reinstall
+# Reinstall using the SOTA alignment logic
+.\comfya.ps1 doctor  # Select 'y' for self-healing
 ```
 
 ---
@@ -96,7 +96,8 @@ uv pip install triton-windows --force-reinstall
 uv pip list | findstr sage
 
 # Reinstall manually
-uv pip install https://github.com/woct0rdho/SageAttention/releases/download/v2.2.0-windows/sageattention-2.2.0+cu128torch2.8.0-cp312-cp312-win_amd64.whl
+# Reinstall using SSA preferred version from config.psd1
+.\comfya.ps1 doctor  # Select 'y' for self-healing
 ```
 
 ---

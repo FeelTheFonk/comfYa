@@ -8,7 +8,7 @@
 
 ## Features
 
-- **Zero-configuration**: Auto-detects GPU, driver, and CUDA version
+- **Zero-configuration**: Auto-detects GPU, driver, and CUDA version (Secured via SHA256)
 - **Optimized**: PyTorch Nightly, Triton, SageAttention
 - **Portable**: Dynamic paths, environment variable overrides
 - **Maintainable**: Centralized configuration, modular design
@@ -74,6 +74,7 @@ Edit `config.psd1`:
 
 ```powershell
 @{
+    Version   = "0.2.1"
     Python = @{ Version = "3.12" }
     Cuda = @{ PreferredVersion = "cu128" }
     Gpu = @{ MinComputeCapability = 7.5 }

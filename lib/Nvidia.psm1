@@ -12,14 +12,32 @@ function Get-NvidiaGpuInfo {
         throw "nvidia-smi not found. NVIDIA drivers (525+) are mandatory."
     }
     
-    $output = & nvidia-smi --query-gpu=name,driver_version,compute_cap --format=csv,noheader,nounits 2>&1
+    # Query all GPUs: Name, Driver, CC, VRAM
+    $output = & nvidia-smi --query-gpu=name,driver_version,compute_cap,memory.total --format=csv,noheader,nounits 2>&1
     if ($LASTEXITCODE -ne 0) { throw "nvidia-smi failure: $output" }
     
-    $parts = $output -split ','
-    $gpuName = $parts[0].Trim()
-    $driverVer = $parts[1].Trim()
-    $ccMajorMinor = $parts[2].Trim()
-    $cc = [float]$ccMajorMinor
+    $gpuList = @()
+    $lines = $output -split "`r?`n" | Where-Object { $_.Trim() -ne "" }
+    
+    foreach ($line in $lines) {
+        $parts = $line -split ','
+        $invCulture = [System.Globalization.CultureInfo]::InvariantCulture
+        
+        $gpuInfo = @{
+            Name              = $parts[0].Trim()
+            Driver            = $parts[1].Trim()
+            ComputeCapability = [double]::Parse($parts[2].Trim(), $invCulture)
+            Vram              = [int]::Parse($parts[3].Trim(), $invCulture)
+        }
+        $gpuList += New-Object PSObject -Property $gpuInfo
+    }
+    
+    # Select best GPU (Highest Compute Capability, then highest VRAM)
+    $bestGpu = $gpuList | Sort-Object ComputeCapability, Vram -Descending | Select-Object -First 1
+    
+    if (-not $bestGpu) { throw "No NVIDIA GPUs detected via nvidia-smi" }
+    
+    $cc = $bestGpu.ComputeCapability
     
     # 1. Validate Compute Capability
     $minCC = if ($Config -and $Config.Gpu -and $Config.Gpu.MinComputeCapability) { $Config.Gpu.MinComputeCapability } else { 7.5 }
@@ -28,17 +46,21 @@ function Get-NvidiaGpuInfo {
     # 2. Map SM Architecture (from config)
     $smArch = "sm75"
     if ($Config -and $Config.Gpu -and $Config.Gpu.SmArchMapping) {
-        $sortedKeys = $Config.Gpu.SmArchMapping.Keys | ForEach-Object { [float]$_ } | Sort-Object -Descending
+        $sortedKeys = $Config.Gpu.SmArchMapping.Keys | ForEach-Object { [double]::Parse($_, [System.Globalization.CultureInfo]::InvariantCulture) } | Sort-Object -Descending
         foreach ($key in $sortedKeys) {
             if ($cc -ge $key) {
-                $smArch = $Config.Gpu.SmArchMapping["$key"]
+                $smArch = $Config.Gpu.SmArchMapping["$($key.ToString('F1', [System.Globalization.CultureInfo]::InvariantCulture))"]
+                if ($null -eq $smArch) {
+                    # Fallback if key format in hashtable is slightly different
+                    $smArch = $Config.Gpu.SmArchMapping[[string]$key]
+                }
                 break
             }
         }
     }
     
     # 3. Map CUDA Version (from driver)
-    $driverMajor = [int]($driverVer -split '\.')[0]
+    $driverMajor = [int]($bestGpu.Driver -split '\.')[0]
     $cudaVer = $Config.Cuda.PreferredVersion
     
     if ($Config.Cuda.DriverMapping) {
@@ -52,20 +74,13 @@ function Get-NvidiaGpuInfo {
     }
     
     return @{
-        Name              = $gpuName
-        Driver            = $driverVer
+        Name              = $bestGpu.Name
+        Driver            = $bestGpu.Driver
         ComputeCapability = $cc
         CudaVersion       = $cudaVer
         SmArch            = $smArch
+        Vram              = $bestGpu.Vram
     }
 }
 
-function Get-NvidiaVram {
-    [CmdletBinding()]
-    param()
-    $vram = & nvidia-smi --query-gpu=memory.total --format=csv,noheader,nounits 2>$null
-    if ($LASTEXITCODE -ne 0) { return 0 }
-    return [int]($vram.Trim())
-}
-
-Export-ModuleMember -Function @('Get-NvidiaGpuInfo', 'Get-NvidiaVram')
+Export-ModuleMember -Function @('Get-NvidiaGpuInfo')

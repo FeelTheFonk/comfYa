@@ -25,7 +25,10 @@ Use the [Feature Request template](/.github/ISSUE_TEMPLATE/feature_request.yml).
 1. Fork the repository
 2. Create a feature branch: `git checkout -b feature/my-feature`
 3. Make changes following our style guide
-4. Run tests: `Invoke-Pester -Path ./tests`
+4. Run tests & linting (Zero-warning policy):
+    - `Invoke-Pester -Path ./tests`
+    - `Invoke-ScriptAnalyzer -Path .`
+    - `ruff check .`
 5. Commit with clear message: `git commit -m "feat: add my feature"`
 6. Push and open PR
 
@@ -36,11 +39,14 @@ Use the [Feature Request template](/.github/ISSUE_TEMPLATE/feature_request.yml).
 - Include comment-based help for functions
 - Use `$ErrorActionPreference = 'Stop'`
 - Prefer splatting for long parameter lists
+- **SSA Compliance**: Never hardcode version strings; reference `config.psd1` or the `config.json` bridge.
 
 ### Python
 - Follow PEP 8
 - Use type hints
 - Docstrings for public functions
+- **Linting**: Ensure code passes `ruff` check without `-h` or `--fix`.
+- **Security**: When adding binary dependencies, YOU MUST provide a verified SHA256 hash in `config.psd1`.
 
 ## Testing
 

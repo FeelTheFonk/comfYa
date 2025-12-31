@@ -86,16 +86,16 @@ switch ($Command) {
         # Environment Validation
         $VenvPython = Join-Path $InstallPath ".venv\Scripts\python.exe"
         if (Test-Path $VenvPython) {
-            & $VenvPython (Join-Path $Root "validate.py")
+            & $VenvPython (Join-Path $Root "validate.py") --path $InstallPath
         } else {
-            Write-WarningComfy "Virtual environment not found."
+            Write-ComfyWarning "Virtual environment not found."
         }
         
         # Self-Healing
         if (-not $NonInteractive) {
             $answer = Read-Host "Would you like to run environment self-healing? (y/N)"
             if ($answer -match "y") {
-                Repair-Environment -Config $Config -InstallPath $InstallPath
+                Repair-Environment -Config $Config -InstallPath $InstallPath -Force:$Force
             }
         }
     }

@@ -118,7 +118,7 @@ function Write-Success {
     Write-Log -Message $Message -Level SUCCESS
 }
 
-function Write-WarningComfy {
+function Write-ComfyWarning {
     param([string]$Message)
     Write-Log -Message $Message -Level WARN
 }
@@ -143,7 +143,7 @@ Export-ModuleMember -Function @(
     'Write-Log'
     'Write-Step'
     'Write-Success'
-    'Write-WarningComfy'
+    'Write-ComfyWarning'
     'Write-Fatal'
     'Show-ComfyHeader'
 )
