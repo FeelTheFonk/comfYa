@@ -39,7 +39,8 @@ All settings in [`config.psd1`](../config.psd1):
 
 | Command | Purpose |
 |--------|---------|
-| `comfya.ps1 setup` | Full installation (run as admin) |
-| `run.bat` / `comfya.ps1 run` | Launch ComfyUI |
-| `comfya.ps1 update` | Update ComfyUI and dependencies |
-| `comfya.ps1 doctor` | Verify installation & self-healing |
+| `comfya.ps1 setup` | Full system initialization (requires administrator privileges) |
+| `run.bat` / `comfya.ps1 run` | Start the ComfyUI application |
+| `comfya.ps1 update` | Synchronize repositories and dependencies |
+| `comfya.ps1 clean` | Sanitize environment and remove temporary artifacts |
+| `comfya.ps1 doctor` | System verification and automated repair |

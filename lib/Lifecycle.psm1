@@ -31,8 +31,23 @@ function Sync-ComfyEnvironment {
     foreach ($key in $EnvMap.Keys) {
         $val = $EnvMap[$key]
         Set-Item -Path "env:$key" -Value $val
+        # [4] Isolation: Only persist if absolutely necessary and in setup mode
         if ($Persist) {
+            Write-ComfyLog "Persisting environment variable: $key" -Level DEBUG
             [Environment]::SetEnvironmentVariable($key, $val, "User")
+        }
+    }
+}
+
+function Check-UvAvailability {
+    [CmdletBinding()]
+    param()
+    
+    if (-not (Get-Command uv -ErrorAction SilentlyContinue)) {
+        # Try to refresh path if uv was just installed
+        Update-EnvironmentPath
+        if (-not (Get-Command uv -ErrorAction SilentlyContinue)) {
+            Write-Fatal "uv is not available in the current session." -Suggestion "Please restart your terminal or ensure uv is in your PATH."
         }
     }
 }
@@ -48,10 +63,13 @@ function Install-ComfyProject {
         [hashtable]$Config,
         [Parameter(Mandatory)]
         [string]$InstallPath,
-        [switch]$SkipValidation
+        [switch]$SkipValidation,
+        [switch]$Simulate
     )
     
-    if (-not $PSCmdlet.ShouldProcess($InstallPath, "Install ComfyUI Project")) { return }
+    if ($Simulate) { $PSCmdletContext = @{ ShouldProcess = { $true } } } # Helper for non-interactive simulation
+    
+    if (-not $PSCmdlet.ShouldProcess($InstallPath, "Install ComfyUI Project (Simulate: $Simulate)")) { return }
     
     $GPU = Get-NvidiaGpuInfo -Config $Config
     
@@ -75,6 +93,7 @@ function Install-ComfyProject {
     # 2. Python Environment
     Write-Step "Install" "Python" "Managing standalone Python $($Config.Python.Version)"
     try {
+        Check-UvAvailability # [11] Pre-Install Hook
         & uv python install $Config.Python.Version
         & uv venv (Join-Path $InstallPath ".venv") --python $Config.Python.Version
     } catch {
@@ -91,13 +110,25 @@ function Install-ComfyProject {
     Write-Step "Install" "Optim" "Injecting Triton and Optimization Stack"
     & uv pip install @($Config.Packages.Optimization) --python $VenvPython
     
-    # SageAttention (Auto-detection)
-    $PyVerShort = $Config.Python.Version -replace '\.', ''
-    $SageKey = "$($GPU.CudaVersion)_py$PyVerShort"
-    $SageUrl = $Config.Sources.FallbackWheels.SageAttention[$SageKey]
-    if ($SageUrl) {
-        Write-ComfyLog "Injecting SageAttention via SOTA wheel: $SageKey" -Level VERBOSE
-        & uv pip install $SageUrl --python $VenvPython
+    # [7] SageAttention (Dynamic SOTA Detection)
+    $sageApi = $Config.Sources.APIs.SageAttention
+    $pySuffix = "cp" + ($Config.Python.Version -replace '\.', '')
+    $sagePattern = "$($GPU.CudaVersion).*$pySuffix.*win_amd64"
+    
+    Write-Step "Install" "Sage" "Discovering dynamic SageAttention asset for $sagePattern"
+    $dynamicSageUrl = Get-LatestGithubRelease -ApiUrl $sageApi -MatchPattern $sagePattern
+    
+    if ($dynamicSageUrl) {
+        Write-ComfyLog "Injecting SageAttention via Dynamic SOTA wheel: $dynamicSageUrl" -Level SUCCESS
+        & uv pip install $dynamicSageUrl --python $VenvPython
+    } else {
+        # Fallback to config if API fails
+        $SageKey = "$($GPU.CudaVersion)_py$($Config.Python.Version -replace '\.', '')"
+        $fallbackUrl = $Config.Sources.FallbackWheels.SageAttention[$SageKey]
+        if ($fallbackUrl) {
+            Write-ComfyWarning "GitHub API failed, using static fallback for SageAttention."
+            & uv pip install $fallbackUrl --python $VenvPython
+        }
     }
     
     # 4. Application Cloning
@@ -212,7 +243,14 @@ function Update-ComfyProject {
             Push-Location $fullPath
             try {
                 & git fetch origin
-                & git reset --hard "origin/$($r.Branch)"
+                # [13] Non-Destructive: check for dirty state
+                $status = & git status --porcelain
+                if ($status -and -not $Force) {
+                    Write-ComfyWarning "$key has local changes. Skipping hard reset. Use -Force to overwrite."
+                    & git merge origin/$($r.Branch)
+                } else {
+                    & git reset --hard "origin/$($r.Branch)"
+                }
             } catch {
                 Write-ComfyWarning "Failed to update $key. Repository might be locked or dirty."
             } finally {
@@ -245,8 +283,36 @@ function Update-ComfyProject {
     Write-Success "comfYa - All components synchronized."
 }
 
+function Invoke-ComfyClean {
+    [CmdletBinding(SupportsShouldProcess)]
+    param(
+        [Parameter(Mandatory)]
+        [string]$InstallPath
+    )
+    
+    Write-Step "Clean" "Init" "Starting environment sanitation at $InstallPath"
+    
+    $targets = @(
+        ".venv",
+        "__pycache__",
+        "logs",
+        ".triton_cache"
+    )
+    
+    foreach ($t in $targets) {
+        $p = Join-Path $InstallPath $t
+        if (Test-Path $p) {
+            if ($PSCmdlet.ShouldProcess($p, "Remove Item")) {
+                Remove-Item $p -Recurse -Force -ErrorAction SilentlyContinue
+                Write-Success "Sanitized: $t"
+            }
+        }
+    }
+}
+
 Export-ModuleMember -Function @(
     'Install-ComfyProject'
     'Start-ComfyProject'
     'Update-ComfyProject'
+    'Invoke-ComfyClean'
 )

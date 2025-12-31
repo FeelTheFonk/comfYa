@@ -61,10 +61,9 @@ nvidia-smi
 .\comfya.ps1 doctor
 ```
 
-If `False`, reinstall PyTorch using the configuration-aware command:
+If validation fails, use the integrated repair utility:
 ```powershell
-# Reinstall using the SOTA alignment logic
-.\comfya.ps1 doctor  # Select 'y' for self-healing
+.\comfya.ps1 doctor  # Select 'y' to trigger the environment repair process
 ```
 
 ---
@@ -95,8 +94,8 @@ uv pip install triton-windows --force-reinstall
 # Check if installed
 uv pip list | findstr sage
 
-# Reinstall manually
-# Reinstall using SSA preferred version from config.psd1
+```powershell
+# Reinstall using coordinates from the central configuration
 .\comfya.ps1 doctor  # Select 'y' for self-healing
 ```
 

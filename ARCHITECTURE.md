@@ -1,4 +1,4 @@
-# Architecture comfYa v0.2.1 (Pinnacle)
+# Architecture comfYa v0.2.2
 
 ## Modern Modular Orchestrator
 
@@ -33,11 +33,13 @@ graph TD
 
 1.  **SSA (Single Source of Truth)**: No hardcoded version mappings. If `config.psd1` says CUDA 12.8, the entire stack (PowerShell & Python) respects it. Includes a **Recursive Placeholder Engine** (`{Dir:Key}`) for zero-redundancy pathing.
 2.  **Domain Isolation**: GPU logic is isolated from OS logic, which is isolated from logging. This ensures "Pro" grade maintainability.
-3.  **Proactive DX (Developer Experience)**:
-    - **Smart Launcher**: Automatically detects VRAM and **picks the best GPU** on multi-GPU systems.
-    - **Self-Healing**: `doctor` command can reconstruct environments and fix common dependency failures.
-4.  **Hardware Invariance**: Detection logic is **locale-independent**, ensuring perfect parsing on any Windows international configuration.
-5.  **Security Hardened**: Downloads (uv, VC++ Redist) are verified via SHA256 hashes, and TLS 1.3 is enforced.
+3.  **Proactive Developer Experience**:
+    - **Smart Launcher**: Automatically detects VRAM and identifies the optimal GPU on multi-GPU systems.
+    - **Self-Healing Diagnostics**: The `doctor` command performs comprehensive environment audits and provides automated repair options.
+4.  **Hardware Invariance**: Detection logic is locale-independent, ensuring accurate numeric parsing across diverse international Windows configurations.
+5.  **Security Integration**: Downloads are verified against SHA256 hashes, and modern TLS protocols are enforced for all secure communication.
+6.  **Dynamic Dependency Discovery**: Implementation of automated asset resolution via GitHub API to ensure access to optimized backend components.
+7.  **Managed Initialization**: Phased startup sequence including sandbox logging to capture early-stage events before administrative elevation.
 
 ---
 

@@ -9,14 +9,18 @@ function Install-VCRedist {
     $regPath = "HKLM:\SOFTWARE\Microsoft\VisualStudio\14.0\VC\Runtimes\x64"
     if (Test-Path $regPath) {
         $reg = Get-ItemProperty $regPath -ErrorAction SilentlyContinue
-        if ($reg.Installed -eq 1 -and $reg.Major -ge 14) { return $true }
+        # [9] Smart Audit: Check for specific minor version if possible, otherwise assume 14.4x is "modern"
+        if ($reg.Installed -eq 1 -and $reg.Major -ge 14 -and $reg.Minor -ge 40) { 
+            Write-ComfyLog "VC++ Redist 14.40+ already installed. Skipping." -Level INFO
+            return $true 
+        }
     }
     
     $url = $Config.Sources.Dependencies.VCRedist
-    $hash = $Config.Sources.Dependencies.VCRedistHash # To be added to config.psd1
+    $hash = $Config.Sources.Dependencies.VCRedistHash
     $temp = Join-Path $env:TEMP "vc_redist.x64.exe"
     
-    # Requirement: Invoke-SafeWebRequest must be imported
+    Write-Step "Install" "VCRedist" "Downloading VC++ Redist (14.4x) with hash verification..."
     Invoke-SafeWebRequest -Uri $url -OutFile $temp -ExpectedHash $hash
     
     $proc = Start-Process -FilePath $temp -ArgumentList "/install", "/quiet", "/norestart" -Wait -PassThru
@@ -116,9 +120,54 @@ function Repair-Environment {
     return $true
 }
 
+function Invoke-PostInstallCleanup {
+    [CmdletBinding()]
+    param()
+    
+    Write-Step "Cleanup" "Temp" "Removing temporary orchestration artifacts..."
+    $targets = @(
+        (Join-Path $env:TEMP "uv-install.ps1"),
+        (Join-Path $env:TEMP "vc_redist.x64.exe"),
+        (Join-Path $env:TEMP "comfya-init.log")
+    )
+    
+    foreach ($t in $targets) {
+        if (Test-Path $t) {
+            Remove-Item $t -Force -ErrorAction SilentlyContinue
+            Write-ComfyLog "Removed: $t" -Level DEBUG
+        }
+    }
+}
+
+function Get-LatestGithubRelease {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)]
+        [string]$ApiUrl,
+        [string]$MatchPattern
+    )
+    
+    try {
+        $response = Invoke-SafeWebRequest -Uri $ApiUrl
+        $content = $response.Content | ConvertFrom-Json
+        
+        if ($MatchPattern) {
+            $asset = $content.assets | Where-Object { $_.name -match $MatchPattern } | Select-Object -First 1
+            if ($asset) { return $asset.browser_download_url }
+        }
+        
+        return $content.tag_name
+    } catch {
+        Write-ComfyWarning "GitHub API fetch failed for $ApiUrl: $_"
+        return $null
+    }
+}
+
 Export-ModuleMember -Function @(
     'Install-VCRedist'
     'Install-Git'
     'Install-Uv'
     'Repair-Environment'
+    'Get-LatestGithubRelease'
+    'Invoke-PostInstallCleanup'
 )

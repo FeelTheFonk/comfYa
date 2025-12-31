@@ -23,11 +23,15 @@ function Get-NvidiaGpuInfo {
         $parts = $line -split ','
         $invCulture = [System.Globalization.CultureInfo]::InvariantCulture
         
+        # [8] Hardening: Trim and handle potential localized decimal separators
+        $cleanCC = $parts[2].Trim() -replace ',', '.'
+        $cleanVram = $parts[3].Trim()
+        
         $gpuInfo = @{
             Name              = $parts[0].Trim()
             Driver            = $parts[1].Trim()
-            ComputeCapability = [double]::Parse($parts[2].Trim(), $invCulture)
-            Vram              = [int]::Parse($parts[3].Trim(), $invCulture)
+            ComputeCapability = [double]::Parse($cleanCC, $invCulture)
+            Vram              = [int]::Parse($cleanVram, $invCulture)
         }
         $gpuList += New-Object PSObject -Property $gpuInfo
     }

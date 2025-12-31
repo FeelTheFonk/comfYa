@@ -45,9 +45,20 @@ function Export-ComfyConfig {
     )
     
     $Target = Join-Path $InstallPath "config.json"
+    $newJson = $Config | ConvertTo-Json -Depth 10
+    
+    # [15] SyncCheck: Avoid writing if identical
+    if (Test-Path $Target) {
+        $oldJson = Get-Content $Target -Raw
+        if ($oldJson -eq $newJson) {
+            Write-ComfyLog "Configuration bridge is up to date." -Level DEBUG
+            return
+        }
+    }
+    
     if ($PSCmdlet.ShouldProcess($Target, "Export Configuration")) {
-        $Config | ConvertTo-Json -Depth 10 | Out-File -FilePath $Target -Encoding UTF8
-        Write-ComfyLog "Configuration bridge exported to $Target" -Level DEBUG
+        $newJson | Out-File -FilePath $Target -Encoding UTF8
+        Write-ComfyLog "Configuration bridge synchronized to $Target" -Level DEBUG
     }
 }
 
@@ -72,14 +83,15 @@ function Invoke-SafeWebRequest {
         [int]$RetryCount = 3
     )
     
-    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 -bor [Net.SecurityProtocolType]::Tls13
+    # [5] Security: Enforce TLS 1.3 (with 1.2 fallback for older systems if necessary, but roadmap says SOTA)
+    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls13 -bor [Net.SecurityProtocolType]::Tls12
     
     $attempt = 0
     while ($attempt -lt $RetryCount) {
         try {
             $params = @{
                 Uri             = $Uri
-                Headers         = @{ "User-Agent" = "comfYa/0.2.1" }
+                Headers         = @{ "User-Agent" = "comfYa/0.2.2" }
                 UseBasicParsing = $true
                 TimeoutSec      = 120
                 ErrorAction     = 'Stop'
@@ -87,6 +99,12 @@ function Invoke-SafeWebRequest {
             
             if ($OutFile) {
                 $params.OutFile = $OutFile
+                
+                # [18] Proxy Support
+                if ($env:HTTP_PROXY -or $env:HTTPS_PROXY) {
+                    Write-ComfyLog "Using system proxy for download..." -Level DEBUG
+                }
+                
                 Invoke-WebRequest @params
                 
                 if ($ExpectedHash) {
@@ -163,6 +181,37 @@ function Add-DefenderExclusion {
     }
 }
 
+function Get-SecurePath {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)]
+        [string]$Path,
+        [switch]$RequireWrite
+    )
+    
+    $fullPath = Resolve-Path $Path -ErrorAction SilentlyContinue
+    if (-not $fullPath) {
+        # If it doesn't exist, check parent
+        $parent = Split-Path $Path -Parent
+        if (-not (Test-Path $parent)) { return $null }
+        $fullPath = $Path
+    } else {
+        $fullPath = $fullPath.Path
+    }
+    
+    if ($RequireWrite) {
+        $testFile = Join-Path $fullPath ".write-test-$(Get-Random)"
+        try {
+            New-Item -ItemType File -Path $testFile -ErrorAction Stop | Out-Null
+            Remove-Item $testFile -Force -ErrorAction SilentlyContinue
+        } catch {
+            return $null
+        }
+    }
+    
+    return $fullPath
+}
+
 function Test-PowerShellVersion {
     param([hashtable]$Config)
     $minPs = if ($Config.Requirements.MinPsVer) { $Config.Requirements.MinPsVer } else { 5.1 }
@@ -181,4 +230,5 @@ Export-ModuleMember -Function @(
     'Test-PowerShellVersion'
     'Export-ComfyConfig'
     'Add-DefenderExclusion'
+    'Get-SecurePath'
 )

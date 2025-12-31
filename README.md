@@ -6,12 +6,10 @@
 [![Release](https://img.shields.io/github/v/release/FeelTheFonk/comfYa)](https://github.com/FeelTheFonk/comfYa/releases)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-## Features
-
-- **Zero-configuration**: Auto-detects GPU, driver, and CUDA version (Secured via SHA256)
-- **Optimized**: PyTorch Nightly, Triton, SageAttention
-- **Portable**: Dynamic paths, environment variable overrides
-- **Maintainable**: Centralized configuration, modular design
+- **Automated Configuration**: Automatic detection of hardware profiles and driver capabilities.
+- **Optimized Execution**: Integration of high-performance backend components and kernels.
+- **Path Portability**: Support for dynamic installation paths and environment overrides.
+- **Verification Framework**: Comprehensive system validation and self-healing capabilities.
 
 ## Requirements
 
@@ -25,11 +23,12 @@
 ## Quick Start
 
 ```powershell
-# Unified CLI
+# Unified CLI commands
 .\comfya.ps1 setup
 .\comfya.ps1 run
 .\comfya.ps1 doctor
 .\comfya.ps1 update
+.\comfya.ps1 clean
 ```
 
 For immediate launch using auto-detected VRAM, use the batch proxy:
@@ -74,7 +73,7 @@ Edit `config.psd1`:
 
 ```powershell
 @{
-    Version   = "0.2.1"
+    Version   = "0.2.2"
     Python = @{ Version = "3.12" }
     Cuda = @{ PreferredVersion = "cu128" }
     Gpu = @{ MinComputeCapability = 7.5 }

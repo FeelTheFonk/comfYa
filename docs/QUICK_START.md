@@ -51,16 +51,22 @@ Open browser: **http://127.0.0.1:8188**
 ```
 
 ```text
---- comfYa SOTA Validation ---
+--- comfYa Validation ---
 
   Hardware/CUDA............ OK   (RTX 4090 [CC 8.9])
-  Acceleration............. SKIP (Triton v3.x | SageAttn missing)
+  Acceleration............. OK   (Triton v3.x | SageAttn OK)
 ```
 
-## Update
+## Maintenance
 
+### Update Components
 ```powershell
 .\comfya.ps1 update
+```
+
+### Environment Sanitation
+```powershell
+.\comfya.ps1 clean
 ```
 
 ## Custom Install Path

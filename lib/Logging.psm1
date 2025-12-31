@@ -37,7 +37,12 @@ function Initialize-Logging {
     if ($logCfg.FileEnabled -and $InstallPath) {
         $logDir = Join-Path $InstallPath $Config.Directories.Logs
         if (-not (Test-Path $logDir)) {
-            New-Item -ItemType Directory -Path $logDir -Force | Out-Null
+            try {
+                New-Item -ItemType Directory -Path $logDir -Force | Out-Null
+            } catch {
+                Write-ComfyWarning "Could not create log directory at $logDir. Falling back to sandbox."
+                return
+            }
         }
         
         $Script:LogConfig.FilePath = Join-Path $logDir $logCfg.FileName
@@ -51,7 +56,34 @@ function Initialize-Logging {
                 Move-Item $Script:LogConfig.FilePath (Join-Path $logDir $archive) -Force
             }
         }
+        
+        # Drain Sandbox if it exists
+        $sandboxPath = Join-Path $env:TEMP "comfya-init.log"
+        if (Test-Path $sandboxPath) {
+            $content = Get-Content $sandboxPath
+            $content | Out-File -FilePath $Script:LogConfig.FilePath -Append -Encoding UTF8
+            Remove-Item $sandboxPath -Force -ErrorAction SilentlyContinue
+            Write-ComfyLog "Sandbox logs integrated into main log stream." -Level DEBUG
+        }
     }
+}
+
+function Start-SandboxLogging {
+    [CmdletBinding()]
+    param()
+    
+    $sandboxPath = Join-Path $env:TEMP "comfya-init.log"
+    # Rotate sandbox if it's over 1MB
+    if (Test-Path $sandboxPath) {
+        $file = Get-Item $sandboxPath
+        if ($file.Length -gt 1MB) { Remove-Item $sandboxPath -Force }
+    }
+    
+    $Script:LogConfig.FilePath = $sandboxPath
+    $Script:LogConfig.FileEnabled = $true
+    $Script:LogConfig.Level = "DEBUG" # Always capture debug in sandbox
+    
+    Write-ComfyLog "Sandbox logging initialized at $sandboxPath" -Level DEBUG
 }
 
 [Diagnostics.CodeAnalysis.SuppressMessage("PSAvoidUsingWriteHost", "")]
@@ -125,7 +157,12 @@ function Write-ComfyLog {
 }
 
 function Write-Step {
-    param([string]$Phase, [string]$Step, [string]$Message)
+    param([string]$Phase, [string]$Step, [string]$Message, [int]$Percent = -1)
+    
+    if ($Percent -ge 0) {
+        Write-Progress -Activity "comfYa $Phase" -Status "$Step: $Message" -PercentComplete $Percent
+    }
+    
     Write-ComfyLog -Message $Message -Level INFO -Phase $Phase -Step $Step
 }
 
@@ -196,6 +233,7 @@ function Show-ComfyFooter {
 
 Export-ModuleMember -Function @(
     'Initialize-Logging'
+    'Start-SandboxLogging'
     'Write-ComfyLog'
     'Write-Step'
     'Write-Success'

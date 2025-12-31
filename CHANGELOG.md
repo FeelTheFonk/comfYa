@@ -4,7 +4,23 @@ All notable changes to comfYa will be documented in this file.
 
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
-## [0.2.1] - 2025-12-31 (Pinnacle)
+## [0.2.2] - 2025-12-31
+### Added
+- **Automated Dependency Discovery**: Implementation of dynamic asset resolution via GitHub API for third-party components (SageAttention, Triton).
+- **Environment Isolation**: Refined environment variable synchronization logic to minimize persistent system configuration changes.
+- **Enhanced Diagnostics**: Deeper inspection of library integrity and directory permissions within the diagnostic framework.
+- **Pre-flight Simulation**: Introduced a simulation mode to validate installation parameters without performing disk operations.
+- **Sanitization Utility**: Added a dedicated command for secure environment cleanup and artifact removal.
+
+### Changed
+- **Initialization Sequence**: Optimized the startup flow to ensure administrative privilege verification occurs prior to persistent logging or bridge exportation.
+- **Sandbox Logging**: Implemented a temporary logging mechanism for early initialization phases to improve error traceability.
+- **Update Logic**: Refined the repository synchronization process to prevent accidental overwriting of local changes.
+
+### Fixed
+- **Localized Parsing**: Integrated culture-independent numeric parsing to ensure reliability on systems with international decimal separators.
+
+## [0.2.1] - 2025-12-31
 
 ### Added
 - **Pinnacle Architecture (SSA)**: Zero-gap configuration bridge via `config.psd1` ensuring absolute PowerShell/Python synchronization.

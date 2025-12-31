@@ -1,16 +1,17 @@
-# comfYa - Unified Orchestrator CLI (v0.2.1)
+# comfYa - Unified Orchestrator CLI (v0.2.2)
 # Professional management for peak hardware performance
 
 #Requires -Version 5.1
 
 param(
     [Parameter(Position=0)]
-    [ValidateSet("setup", "run", "doctor", "update")]
+    [ValidateSet("setup", "run", "doctor", "update", "clean")]
     [string]$Command = "run",
     
     [string]$InstallHome,
     [switch]$Force,
     [switch]$NonInteractive,
+    [switch]$Simulate,
     
     # Run specific params
     [ValidateSet("Auto", "Default", "HighVram", "LowVram", "Cpu")]
@@ -24,6 +25,9 @@ $LibDir = Join-Path $Root "lib"
 # Load Core Modules
 try {
     Import-Module (Join-Path $LibDir "Logging.psm1") -Force
+    # [2] Start Sandbox Logging immediately to catch pre-elevation issues
+    Start-SandboxLogging
+    
     Import-Module (Join-Path $LibDir "SystemUtils.psm1") -Force
     Import-Module (Join-Path $LibDir "Nvidia.psm1") -Force
     Import-Module (Join-Path $LibDir "Package.psm1") -Force
@@ -33,6 +37,16 @@ try {
     exit 1
 }
 
+# [1] EARLY-EXIT REFACTORING: Elevation check BEFORE config/logging persistence
+if ($Command -eq "setup" -and -not (Test-Administrator)) {
+    $InstallPath = if ($InstallHome) { $InstallHome } else { 
+        if ($env:COMFYUI_HOME) { $env:COMFYUI_HOME } else { $Root }
+    }
+    Write-ComfyLog "Elevation required for setup. Restarting..." -Level WARN
+    Invoke-ElevatedRestart -ScriptPath $PSCommandPath -Parameters @{ Command = "setup"; InstallHome = $InstallPath }
+    exit
+}
+
 # 2. Configuration Initialization
 try {
     $Config = Import-PowerShellDataFile -Path (Join-Path $Root "config.psd1")
@@ -40,13 +54,13 @@ try {
         if ($env:COMFYUI_HOME) { $env:COMFYUI_HOME } else { $Root }
     }
     
+    # [1] Initialize persistent logging and export bridge only after potential elevation
     Initialize-Logging -Config $Config -InstallPath $InstallPath
     Export-ComfyConfig -Config $Config -InstallPath $InstallPath
     Show-ComfyHeader -Version $Config.Version
 }
 catch {
-    Write-Error "Critical Failure: Could not load configuration. $_"
-    exit 1
+    Write-Fatal "Could not load configuration." -Suggestion "Check config.psd1 syntax."
 }
 
 # 3. Command Logic
@@ -54,10 +68,7 @@ switch ($Command) {
     "setup" {
         Write-Step "Bootstrap" "System" "Commencing Pinnacle Installation at: $InstallPath"
         
-        if (-not (Test-Administrator)) {
-            Invoke-ElevatedRestart -ScriptPath $PSCommandPath -Parameters @{ Command = "setup"; InstallHome = $InstallPath }
-            exit
-        }
+        # Admin check already performed during early-exit
         
         # Base Requirements
         $SysInfo = Test-SystemRequirement -Config $Config
@@ -67,7 +78,10 @@ switch ($Command) {
         Update-EnvironmentPath
         
         # Lifecycle execution
-        Install-ComfyProject -Config $Config -InstallPath $InstallPath
+        Install-ComfyProject -Config $Config -InstallPath $InstallPath -Simulate:$Simulate
+        
+        # [12] Post-Install Cleanup
+        Invoke-PostInstallCleanup
         
         Show-ComfyFooter
     }
@@ -102,6 +116,19 @@ switch ($Command) {
             Write-ComfyWarning "Ensure NVIDIA drivers are installed and nvidia-smi works."
         }
         
+        # [16] Doctor Depth: DLL Integrity Check
+        Write-Step "Diagnostics" "DLL" "Verifying CUDA kernel libraries..."
+        $cudaPath = $env:CUDA_PATH
+        if ($cudaPath -and (Test-Path $cudaPath)) {
+            $dlls = @("cudnn64_8.dll", "cublas64_11.dll")
+            foreach ($dll in $dlls) {
+                $status = if (Get-ChildItem -Path $cudaPath -Include $dll -Recurse) { "OK" } else { "WARN" }
+                Write-Diagnostic "Library: $dll" $status ($null)
+            }
+        } else {
+            Write-Diagnostic "CUDA_PATH" "SKIP" "Not found in environment"
+        }
+        
         # Environment Validation
         $VenvPython = Join-Path $InstallPath ".venv\Scripts\python.exe"
         if (Test-Path $VenvPython) {
@@ -125,6 +152,11 @@ switch ($Command) {
     
     "update" {
         Update-ComfyProject -Config $Config -InstallPath $InstallPath
+        Show-ComfyFooter
+    }
+    
+    "clean" {
+        Invoke-ComfyClean -InstallPath $InstallPath
         Show-ComfyFooter
     }
 }
