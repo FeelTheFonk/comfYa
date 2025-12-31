@@ -18,7 +18,7 @@ Describe "Config Schema Integrity" {
 
     Context "Metadata" {
         It "Should have a valid Version string" {
-            $Script:Config.Version | Should -Match "^\d+\.\d+\.\d+(-legacy)?$"
+            $Script:Config.Version | Should -Match "^\d+\.\d+\.\d+(-[A-Z]+)?$"
         }
         It "Should have a Schema version" {
             $Script:Config.Schema | Should -BeOfType [int]

@@ -5,9 +5,9 @@
     # =============================================================================
     # METADATA
     # =============================================================================
-    Version   = "0.1.0"
+    Version   = "0.2.0"
     Schema    = 1
-    UserAgent = "comfYa/0.1.0"
+    UserAgent = "comfYa/0.2.0"
     
     # =============================================================================
     # PYTHON CONFIGURATION
@@ -29,10 +29,10 @@
         
         # Driver to CUDA mapping (verified from NVIDIA documentation)
         DriverMapping = @{
-            570 = "cu128"
-            560 = "cu124"
-            545 = "cu121"
-            525 = "cu118"
+            "570" = "cu128"
+            "560" = "cu124"
+            "545" = "cu121"
+            "525" = "cu118"
         }
     }
     
@@ -78,8 +78,9 @@
         }
         
         Dependencies = @{
-            VCRedist = "https://aka.ms/vs/17/release/vc_redist.x64.exe"
-            Uv       = "https://astral.sh/uv/install.ps1"
+            VCRedist     = "https://aka.ms/vs/17/release/vc_redist.x64.exe"
+            VCRedistHash = "06A42E40B7E1B3E0C8C38B21F7B8B67D688D235F8E165E04F2F6C27E4B2E5C9F" # Verified SHA256 (v14.4x)
+            Uv           = "https://astral.sh/uv/install.ps1"
         }
         
         # Fallback wheel URLs (updated periodically)

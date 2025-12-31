@@ -1,115 +1,67 @@
-# comfYa Update Manager
+# comfYa - Update Manager (v0.2.0)
+# Proactive maintenance and SOTA synchronization
+
+#Requires -Version 5.1
+
 [CmdletBinding()]
-param()
+param([string]$Home)
 
 $ErrorActionPreference = 'Stop'
+$Root = $PSScriptRoot
+$LibDir = Join-Path $Root "lib"
 
-# Dynamic path resolution
-$InstallPath = if ($env:COMFYUI_HOME) { $env:COMFYUI_HOME } else { $PSScriptRoot }
+# 1. Imports
+Import-Module (Join-Path $LibDir "Logging.psm1") -Force
+Import-Module (Join-Path $LibDir "SystemUtils.psm1") -Force
+Import-Module (Join-Path $LibDir "Nvidia.psm1") -Force
 
-# Import core library
-$libPath = Join-Path $InstallPath "lib\core.psm1"
-if (Test-Path $libPath) {
-    Import-Module $libPath -Force
+# 2. Config & Path Resolution
+$Config = Import-PowerShellDataFile -Path (Join-Path $Root "config.psd1")
+$InstallPath = if ($Home) { $Home } else { 
+    if ($env:COMFYUI_HOME) { $env:COMFYUI_HOME } else { $Root }
 }
-
-Write-Host ""
-Write-Host "╔══════════════════════════════════════╗" -ForegroundColor Cyan
-Write-Host "║      comfYa - Update Manager         ║" -ForegroundColor Cyan
-Write-Host "╚══════════════════════════════════════╝" -ForegroundColor Cyan
-Write-Host ""
-
 Set-Location $InstallPath
-if (Test-Path ".venv\Scripts\Activate.ps1") {
-    & ".\.venv\Scripts\Activate.ps1"
-} else {
-    Write-Error "Virtual environment not found. Run install.ps1 first."
-    exit 1
+$PythonExe = Join-Path $InstallPath ".venv\Scripts\python.exe"
+
+Write-Step "Update" "Init" "Synchronizing with SOTA repositories..."
+
+# 3. Repository Updates
+$Repos = @{
+    "ComfyUI Core"    = @{ Path = "ComfyUI"; Branch = "master" }
+    "ComfyUI Manager" = @{ Path = "ComfyUI\custom_nodes\ComfyUI-Manager"; Branch = "main" }
 }
 
-# Load config if available
-$configPath = Join-Path $InstallPath "config.psd1"
-$config = if (Test-Path $configPath) { Import-PowerShellDataFile -Path $configPath } else { $null }
-
-# 1. ComfyUI
-Write-Host "[1/5] Updating ComfyUI..." -ForegroundColor Yellow
-if (Test-Path "ComfyUI") {
-    Push-Location ComfyUI
-    $currentCommit = git rev-parse HEAD 2>$null
-    if ($currentCommit) {
-        Write-Host "  → Current: $($currentCommit.Substring(0,7))" -ForegroundColor Gray
+foreach ($name in $Repos.Keys) {
+    $r = $Repos[$name]
+    if (Test-Path $r.Path) {
+        Write-Log "Updating $name..." -Level VERBOSE
+        Push-Location $r.Path
+        & git fetch origin
+        & git reset --hard "origin/$($r.Branch)"
+        Pop-Location
     }
-    git fetch origin
-    git reset --hard origin/master
-    Pop-Location
-    Write-Host "  ✓ ComfyUI updated" -ForegroundColor Green
 }
 
-# 2. ComfyUI-Manager
-Write-Host "[2/5] Updating ComfyUI-Manager..." -ForegroundColor Yellow
-$managerPath = "ComfyUI\custom_nodes\ComfyUI-Manager"
-if (Test-Path $managerPath) {
-    Push-Location $managerPath
-    git fetch origin
-    git reset --hard origin/main
-    Pop-Location
-    Write-Host "  ✓ Manager updated" -ForegroundColor Green
-} else {
-    Write-Host "  ⚠ Manager not found, skipping" -ForegroundColor DarkYellow
-}
+# 4. Dependency Alignment
+Write-Step "Update" "Deps" "Aligning dependencies via uv"
+& uv pip install -r ComfyUI\requirements.txt --python $PythonExe
 
-# 3. Python dependencies
-Write-Host "[3/5] Updating ComfyUI dependencies..." -ForegroundColor Yellow
-& uv pip install -r ComfyUI\requirements.txt 2>&1 | Out-Null
-if ($LASTEXITCODE -ne 0) {
-    Write-Host "  ⚠ Dependencies update had warnings" -ForegroundColor DarkYellow
-} else {
-    Write-Host "  ✓ Dependencies updated" -ForegroundColor Green
-}
+# Optimization Stack
+Write-Log "Enforcing Optimization Stack (Triton, TorchAO)..." -Level VERBOSE
+& uv pip install --upgrade @($Config.Packages.Optimization) --python $PythonExe
 
-# 4. Optimization packages
-Write-Host "[4/5] Updating optimization packages..." -ForegroundColor Yellow
-& uv pip install --upgrade triton-windows torchao 2>&1 | Out-Null
-if ($LASTEXITCODE -ne 0) {
-    Write-Host "  ⚠ Optimization packages update had warnings" -ForegroundColor DarkYellow
-} else {
-    Write-Host "  ✓ Optimization packages updated" -ForegroundColor Green
-}
-
-# 5. SageAttention check
-Write-Host "[5/5] Checking SageAttention..." -ForegroundColor Yellow
+# 5. SageAttention Check
 try {
-    $userAgent = if ($config -and $config.UserAgent) { $config.UserAgent } else { "comfYa/0.1.0" }
-    $apiUrl = if ($config) { $config.Sources.APIs.SageAttention } else { "https://api.github.com/repos/woct0rdho/SageAttention/releases/latest" }
-    
-    $headers = @{ "User-Agent" = $userAgent }
-    $release = Invoke-RestMethod -Uri $apiUrl -Headers $headers -ErrorAction Stop -TimeoutSec 10
-    $currentVersion = & python -c "from sageattention import __version__; print(__version__)" 2>&1
-    
-    if ($release.tag_name -notmatch [regex]::Escape($currentVersion)) {
-        Write-Host "  → New version available: $($release.tag_name)" -ForegroundColor Yellow
-        $cudaVersion = if ($config -and $env:CUDA_VERSION) { $env:CUDA_VERSION } else { "cu128" }
-        $asset = $release.assets | Where-Object { $_.name -match "$cudaVersion.*cp312.*win_amd64\.whl" } | Select-Object -First 1
-        if ($asset) {
-            $whlPath = Join-Path $env:TEMP $asset.name
-            if (Get-Command Invoke-SafeWebRequest -ErrorAction SilentlyContinue) {
-                Invoke-SafeWebRequest -Uri $asset.browser_download_url -OutFile $whlPath
-            } else {
-                Invoke-WebRequest -Uri $asset.browser_download_url -OutFile $whlPath -Headers $headers
-            }
-            & uv pip install $whlPath --force-reinstall 2>&1 | Out-Null
-            Remove-Item $whlPath -Force -ErrorAction SilentlyContinue
-            Write-Host "  ✓ SageAttention updated" -ForegroundColor Green
-        }
-    } else {
-        Write-Host "  ✓ SageAttention up to date" -ForegroundColor Green
+    Write-Log "Checking for SageAttention updates..." -Level VERBOSE
+    $GPU = Get-NvidiaGpuInfo -Config $Config
+    $PyVerShort = $Config.Python.Version -replace '\.', ''
+    $SageKey = "$($GPU.CudaVersion)_py$PyVerShort"
+    $SageUrl = $Config.Sources.FallbackWheels.SageAttention[$SageKey]
+    if ($SageUrl) {
+        & uv pip install --upgrade $SageUrl --python $PythonExe
     }
 } catch {
-    Write-Host "  ⚠ SageAttention check skipped: $($_.Exception.Message)" -ForegroundColor DarkYellow
+    Write-Log "SageAttention update skipped (Non-critical)" -Level WARN
 }
 
-Write-Host ""
-Write-Host "═══════════════════════════════════════" -ForegroundColor Green
-Write-Host "  Update completed successfully!" -ForegroundColor Green
-Write-Host "═══════════════════════════════════════" -ForegroundColor Green
-Write-Host ""
+Write-Success "comfYa v0.2.0 - All components synchronized."

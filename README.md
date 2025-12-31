@@ -25,16 +25,15 @@
 ## Quick Start
 
 ```powershell
-# Install (run as Administrator)
+# Unified CLI (Recommended)
+.\comfya.ps1 setup
+.\comfya.ps1 run
+.\comfya.ps1 doctor
+
+# Legacy scripts still support direct execution
 .\install.ps1
-
-# Launch
-.\run.bat  # or .\run.ps1
-
-# Update
+.\run.ps1
 .\update.ps1
-
-# Validate
 python validate.py
 ```
 
@@ -51,12 +50,13 @@ $env:COMFYUI_HOME = "D:\MyComfyUI"
 
 ```
 comfYa/
+├── comfya.ps1           # Multi-command CLI (Orchestrator)
 ├── install.ps1          # Main installer
 ├── run.ps1 / run.bat    # Launchers
 ├── update.ps1           # Update manager
 ├── validate.py          # Installation validator
-├── config.psd1          # Configuration
-├── lib/core.psm1        # Core module
+├── config.psd1          # Central SQL (Single Source of Truth)
+├── lib/                 # Modular modules (Logging, Nvidia, System, Package)
 ├── tests/               # Pester tests
 ├── docs/                # Documentation
 └── .github/workflows/   # CI/CD

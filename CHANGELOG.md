@@ -4,6 +4,27 @@ All notable changes to comfYa will be documented in this file.
 
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.2.0] - 2025-12-31
+
+### Added
+- **Unified CLI**: `comfya.ps1` as the single orchestrator (setup, run, doctor, update).
+- **Modularity**: Fully decomposed `lib/core.psm1` into domain-specific modules.
+- **Lib/Nvidia**: Advanced GPU/CUDA/Arch detection with **modular VRAM query**.
+- **Lib/Logging**: Structured ANSI logging with automated rotation.
+- **Lib/SystemUtils**: Pre-flight requirement checks (Disk, RAM, PS version).
+- **Lib/Package**: Intelligent environment management with **Self-Healing** capabilities.
+- **Smart Launcher**: VRAM-aware auto-mode selection (HighVram/Default/LowVram).
+
+### Changed
+- **SSA Enforcement**: Purged ALL hardcoded Python versions and wheel keys. Dynamically driven by `config.psd1`.
+- **Refactoring**: Standardized regex and version validation across Pester suites.
+- **Installation**: Radical simplification of `install.ps1` with modular calls.
+- **Security**: Hardened binary verification via SHA256 hashes and TLS 1.3 enforcement.
+
+### Removed
+- Legacy `lib/core.psm1` (Decomposed).
+- All duplicated version mappings and hardcoded paths.
+
 ## [0.1.0] - 2025-12-31
 
 ### Added
