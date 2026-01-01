@@ -73,7 +73,7 @@ Edit `config.psd1`:
 
 ```powershell
 @{
-    Version   = "0.2.4
+    Version   = "0.2.4"
     Python = @{ Version = "3.12" }
     Cuda = @{ PreferredVersion = "cu128" }
     Gpu = @{ MinComputeCapability = 7.5 }
@@ -88,6 +88,10 @@ Edit `config.psd1`:
 | Variable | Description |
 |----------|-------------|
 | `COMFYUI_HOME` | Installation path override |
+| `CUDA_MODULE_LOADING` | Set to `LAZY` for optimized CUDA loading |
+| `PYTORCH_CUDA_ALLOC_CONF` | Memory allocation strategy |
+| `TRITON_CACHE_DIR` | Triton kernel cache location |
+| `TORCH_COMPILE_BACKEND` | Compilation backend (default: `inductor`) |
 
 ## Troubleshooting
 

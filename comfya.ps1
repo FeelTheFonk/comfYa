@@ -75,7 +75,7 @@ switch ($Command) {
             Write-Step "Bootstrap" "System" "Commencing Pinnacle Installation at: $InstallPath"
             
             # Base Requirements
-            $SysInfo = Test-SystemRequirement -Config $Config
+            $null = Test-SystemRequirement -Config $Config
             Install-VCRedist -Config $Config
             Install-Git
             Install-Uv -Config $Config

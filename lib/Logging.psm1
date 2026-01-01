@@ -86,8 +86,8 @@ function Start-SandboxLogging {
     Write-ComfyLog "Sandbox logging initialized at $sandboxPath" -Level DEBUG
 }
 
-[Diagnostics.CodeAnalysis.SuppressMessage("PSAvoidUsingWriteHost", "")]
 function Write-ComfyLog {
+    [Diagnostics.CodeAnalysis.SuppressMessage("PSAvoidUsingWriteHost", "")]
     [CmdletBinding()]
     param(
         [Parameter(Mandatory)]
@@ -160,7 +160,7 @@ function Write-Step {
     param([string]$Phase, [string]$Step, [string]$Message, [int]$Percent = -1)
     
     if ($Percent -ge 0) {
-        Write-Progress -Activity "comfYa $Phase" -Status "$Step: $Message" -PercentComplete $Percent
+        Write-Progress -Activity "comfYa $Phase" -Status "${Step}: $Message" -PercentComplete $Percent
     }
     
     Write-ComfyLog -Message $Message -Level INFO -Phase $Phase -Step $Step
@@ -195,8 +195,8 @@ function Write-Diagnostic {
     Write-Host ""
 }
 
-[Diagnostics.CodeAnalysis.SuppressMessage("PSAvoidUsingWriteHost", "")]
 function Write-Fatal {
+    [Diagnostics.CodeAnalysis.SuppressMessage("PSAvoidUsingWriteHost", "")]
     param([string]$Message, [string]$Suggestion)
     Write-ComfyLog -Message $Message -Level ERROR -Phase "FATAL"
     if ($Suggestion) {
@@ -206,8 +206,8 @@ function Write-Fatal {
     throw $Message
 }
 
-[Diagnostics.CodeAnalysis.SuppressMessage("PSAvoidUsingWriteHost", "")]
 function Show-ComfyHeader {
+    [Diagnostics.CodeAnalysis.SuppressMessage("PSAvoidUsingWriteHost", "")]
     param([string]$Version)
     
     Clear-Host
@@ -223,8 +223,8 @@ function Show-ComfyHeader {
     Write-Host "Initializing hardware-accelerated orchestrator...`n" -ForegroundColor Gray
 }
 
-[Diagnostics.CodeAnalysis.SuppressMessage("PSAvoidUsingWriteHost", "")]
 function Show-ComfyFooter {
+    [Diagnostics.CodeAnalysis.SuppressMessage("PSAvoidUsingWriteHost", "")]
     param()
     Write-Host "`n  " -NoNewline
     Write-Host ("─" * 40) -ForegroundColor DarkGray

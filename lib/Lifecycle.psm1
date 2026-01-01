@@ -85,10 +85,18 @@ function Install-ComfyProject {
     # 3. Acceleration Stack
     Write-Step "Install" "PyTorch" "Installing Nightly Optimized for $($GPU.CudaVersion)"
     $IndexUrl = $Config.Sources.PyTorch.IndexUrls[$GPU.CudaVersion]
-    & uv pip install --pre torch torchvision torchaudio --index-url $IndexUrl --python $VenvPython
+    try {
+        & uv pip install --pre torch torchvision torchaudio --index-url $IndexUrl --python $VenvPython
+    } catch {
+        Write-Fatal "PyTorch installation failed" -Suggestion "Check your internet connection and CUDA compatibility."
+    }
     
     Write-Step "Install" "Optim" "Injecting Triton and Optimization Stack"
-    & uv pip install @($Config.Packages.Optimization) --python $VenvPython
+    try {
+        & uv pip install @($Config.Packages.Optimization) --python $VenvPython
+    } catch {
+        Write-ComfyWarning "Optimization stack installation failed (non-critical): $_"
+    }
     
     # [7] SageAttention (Centralized SOTA Detection)
     Install-SageAttention -Config $Config -GPU $GPU -PythonExe $VenvPython
@@ -104,7 +112,11 @@ function Install-ComfyProject {
             Write-Fatal "Cloning failed" -Suggestion "Check your git installation and internet connection."
         }
     }
-    & uv pip install -r (Join-Path $AppPath "requirements.txt") --python $VenvPython
+    try {
+        & uv pip install -r (Join-Path $AppPath "requirements.txt") --python $VenvPython
+    } catch {
+        Write-Fatal "ComfyUI requirements installation failed" -Suggestion "Check requirements.txt and network access."
+    }
     
     # 4b. ComfyUI-Manager
     Write-Step "Install" "Manager" "Cloning ComfyUI-Manager"

@@ -31,8 +31,9 @@ function Install-VCRedist {
 }
 
 
-[Diagnostics.CodeAnalysis.SuppressMessage("PSAvoidUsingWriteHost", "")]
 function Install-Git {
+    [Diagnostics.CodeAnalysis.SuppressMessage("PSAvoidUsingWriteHost", "")]
+    param()
     if (Get-Command git -ErrorAction SilentlyContinue) { return $true }
     
     if (Get-Command Write-ComfyLog -ErrorAction SilentlyContinue) {
@@ -159,7 +160,7 @@ function Get-LatestGithubRelease {
         
         return $content.tag_name
     } catch {
-        Write-ComfyWarning "GitHub API fetch failed for $ApiUrl: $_"
+        Write-ComfyWarning "GitHub API fetch failed for ${ApiUrl}: $_"
         return $null
     }
 }
