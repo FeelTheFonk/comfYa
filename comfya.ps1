@@ -1,4 +1,4 @@
-# comfYa - Unified Orchestrator CLI (v0.2.3)
+# comfYa - Unified Orchestrator CLI
 # Professional management for peak hardware performance
 
 #Requires -Version 5.1
@@ -125,7 +125,7 @@ switch ($Command) {
         Write-Step "Diagnostics" "DLL" "Verifying CUDA kernel libraries..."
         $cudaPath = $env:CUDA_PATH
         if ($cudaPath -and (Test-Path $cudaPath)) {
-            $dlls = @("cudnn64_8.dll", "cublas64_11.dll")
+            $dlls = @("cudnn64_9.dll", "cublas64_12.dll", "cudnn64_8.dll", "cublas64_11.dll")
             foreach ($dll in $dlls) {
                 $status = if (Get-ChildItem -Path $cudaPath -Include $dll -Recurse) { "OK" } else { "WARN" }
                 Write-Diagnostic "Library: $dll" $status ($null)

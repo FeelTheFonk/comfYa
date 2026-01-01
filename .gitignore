@@ -14,7 +14,7 @@ dist/
 downloads/
 eggs/
 .eggs/
-# lib/  # Commented: conflicts with lib/core.psm1
+# lib/  # Intentionally not ignored - contains PowerShell modules
 # lib64/
 parts/
 sdist/

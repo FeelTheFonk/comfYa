@@ -32,8 +32,6 @@ All settings in [`config.psd1`](../config.psd1):
 | Variable | Description |
 |----------|-------------|
 | `COMFYUI_HOME` | Installation path override |
-| `COMFYUI_PYTHON_VERSION` | Python version override |
-| `COMFYUI_CUDA_VERSION` | CUDA version override |
 
 ## Scripts
 

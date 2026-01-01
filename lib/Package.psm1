@@ -20,8 +20,8 @@ function Install-VCRedist {
     $hash = $Config.Sources.Dependencies.VCRedistHash
     $temp = Join-Path $env:TEMP "vc_redist.x64.exe"
     
-    Write-Step "Install" "VCRedist" "Downloading VC++ Redist (14.4x) with hash verification..."
-    Invoke-SafeWebRequest -Uri $url -OutFile $temp -ExpectedHash $hash
+    Write-Step "Install" "VCRedist" "Downloading VC++ Redist (14.4x)..."
+    Invoke-SafeWebRequest -Uri $url -OutFile $temp -ExpectedHash $hash -UserAgent $Config.UserAgent
     
     $proc = Start-Process -FilePath $temp -ArgumentList "/install", "/quiet", "/norestart" -Wait -PassThru
     Remove-Item $temp -Force -ErrorAction SilentlyContinue
@@ -54,8 +54,8 @@ function Install-Uv {
     $hash = $Config.Sources.Dependencies.UvHash
     $temp = Join-Path $env:TEMP "uv-install.ps1"
     
-    Write-ComfyLog "Downloading uv installer with security verification..." -Level INFO
-    Invoke-SafeWebRequest -Uri $url -OutFile $temp -ExpectedHash $hash
+    Write-ComfyLog "Downloading uv installer..." -Level INFO
+    Invoke-SafeWebRequest -Uri $url -OutFile $temp -ExpectedHash $hash -UserAgent $Config.UserAgent
     
     # Run installer
     powershell -ExecutionPolicy Bypass -File $temp /S # Silent install
@@ -144,11 +144,12 @@ function Get-LatestGithubRelease {
     param(
         [Parameter(Mandatory)]
         [string]$ApiUrl,
-        [string]$MatchPattern
+        [string]$MatchPattern,
+        [string]$UserAgent = "comfYa"
     )
     
     try {
-        $response = Invoke-SafeWebRequest -Uri $ApiUrl
+        $response = Invoke-SafeWebRequest -Uri $ApiUrl -UserAgent $UserAgent
         $content = $response.Content | ConvertFrom-Json
         
         if ($MatchPattern) {
@@ -180,7 +181,7 @@ function Install-SageAttention {
     $sagePattern = "$($GPU.CudaVersion).*$pySuffix.*win_amd64"
     
     Write-Step "Install" "Sage" "Discovering SageAttention asset for $sagePattern"
-    $dynamicSageUrl = Get-LatestGithubRelease -ApiUrl $sageApi -MatchPattern $sagePattern
+    $dynamicSageUrl = Get-LatestGithubRelease -ApiUrl $sageApi -MatchPattern $sagePattern -UserAgent $Config.UserAgent
     
     $uvArgs = @($dynamicSageUrl, "--python", $PythonExe)
     if ($Upgrade) { $uvArgs = @("--upgrade") + $uvArgs }

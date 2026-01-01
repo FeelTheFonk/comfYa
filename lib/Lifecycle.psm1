@@ -106,6 +106,18 @@ function Install-ComfyProject {
     }
     & uv pip install -r (Join-Path $AppPath "requirements.txt") --python $VenvPython
     
+    # 4b. ComfyUI-Manager
+    Write-Step "Install" "Manager" "Cloning ComfyUI-Manager"
+    $Manager = $Config.Sources.Repositories.ComfyUIManager
+    $ManagerPath = Join-Path $InstallPath $Manager.Path
+    if (-not (Test-Path $ManagerPath)) {
+        try {
+            & git clone --depth 1 -b $Manager.Branch $Manager.Url $ManagerPath
+        } catch {
+            Write-ComfyWarning "ComfyUI-Manager cloning failed (non-critical): $_"
+        }
+    }
+    
     # 5. Security & Exclusions
     if ($Config.Security.DefenderExclusion) {
         Write-Step "Install" "Security" "Applying Windows Defender exclusions"

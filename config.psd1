@@ -96,9 +96,9 @@
         
         Dependencies = @{
             VCRedist     = "https://aka.ms/vs/17/release/vc_redist.x64.exe"
-            VCRedistHash = "06A42E40B7E1B3E0C8C38B21F7B8B67D688D235F8E165E04F2F6C27E4B2E5C9F" # SHA256 VC++ Redist 14.40.33816 (2024)
+            VCRedistHash = $null  # MS-signed binary, hash changes with updates
             Uv           = "https://astral.sh/uv/install.ps1"
-            UvHash       = "B47A318D964256F7DEDB874538B2B9889EF52D719F2ECB816390ADFFF0A3F14D" # Verified SHA256
+            UvHash       = $null  # Dynamic installer script, verification not possible
         }
         
         # Fallback wheel URLs (updated periodically)
