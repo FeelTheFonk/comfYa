@@ -90,26 +90,8 @@ function Install-ComfyProject {
     Write-Step "Install" "Optim" "Injecting Triton and Optimization Stack"
     & uv pip install @($Config.Packages.Optimization) --python $VenvPython
     
-    # [7] SageAttention (Dynamic SOTA Detection)
-    $sageApi = $Config.Sources.APIs.SageAttention
-    $pySuffix = "cp" + ($Config.Python.Version -replace '\.', '')
-    $sagePattern = "$($GPU.CudaVersion).*$pySuffix.*win_amd64"
-    
-    Write-Step "Install" "Sage" "Discovering dynamic SageAttention asset for $sagePattern"
-    $dynamicSageUrl = Get-LatestGithubRelease -ApiUrl $sageApi -MatchPattern $sagePattern
-    
-    if ($dynamicSageUrl) {
-        Write-ComfyLog "Injecting SageAttention via Dynamic SOTA wheel: $dynamicSageUrl" -Level SUCCESS
-        & uv pip install $dynamicSageUrl --python $VenvPython
-    } else {
-        # Fallback to config if API fails
-        $SageKey = "$($GPU.CudaVersion)_py$($Config.Python.Version -replace '\.', '')"
-        $fallbackUrl = $Config.Sources.FallbackWheels.SageAttention[$SageKey]
-        if ($fallbackUrl) {
-            Write-ComfyWarning "GitHub API failed, using static fallback for SageAttention."
-            & uv pip install $fallbackUrl --python $VenvPython
-        }
-    }
+    # [7] SageAttention (Centralized SOTA Detection)
+    Install-SageAttention -Config $Config -GPU $GPU -PythonExe $VenvPython
     
     # 4. Application Cloning
     Write-Step "Install" "App" "Cloning ComfyUI Core"
@@ -210,6 +192,8 @@ function Update-ComfyProject {
     
     if (-not $PSCmdlet.ShouldProcess($InstallPath, "Update ComfyUI Project")) { return }
     
+    Test-UvAvailability  # [11] Pre-Update Hook
+    
     Write-Step "Update" "Init" "Synchronizing with SOTA repositories..."
     $PythonExe = Join-Path $InstallPath ".venv\Scripts\python.exe"
     
@@ -247,16 +231,10 @@ function Update-ComfyProject {
     Write-ComfyLog "Enforcing Optimization Stack (Triton, TorchAO)..." -Level VERBOSE
     & uv pip install --upgrade @($Config.Packages.Optimization) --python $PythonExe
     
-    # 3. SageAttention Synchronization
+    # 3. SageAttention Synchronization (Centralized)
     try {
-        Write-ComfyLog "Checking for SageAttention updates..." -Level VERBOSE
         $GPU = Get-NvidiaGpuInfo -Config $Config
-        $PyVerShort = $Config.Python.Version -replace '\.', ''
-        $SageKey = "$($GPU.CudaVersion)_py$PyVerShort"
-        $SageUrl = $Config.Sources.FallbackWheels.SageAttention[$SageKey]
-        if ($SageUrl) {
-            & uv pip install --upgrade $SageUrl --python $PythonExe
-        }
+        Install-SageAttention -Config $Config -GPU $GPU -PythonExe $PythonExe -Upgrade
     } catch {
         Write-ComfyLog "SageAttention update skipped (Non-critical)" -Level WARN
     }
@@ -277,7 +255,8 @@ function Invoke-ComfyClean {
         ".venv",
         "__pycache__",
         "logs",
-        ".triton_cache"
+        ".triton_cache",
+        "config.json"  # Auto-generated bridge file
     )
     
     foreach ($t in $targets) {

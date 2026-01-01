@@ -4,6 +4,24 @@ All notable changes to comfYa will be documented in this file.
 
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.2.4] - 2026-01-01
+### Added
+- **Install-SageAttention**: Centralized function in `Package.psm1` eliminating code duplication.
+- **Pre-Release Validation**: Release workflow now validates CI before creating releases.
+- **Path Validation**: `comfya.ps1` now validates `$InstallPath` is writable before setup.
+
+### Changed
+- **SSA Enforcement**: Removed hardcoded version in `Invoke-SafeWebRequest`; now requires explicit `UserAgent` parameter.
+- **Security Hardening**: TruffleHog action pinned by SHA for maximum supply-chain security.
+- **Update-ComfyProject**: Added `Test-UvAvailability` pre-check for consistency with install flow.
+
+### Fixed
+- **Numbering**: Corrected duplicate step numbering in `comfya.ps1` (# 3 → # 4).
+- **Documentation**: Fixed unclosed markdown code block in `TROUBLESHOOTING.md`.
+- **CHANGELOG**: Removed reference to deleted `lib/core.psm1`.
+- **README**: Removed undocumented environment variables (`COMFYUI_PYTHON_VERSION`, `COMFYUI_CUDA_VERSION`).
+- **Clean Command**: `config.json` now properly cleaned by `Invoke-ComfyClean`.
+
 ## [0.2.3] - 2025-12-31
 ### Added
 - **Recursive Placeholder Engine**: Expanded environment resolution to support nested and recursive `{Dir:Key}` placeholders in `config.psd1`.
@@ -62,7 +80,7 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - **Dependabot**: Automatic GitHub Actions updates
 - **Templates**: Bug report, feature request, pull request templates
 - **Configuration**: Centralized `config.psd1` with environment overrides
-- **Module**: `lib/core.psm1` with reusable functions
+- **Modules**: Domain-isolated modules in `lib/` directory
 - **Tests**: Comprehensive Pester test suite (55 tests)
 
 ### Changed

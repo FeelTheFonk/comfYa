@@ -93,6 +93,7 @@ uv pip install triton-windows --force-reinstall
 ```powershell
 # Check if installed
 uv pip list | findstr sage
+```
 
 ```powershell
 # Reinstall using coordinates from the central configuration

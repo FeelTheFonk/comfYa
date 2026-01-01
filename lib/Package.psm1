@@ -163,6 +163,49 @@ function Get-LatestGithubRelease {
     }
 }
 
+function Install-SageAttention {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)]
+        [hashtable]$Config,
+        [Parameter(Mandatory)]
+        [hashtable]$GPU,
+        [Parameter(Mandatory)]
+        [string]$PythonExe,
+        [switch]$Upgrade
+    )
+    
+    $sageApi = $Config.Sources.APIs.SageAttention
+    $pySuffix = "cp" + ($Config.Python.Version -replace '\.', '')
+    $sagePattern = "$($GPU.CudaVersion).*$pySuffix.*win_amd64"
+    
+    Write-Step "Install" "Sage" "Discovering SageAttention asset for $sagePattern"
+    $dynamicSageUrl = Get-LatestGithubRelease -ApiUrl $sageApi -MatchPattern $sagePattern
+    
+    $uvArgs = @($dynamicSageUrl, "--python", $PythonExe)
+    if ($Upgrade) { $uvArgs = @("--upgrade") + $uvArgs }
+    
+    if ($dynamicSageUrl) {
+        Write-ComfyLog "Injecting SageAttention via Dynamic SOTA wheel" -Level SUCCESS
+        & uv pip install @uvArgs
+        return $true
+    }
+    
+    # Fallback to static config
+    $SageKey = "$($GPU.CudaVersion)_py$($Config.Python.Version -replace '\.', '')"
+    $fallbackUrl = $Config.Sources.FallbackWheels.SageAttention[$SageKey]
+    
+    if ($fallbackUrl) {
+        Write-ComfyWarning "GitHub API failed, using static fallback for SageAttention."
+        $uvArgs[0] = $fallbackUrl
+        & uv pip install @uvArgs
+        return $true
+    }
+    
+    Write-ComfyWarning "SageAttention installation skipped (No compatible wheel found)"
+    return $false
+}
+
 Export-ModuleMember -Function @(
     'Install-VCRedist'
     'Install-Git'
@@ -170,4 +213,5 @@ Export-ModuleMember -Function @(
     'Repair-Environment'
     'Get-LatestGithubRelease'
     'Invoke-PostInstallCleanup'
+    'Install-SageAttention'
 )

@@ -80,7 +80,7 @@ function Invoke-SafeWebRequest {
         [string]$Uri,
         [string]$OutFile,
         [string]$ExpectedHash,
-        [string]$UserAgent = "comfYa/0.2.3",
+        [string]$UserAgent,
         [int]$RetryCount = 3
     )
     

@@ -17,8 +17,14 @@ permissions:
   contents: write
 
 jobs:
+  # Run validation checks before release
+  pre-release-check:
+    name: Pre-Release Validation
+    uses: ./.github/workflows/ci.yml
+  
   release:
     name: Create Release
+    needs: [pre-release-check]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

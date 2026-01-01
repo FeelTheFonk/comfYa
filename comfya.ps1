@@ -40,6 +40,15 @@ $InstallPath = if ($InstallHome) { $InstallHome }
                elseif ($env:COMFYUI_HOME) { $env:COMFYUI_HOME } 
                else { $Root }
 
+# Validate InstallPath is writable (for setup/update commands)
+if ($Command -in @("setup", "update", "clean")) {
+    $ValidatedPath = Get-SecurePath -Path $InstallPath -RequireWrite
+    if (-not $ValidatedPath -and $Command -eq "setup") {
+        Write-Error "Installation path is not accessible or writable: $InstallPath"
+        exit 1
+    }
+}
+
 # 3. Elevation & Post-Elevation Initialization
 if ($Command -eq "setup" -and -not (Test-Administrator)) {
     Write-ComfyLog "Elevation required for installation. Restarting..." -Level WARN
@@ -59,7 +68,7 @@ catch {
     Write-Fatal "Could not load configuration." -Suggestion "Check config.psd1 syntax."
 }
 
-# 3. Command Logic
+# 4. Command Logic
 switch ($Command) {
     "setup" {
         try {

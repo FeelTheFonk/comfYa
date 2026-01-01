@@ -1,4 +1,4 @@
-# Architecture comfYa v0.2.3
+# Architecture comfYa v0.2.4
 
 ## Modern Modular Orchestrator
 

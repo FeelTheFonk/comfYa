@@ -50,7 +50,6 @@ jobs:
           fetch-depth: 0
       
       - name: TruffleHog Scan
-        # Note: Pinned to stable version tag (SHA recommended for max security)
-        uses: trufflesecurity/trufflehog@v3.88.0
+        uses: trufflesecurity/trufflehog@7e78a12569a376a9a8e3cc8dff08b8e0f0c97d8a # v3.88.0
         with:
           extra_args: --only-verified
