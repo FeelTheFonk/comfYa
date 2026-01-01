@@ -31,10 +31,10 @@ function Install-VCRedist {
 }
 
 
+[Diagnostics.CodeAnalysis.SuppressMessage("PSAvoidUsingWriteHost", "")]
 function Install-Git {
     if (Get-Command git -ErrorAction SilentlyContinue) { return $true }
     
-    [Diagnostics.CodeAnalysis.SuppressMessage("PSAvoidUsingWriteHost", "")]
     if (Get-Command Write-ComfyLog -ErrorAction SilentlyContinue) {
         Write-ComfyLog "Installing Git via winget..." -Level INFO
     } else {

@@ -73,7 +73,7 @@ Edit `config.psd1`:
 
 ```powershell
 @{
-    Version   = "0.2.2"
+    Version   = "0.2.3"
     Python = @{ Version = "3.12" }
     Cuda = @{ PreferredVersion = "cu128" }
     Gpu = @{ MinComputeCapability = 7.5 }

@@ -8,7 +8,7 @@
 # -----------------------------------------------------------------------------
 
 
-function Check-UvAvailability {
+function Test-UvAvailability {
     [CmdletBinding()]
     param()
     
@@ -61,7 +61,7 @@ function Install-ComfyProject {
         [switch]$Simulate
     )
     
-    if ($Simulate) { $PSCmdletContext = @{ ShouldProcess = { $true } } } # Helper for non-interactive simulation
+
     
     if (-not $PSCmdlet.ShouldProcess($InstallPath, "Install ComfyUI Project (Simulate: $Simulate)")) { return }
     
@@ -73,7 +73,7 @@ function Install-ComfyProject {
     # 2. Python Environment
     Write-Step "Install" "Python" "Managing standalone Python $($Config.Python.Version)"
     try {
-        Check-UvAvailability # [11] Pre-Install Hook
+        Test-UvAvailability # [11] Pre-Install Hook
         & uv python install $Config.Python.Version
         & uv venv (Join-Path $InstallPath ".venv") --python $Config.Python.Version
     } catch {
@@ -204,7 +204,8 @@ function Update-ComfyProject {
         [Parameter(Mandatory)]
         [hashtable]$Config,
         [Parameter(Mandatory)]
-        [string]$InstallPath
+        [string]$InstallPath,
+        [switch]$Force
     )
     
     if (-not $PSCmdlet.ShouldProcess($InstallPath, "Update ComfyUI Project")) { return }
@@ -232,7 +233,7 @@ function Update-ComfyProject {
                     & git reset --hard "origin/$($r.Branch)"
                 }
             } catch {
-                Write-ComfyWarning "Failed to update $key. Repository might be locked or dirty."
+                Write-ComfyWarning "Failed to update $key`: $_"
             } finally {
                 Pop-Location
             }

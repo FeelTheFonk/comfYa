@@ -94,5 +94,8 @@ config.local.psd1
 # ComfyUI directory (installed separately)
 ComfyUI/
 
+# Configuration bridge (auto-generated)
+config.json
+
 # Agent workflows (internal)
 .agent/

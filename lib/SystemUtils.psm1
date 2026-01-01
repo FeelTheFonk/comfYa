@@ -80,6 +80,7 @@ function Invoke-SafeWebRequest {
         [string]$Uri,
         [string]$OutFile,
         [string]$ExpectedHash,
+        [string]$UserAgent = "comfYa/0.2.3",
         [int]$RetryCount = 3
     )
     
@@ -91,7 +92,7 @@ function Invoke-SafeWebRequest {
         try {
             $params = @{
                 Uri             = $Uri
-                Headers         = @{ "User-Agent" = "comfYa/0.2.3" }
+                Headers         = @{ "User-Agent" = $UserAgent }
                 UseBasicParsing = $true
                 TimeoutSec      = 120
                 ErrorAction     = 'Stop'

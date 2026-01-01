@@ -1,5 +1,5 @@
 @echo off
-:: comfYa - Batch Proxy (v0.2.0)
+:: comfYa - Batch Proxy (v0.2.3)
 :: with VRAM auto-detection
 
 setlocal
