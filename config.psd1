@@ -5,9 +5,9 @@
     # =============================================================================
     # METADATA
     # =============================================================================
-    Version   = "0.2.7"
+    Version   = "0.2.8"
     Schema    = 1
-    UserAgent = "comfYa/0.2.7"
+    UserAgent = "comfYa/0.2.8"
     
     # =============================================================================
     # SYSTEM REQUIREMENTS
@@ -106,6 +106,10 @@
             SageAttention = @{
                 cu128_py312 = "https://github.com/woct0rdho/SageAttention/releases/download/v2.2.0-windows/sageattention-2.2.0+cu128torch2.8.0-cp312-cp312-win_amd64.whl"
                 cu124_py312 = "https://github.com/woct0rdho/SageAttention/releases/download/v2.2.0-windows/sageattention-2.2.0+cu124torch2.8.0-cp312-cp312-win_amd64.whl"
+                cu121_py312 = "https://github.com/woct0rdho/SageAttention/releases/download/v2.2.0-windows/sageattention-2.2.0+cu121torch2.5.0-cp312-cp312-win_amd64.whl"
+                cu128_py311 = "https://github.com/woct0rdho/SageAttention/releases/download/v2.2.0-windows/sageattention-2.2.0+cu128torch2.8.0-cp311-cp311-win_amd64.whl"
+                cu124_py311 = "https://github.com/woct0rdho/SageAttention/releases/download/v2.2.0-windows/sageattention-2.2.0+cu124torch2.8.0-cp311-cp311-win_amd64.whl"
+                cu121_py311 = "https://github.com/woct0rdho/SageAttention/releases/download/v2.2.0-windows/sageattention-2.2.0+cu121torch2.5.0-cp311-cp311-win_amd64.whl"
             }
         }
     }
@@ -228,7 +232,10 @@
         MinTlsVersion     = "Tls12"
         AllowPrerelease   = $true  # For nightly builds
         DefenderExclusion = $true
-        # [C3] Hash Strategy Note: VCRedist and Uv hashes are dynamic/signed,
-        # verification relies on HTTPS + publisher signatures
+        # Security Note: VCRedist and Uv installer hashes are not verified because:
+        # - VCRedist: Microsoft-signed binary, hash changes with each update
+        # - Uv: Dynamic installer script from astral.sh
+        # Mitigation: HTTPS + publisher signatures provide transport security.
+        # Risk: MITM attacks during download remain theoretically possible.
     }
 }

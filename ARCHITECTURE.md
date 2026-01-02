@@ -1,4 +1,4 @@
-# Architecture comfYa v0.2.7
+# Architecture comfYa v0.2.8
 
 ## Modern Modular Orchestrator
 
@@ -15,6 +15,7 @@ graph TD
     CLI --> Life[lib/Lifecycle.psm1]
     Life --> P
     Life --> N
+    Life --> L
 
     subgraph "Single Source of Truth"
         ConfigPSD[(config.psd1)]

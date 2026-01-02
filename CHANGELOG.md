@@ -4,6 +4,27 @@ All notable changes to comfYa will be documented in this file.
 
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.2.8] - 2026-01-02
+### Added
+- **Orchestrator Tests**: New `comfya.Tests.ps1` with 10 tests covering CLI parameter validation, module dependencies, command routing, and security checks.
+- **Python Validator Tests**: New `test_validate.py` with pytest tests for `validate.py` logic (config bridge, version checks, directories).
+- **Extended Config Schema Tests**: Added 20+ tests in `config.Tests.ps1` covering Diagnostics, Requirements, Sources, LaunchArgs, and Packages sections.
+- **Known Limitations Section**: Added clear scope documentation in README (Windows-only, NVIDIA-only, RTX 20xx+).
+- **Complete SageAttention Fallbacks**: Added 6 fallback wheel URLs (cu121/cu124/cu128 × py311/py312).
+
+### Changed
+- **PowerShell Version Check**: `Test-PowerShellVersion` now correctly compares Major.Minor version instead of Major only.
+- **ARCHITECTURE.md Mermaid**: Added missing `Lifecycle → Logging` dependency in diagram.
+- **docs/README.md**: Synchronized environment variables table with main README (7 variables).
+- **Security Documentation**: Expanded hash verification notes in `config.psd1` with risk assessment.
+
+### Fixed
+- **C1**: README.md example version drift (0.2.6 → 0.2.7).
+- **C2**: Removed `__pycache__/` directory from project root.
+- **I1**: `bug_report.yml` placeholder referenced deleted `install.ps1` script.
+- **I2**: `TROUBLESHOOTING.md` used `python` instead of `.venv\Scripts\python.exe`.
+- **T4**: CI workflow now excludes `Integration` tagged tests to prevent GPU-requiring tests from failing in headless CI.
+
 ## [0.2.7] - 2026-01-02
 ### Added
 - **Extended Nvidia Tests**: Comprehensive test coverage for `Nvidia.psm1` (15%→75%) with 14 tests covering driver mapping, SM architecture, i18n parsing, multi-GPU selection.

@@ -1,4 +1,4 @@
-# comfYa v0.2.7
+# comfYa v0.2.8
 
 > ComfyUI Automated Installer for Windows NVIDIA
 
@@ -73,7 +73,7 @@ Edit `config.psd1`:
 
 ```powershell
 @{
-    Version   = "0.2.6"
+    Version   = "0.2.8"
     Python = @{ Version = "3.12" }
     Cuda = @{ PreferredVersion = "cu128" }
     Gpu = @{ MinComputeCapability = 7.5 }
@@ -104,6 +104,15 @@ Edit `config.psd1`:
 | CUDA not detected | Update NVIDIA driver to 570+ |
 | Triton import fails | Reinstall: `uv pip install triton-windows --force-reinstall` |
 | SageAttention missing | See [Troubleshooting Guide](docs/TROUBLESHOOTING.md) |
+
+## Known Limitations
+
+| Limitation | Details |
+|------------|---------|
+| **Windows only** | Linux/macOS not supported (PowerShell + Windows-specific paths) |
+| **NVIDIA GPUs only** | AMD/Intel GPUs not supported (requires CUDA) |
+| **RTX 20xx minimum** | Compute Capability 7.5+ required (Turing or newer) |
+| **Python 3.11-3.12** | Other versions not tested with Triton/SageAttention wheels |
 
 ## Contributing
 

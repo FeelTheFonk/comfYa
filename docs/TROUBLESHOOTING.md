@@ -76,7 +76,7 @@ If validation fails, use the integrated repair utility:
 1. Verify VC++ Runtime installed
 2. Check Python version matches wheel:
 ```powershell
-python --version  # Should be 3.12.x
+.venv\Scripts\python.exe --version  # Should be 3.12.x
 ```
 3. Reinstall triton-windows:
 ```powershell

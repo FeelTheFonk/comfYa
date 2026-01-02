@@ -64,7 +64,7 @@ body:
       label: Steps to Reproduce
       description: Steps to reproduce the behavior
       placeholder: |
-        1. Run install.ps1
+        1. Run .\comfya.ps1 setup
         2. ...
     validations:
       required: true

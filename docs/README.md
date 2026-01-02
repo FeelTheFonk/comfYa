@@ -35,6 +35,12 @@ All settings in [`config.psd1`](../config.psd1):
 | Variable | Description |
 |----------|-------------|
 | `COMFYUI_HOME` | Installation path override |
+| `CUDA_MODULE_LOADING` | Set to `LAZY` for optimized CUDA loading |
+| `PYTORCH_CUDA_ALLOC_CONF` | Memory allocation strategy |
+| `TRITON_CACHE_DIR` | Triton kernel cache location |
+| `TORCH_COMPILE_BACKEND` | Compilation backend (default: `inductor`) |
+| `CUDA_PATH` | System CUDA installation path (checked by doctor) |
+| `HTTP_PROXY` / `HTTPS_PROXY` | Proxy configuration for downloads |
 
 ## Scripts
 

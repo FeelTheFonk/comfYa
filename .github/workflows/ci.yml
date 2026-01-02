@@ -115,6 +115,7 @@ jobs:
           Write-Host "Testing on PowerShell $($PSVersionTable.PSVersion)"
           $config = New-PesterConfiguration
           $config.Run.Path = "./tests"
+          $config.Filter.ExcludeTag = @("Integration")
           $config.Output.Verbosity = "Detailed"
           $config.Run.Exit = $true
           Invoke-Pester -Configuration $config

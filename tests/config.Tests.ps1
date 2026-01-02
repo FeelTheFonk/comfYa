@@ -76,4 +76,64 @@ Describe "Config Schema Integrity" {
             $Script:Config.Directories.Models.Root | Should -Be "models"
         }
     }
+    
+    Context "Diagnostics Section" {
+        It "Should have Diagnostics section" {
+            $Script:Config.ContainsKey("Diagnostics") | Should -Be $true
+        }
+        It "Should have CudaDLLs list" {
+            $Script:Config.Diagnostics.CudaDLLs | Should -Not -BeNullOrEmpty
+        }
+    }
+    
+    Context "Requirements Section" {
+        It "Should have Requirements section" {
+            $Script:Config.ContainsKey("Requirements") | Should -Be $true
+        }
+        It "Should specify MinRamGB" {
+            $Script:Config.Requirements.MinRamGB | Should -BeGreaterThan 0
+        }
+        It "Should specify MinDiskGB" {
+            $Script:Config.Requirements.MinDiskGB | Should -BeGreaterThan 0
+        }
+        It "Should specify MinPsVer" {
+            $Script:Config.Requirements.MinPsVer | Should -BeGreaterOrEqual 5.1
+        }
+    }
+    
+    Context "Sources Structure" {
+        It "Should have PyTorch IndexUrls for all CUDA versions" {
+            $Script:Config.Sources.PyTorch.IndexUrls.ContainsKey("cu128") | Should -Be $true
+            $Script:Config.Sources.PyTorch.IndexUrls.ContainsKey("cu124") | Should -Be $true
+            $Script:Config.Sources.PyTorch.IndexUrls.ContainsKey("cu121") | Should -Be $true
+        }
+        It "Should have valid repository URLs" {
+            $Script:Config.Sources.Repositories.ComfyUI.Url | Should -Match "^https://github.com/"
+            $Script:Config.Sources.Repositories.ComfyUIManager.Url | Should -Match "^https://github.com/"
+        }
+        It "Should have API URLs for dynamic resolution" {
+            $Script:Config.Sources.APIs.SageAttention | Should -Match "^https://api.github.com/"
+        }
+    }
+    
+    Context "LaunchArgs Profiles" {
+        It "Should have all VRAM profiles" {
+            $Script:Config.LaunchArgs.ContainsKey("Default") | Should -Be $true
+            $Script:Config.LaunchArgs.ContainsKey("HighVram") | Should -Be $true
+            $Script:Config.LaunchArgs.ContainsKey("LowVram") | Should -Be $true
+            $Script:Config.LaunchArgs.ContainsKey("Cpu") | Should -Be $true
+        }
+    }
+    
+    Context "Packages Structure" {
+        It "Should have Core packages list" {
+            $Script:Config.Packages.Core | Should -Not -BeNullOrEmpty
+        }
+        It "Should have ML packages list" {
+            $Script:Config.Packages.ML | Should -Not -BeNullOrEmpty
+        }
+        It "Should have Optimization packages" {
+            $Script:Config.Packages.Optimization | Should -Not -BeNullOrEmpty
+        }
+    }
 }

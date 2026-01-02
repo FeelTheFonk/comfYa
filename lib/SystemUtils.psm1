@@ -271,8 +271,9 @@ function Sync-ComfyEnvironment {
 
 function Test-PowerShellVersion {
     param([hashtable]$Config)
-    $minPs = if ($Config.Requirements.MinPsVer) { $Config.Requirements.MinPsVer } else { 5.1 }
-    if ($PSVersionTable.PSVersion.Major -lt $minPs) {
+    $minPs = if ($Config.Requirements.MinPsVer) { [version]"$($Config.Requirements.MinPsVer)" } else { [version]"5.1" }
+    $currentPs = [version]"$($PSVersionTable.PSVersion.Major).$($PSVersionTable.PSVersion.Minor)"
+    if ($currentPs -lt $minPs) {
         throw "PowerShell $minPs or 7+ is required. Current: $($PSVersionTable.PSVersion)"
     }
     return $true
