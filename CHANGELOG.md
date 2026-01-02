@@ -4,6 +4,30 @@ All notable changes to comfYa will be documented in this file.
 
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.2.5] - 2026-01-02
+### Added
+- **Lifecycle.Tests.ps1**: New comprehensive test coverage for the Lifecycle module (8 tests).
+- **Enhanced validate.py**: Added 4 new validation tests (Python version, directories, core packages, config bridge).
+- **Diagnostics Section**: New `config.psd1` section for CUDA DLLs and diagnostic settings.
+- **PS 5.1 CI Matrix**: CI now tests on both PowerShell 5.1 and 7 for compatibility verification.
+
+### Changed
+- **SOTA Exit Code Handling**: All external calls (`uv`, `git`) now verify `$LASTEXITCODE` (20 calls hardened).
+- **Robust GPU Parsing**: Enhanced `Get-NvidiaGpuInfo` with better locale handling and error recovery.
+- **Non-Invasive Header**: Removed `Clear-Host` from `Show-ComfyHeader` to preserve terminal history.
+- **UTF-8 Compliance**: `Export-ComfyConfig` now writes UTF-8 without BOM for JSON compatibility.
+- **SSA Compliance**: Externalized hardcoded DLL list to config; removed version from `run.bat`.
+
+### Fixed
+- **C1**: Silent failures from external commands now throw/warn appropriately.
+- **C2**: Sandbox logging race condition resolved by separating sandbox state.
+- **C4**: GPU parsing handles comma-decimal locales and malformed output.
+- **C5**: `$ValidatedPath` is now actually used after validation.
+- **H12**: PS 5.1 UTF-8 BOM issue fixed using .NET fallback.
+
+### Security
+- Documented hash verification strategy for dynamic installers (VCRedist, uv) in config.
+
 ## [0.2.4] - 2026-01-01
 ### Added
 - **Install-SageAttention**: Centralized function in `Package.psm1` eliminating code duplication.

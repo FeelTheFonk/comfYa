@@ -1,4 +1,4 @@
-# Architecture comfYa v0.2.4
+# Architecture comfYa v0.2.5
 
 ## Modern Modular Orchestrator
 
@@ -31,7 +31,7 @@ graph TD
 
 ### Core Principles
 
-1.  **SSA (Single Source of Truth)**: No hardcoded version mappings. If `config.psd1` says CUDA 12.8, the entire stack (PowerShell & Python) respects it. Includes a **Recursive Placeholder Engine** (`{Dir:Key}`) for zero-redundancy pathing.
+1.  **SSA (Single Source of Truth)**: No hardcoded version mappings. If `config.psd1` says CUDA 12.8, the entire stack (PowerShell & Python) respects it. Includes a **Recursive Placeholder Engine** (`{Dir:Key}`) for zero-redundancy pathing. Schema version in config enables future migration checks.
 2.  **Domain Isolation**: GPU logic is isolated from OS logic, which is isolated from logging. This ensures "Pro" grade maintainability.
 3.  **Proactive Developer Experience**:
     - **Smart Launcher**: Automatically detects VRAM and identifies the optimal GPU on multi-GPU systems.

@@ -2,6 +2,7 @@
 # Centralized logic for installation, execution, and updates
 
 #Requires -Version 5.1
+$ErrorActionPreference = 'Stop'
 
 # -----------------------------------------------------------------------------
 # INTERNAL HELPERS
@@ -75,7 +76,9 @@ function Install-ComfyProject {
     try {
         Test-UvAvailability # [11] Pre-Install Hook
         & uv python install $Config.Python.Version
+        if ($LASTEXITCODE -ne 0) { throw "uv python install failed (exit code: $LASTEXITCODE)" }
         & uv venv (Join-Path $InstallPath ".venv") --python $Config.Python.Version
+        if ($LASTEXITCODE -ne 0) { throw "uv venv creation failed (exit code: $LASTEXITCODE)" }
     } catch {
         Write-Fatal "Python/Venv initialization failed" -Suggestion "Ensure 'uv' is working and you have internet access."
     }
@@ -87,6 +90,7 @@ function Install-ComfyProject {
     $IndexUrl = $Config.Sources.PyTorch.IndexUrls[$GPU.CudaVersion]
     try {
         & uv pip install --pre torch torchvision torchaudio --index-url $IndexUrl --python $VenvPython
+        if ($LASTEXITCODE -ne 0) { throw "PyTorch installation failed (exit code: $LASTEXITCODE)" }
     } catch {
         Write-Fatal "PyTorch installation failed" -Suggestion "Check your internet connection and CUDA compatibility."
     }
@@ -94,6 +98,7 @@ function Install-ComfyProject {
     Write-Step "Install" "Optim" "Injecting Triton and Optimization Stack"
     try {
         & uv pip install @($Config.Packages.Optimization) --python $VenvPython
+        if ($LASTEXITCODE -ne 0) { throw "Optimization stack installation failed (exit code: $LASTEXITCODE)" }
     } catch {
         Write-ComfyWarning "Optimization stack installation failed (non-critical): $_"
     }
@@ -108,12 +113,14 @@ function Install-ComfyProject {
     if (-not (Test-Path $AppPath)) {
         try {
             & git clone --depth 1 $Repo.Url $AppPath
+            if ($LASTEXITCODE -ne 0) { throw "git clone failed (exit code: $LASTEXITCODE)" }
         } catch {
             Write-Fatal "Cloning failed" -Suggestion "Check your git installation and internet connection."
         }
     }
     try {
         & uv pip install -r (Join-Path $AppPath "requirements.txt") --python $VenvPython
+        if ($LASTEXITCODE -ne 0) { throw "ComfyUI requirements installation failed (exit code: $LASTEXITCODE)" }
     } catch {
         Write-Fatal "ComfyUI requirements installation failed" -Suggestion "Check requirements.txt and network access."
     }
@@ -125,6 +132,7 @@ function Install-ComfyProject {
     if (-not (Test-Path $ManagerPath)) {
         try {
             & git clone --depth 1 -b $Manager.Branch $Manager.Url $ManagerPath
+            if ($LASTEXITCODE -ne 0) { Write-ComfyWarning "ComfyUI-Manager clone failed (exit code: $LASTEXITCODE)" }
         } catch {
             Write-ComfyWarning "ComfyUI-Manager cloning failed (non-critical): $_"
         }
@@ -251,9 +259,11 @@ function Update-ComfyProject {
     # 2. Dependency Alignment
     Write-Step "Update" "Deps" "Aligning dependencies via uv"
     & uv pip install -r (Join-Path $InstallPath "ComfyUI\requirements.txt") --python $PythonExe
+    if ($LASTEXITCODE -ne 0) { Write-ComfyWarning "Requirements sync failed (exit code: $LASTEXITCODE)" }
     
     Write-ComfyLog "Enforcing Optimization Stack (Triton, TorchAO)..." -Level VERBOSE
     & uv pip install --upgrade @($Config.Packages.Optimization) --python $PythonExe
+    if ($LASTEXITCODE -ne 0) { Write-ComfyWarning "Optimization upgrade failed (exit code: $LASTEXITCODE)" }
     
     # 3. SageAttention Synchronization (Centralized)
     try {

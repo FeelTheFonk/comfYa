@@ -2,6 +2,7 @@
 # Efficient management of uv, git, and system dependencies
 
 #Requires -Version 5.1
+$ErrorActionPreference = 'Stop'
 
 function Install-VCRedist {
     param([hashtable]$Config)
@@ -42,6 +43,9 @@ function Install-Git {
         Write-Host "Installing Git via winget..." -ForegroundColor Cyan
     }
     & winget install --id Git.Git -e --silent --accept-source-agreements --accept-package-agreements | Out-Null
+    if ($LASTEXITCODE -notin @(0, -1978335189)) { # -1978335189 = already installed
+        Write-ComfyWarning "Git installation may have encountered issues (exit code: $LASTEXITCODE)"
+    }
     
     return $null -ne (Get-Command git -ErrorAction SilentlyContinue)
 }
@@ -92,6 +96,7 @@ function Repair-Environment {
         Write-ComfyLog "Initializing/Resetting virtual environment..." -Level WARN
         if (Test-Path $VenvPath) { Remove-Item $VenvPath -Recurse -Force -ErrorAction SilentlyContinue }
         & uv venv $VenvPath --python $Config.Python.Version
+        if ($LASTEXITCODE -ne 0) { throw "uv venv failed (exit code: $LASTEXITCODE)" }
     }
     
     # 2. Dependency SOTA Audit
@@ -101,6 +106,7 @@ function Repair-Environment {
     $ReqFile = Join-Path $InstallPath "ComfyUI\requirements.txt"
     if (Test-Path $ReqFile) {
         & uv pip install -r $ReqFile --python $Python
+        if ($LASTEXITCODE -ne 0) { Write-ComfyWarning "Requirements install failed (exit code: $LASTEXITCODE)" }
     }
     
     # Acceleration Stack (Torch & Friends)
@@ -109,13 +115,16 @@ function Repair-Environment {
         $IndexUrl = $Config.Sources.PyTorch.IndexUrls[$gpu.CudaVersion]
         Write-ComfyLog "Ensuring PyTorch Nightly alignment for $($gpu.CudaVersion)..." -Level VERBOSE
         & uv pip install --pre torch torchvision torchaudio --index-url $IndexUrl --python $Python
+        if ($LASTEXITCODE -ne 0) { Write-ComfyWarning "PyTorch alignment failed (exit code: $LASTEXITCODE)" }
     } catch {
         Write-ComfyLog "GPU detection failed during repair, skipping Torch alignment." -Level WARN
     }
     
     # Cleanup & Optimization
     & uv pip install @($Config.Packages.Optimization) --python $Python
+    if ($LASTEXITCODE -ne 0) { Write-ComfyWarning "Optimization install failed (exit code: $LASTEXITCODE)" }
     & uv pip install @($Config.Packages.Core) @($Config.Packages.ML) --python $Python
+    if ($LASTEXITCODE -ne 0) { Write-ComfyWarning "Core/ML packages install failed (exit code: $LASTEXITCODE)" }
     
     Write-Success "Self-healing completed for environment at $InstallPath"
     return $true
@@ -190,6 +199,7 @@ function Install-SageAttention {
     if ($dynamicSageUrl) {
         Write-ComfyLog "Injecting SageAttention via Dynamic SOTA wheel" -Level SUCCESS
         & uv pip install @uvArgs
+        if ($LASTEXITCODE -ne 0) { throw "SageAttention installation failed (exit code: $LASTEXITCODE)" }
         return $true
     }
     
@@ -201,6 +211,7 @@ function Install-SageAttention {
         Write-ComfyWarning "GitHub API failed, using static fallback for SageAttention."
         $uvArgs[0] = $fallbackUrl
         & uv pip install @uvArgs
+        if ($LASTEXITCODE -ne 0) { throw "SageAttention fallback installation failed (exit code: $LASTEXITCODE)" }
         return $true
     }
     

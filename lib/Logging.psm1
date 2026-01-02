@@ -2,6 +2,7 @@
 # Professional structured logging with CLI and file support
 
 #Requires -Version 5.1
+$ErrorActionPreference = 'Stop'
 
 $Script:LogLevel = @{
     DEBUG   = 0
@@ -13,9 +14,10 @@ $Script:LogLevel = @{
 }
 
 $Script:LogConfig = @{
-    Level       = "INFO"
-    FileEnabled = $false
-    FilePath    = $null
+    Level         = "INFO"
+    FileEnabled   = $false
+    FilePath      = $null
+    SandboxActive = $false  # [C2] Track sandbox state separately
 }
 
 function Initialize-Logging {
@@ -81,7 +83,8 @@ function Start-SandboxLogging {
     
     $Script:LogConfig.FilePath = $sandboxPath
     $Script:LogConfig.FileEnabled = $true
-    $Script:LogConfig.Level = "DEBUG" # Always capture debug in sandbox
+    $Script:LogConfig.SandboxActive = $true  # [C2] Mark as sandbox mode
+    # [C2] Don't override global Level - sandbox captures all levels to file only
     
     Write-ComfyLog "Sandbox logging initialized at $sandboxPath" -Level DEBUG
 }
@@ -100,10 +103,9 @@ function Write-ComfyLog {
         [string]$Step
     )
     
-    # Threshold check
-    if ($Script:LogLevel[$Level] -lt $Script:LogLevel[$Script:LogConfig.Level]) {
-        return
-    }
+    # Threshold check - [C2] In sandbox mode, still write to file but respect console threshold
+    $writeToConsole = $Script:LogLevel[$Level] -ge $Script:LogLevel[$Script:LogConfig.Level]
+    $writeToFile = $Script:LogConfig.FileEnabled -and $Script:LogConfig.FilePath
 
     $timestamp = Get-Date -Format "HH:mm:ss"
     $prefix = if ($Phase -and $Step) { "[$Phase::$Step]" } elseif ($Phase) { "[$Phase]" } else { "" }
@@ -135,22 +137,24 @@ function Write-ComfyLog {
         }
     }
     
-    # Console output
-    Write-Host "[$timestamp] " -NoNewline -ForegroundColor DarkGray
-    if ($symbol -ne " ") {
-        Write-Host "$symbol " -NoNewline -ForegroundColor $color
+    # Console output - only if level meets threshold
+    if ($writeToConsole) {
+        Write-Host "[$timestamp] " -NoNewline -ForegroundColor DarkGray
+        if ($symbol -ne " ") {
+            Write-Host "$symbol " -NoNewline -ForegroundColor $color
+        }
+        
+        if ($prefix) {
+            # SOT: Standardized 20-char padding for phase::step alignment
+            $pad = 20 - $prefix.Length
+            $paddedPrefix = if ($pad -gt 0) { $prefix + (" " * $pad) } else { $prefix }
+            Write-Host "$paddedPrefix " -NoNewline -ForegroundColor Cyan
+        }
+        Write-Host $Message -ForegroundColor $color
     }
     
-    if ($prefix) {
-        # SOT: Standardized 20-char padding for phase::step alignment
-        $pad = 20 - $prefix.Length
-        $paddedPrefix = if ($pad -gt 0) { $prefix + (" " * $pad) } else { $prefix }
-        Write-Host "$paddedPrefix " -NoNewline -ForegroundColor Cyan
-    }
-    Write-Host $Message -ForegroundColor $color
-    
-    # File output
-    if ($Script:LogConfig.FileEnabled -and $Script:LogConfig.FilePath) {
+    # File output - always write in sandbox mode, otherwise respect threshold
+    if ($writeToFile) {
         $logLine = "[$timestamp] [$Level] $prefix $Message"
         $logLine | Out-File -FilePath $Script:LogConfig.FilePath -Append -Encoding UTF8
     }
@@ -210,7 +214,7 @@ function Show-ComfyHeader {
     [Diagnostics.CodeAnalysis.SuppressMessage("PSAvoidUsingWriteHost", "")]
     param([string]$Version)
     
-    Clear-Host
+    # [H9] Removed Clear-Host - non-invasive behavior
     $title = "  comfYa Pinnacle v$Version  "
     $width = $title.Length + 4
     $line = "═" * $width

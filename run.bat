@@ -1,6 +1,6 @@
 @echo off
-:: comfYa - Batch Proxy (v0.2.4)
-:: with VRAM auto-detection
+:: comfYa - Batch Proxy
+:: VRAM auto-detection launch wrapper
 
 setlocal
 cd /d "%~dp0"

@@ -2,6 +2,7 @@
 # Professional OS, FS and Network utilities
 
 #Requires -Version 5.1
+$ErrorActionPreference = 'Stop'
 
 function Test-Administrator {
     $identity = [Security.Principal.WindowsIdentity]::GetCurrent()
@@ -57,7 +58,13 @@ function Export-ComfyConfig {
     }
     
     if ($PSCmdlet.ShouldProcess($Target, "Export Configuration")) {
-        $newJson | Out-File -FilePath $Target -Encoding UTF8
+        # [H12] Use UTF8 without BOM for JSON compatibility across parsers
+        if ($PSVersionTable.PSVersion.Major -ge 6) {
+            $newJson | Set-Content -Path $Target -Encoding UTF8 -NoNewline
+        } else {
+            # PS 5.1 workaround: use .NET to write UTF8 without BOM
+            [System.IO.File]::WriteAllText($Target, $newJson, [System.Text.UTF8Encoding]::new($false))
+        }
         Write-ComfyLog "Configuration bridge synchronized to $Target" -Level DEBUG
     }
 }

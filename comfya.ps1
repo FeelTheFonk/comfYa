@@ -47,6 +47,8 @@ if ($Command -in @("setup", "update", "clean")) {
         Write-Error "Installation path is not accessible or writable: $InstallPath"
         exit 1
     }
+    # [C5] Use validated path if available
+    if ($ValidatedPath) { $InstallPath = $ValidatedPath }
 }
 
 # 3. Elevation & Post-Elevation Initialization
@@ -125,9 +127,14 @@ switch ($Command) {
         Write-Step "Diagnostics" "DLL" "Verifying CUDA kernel libraries..."
         $cudaPath = $env:CUDA_PATH
         if ($cudaPath -and (Test-Path $cudaPath)) {
-            $dlls = @("cudnn64_9.dll", "cublas64_12.dll", "cudnn64_8.dll", "cublas64_11.dll")
+            # [H8] DLLs externalized to config for SSA compliance
+            $dlls = if ($Config.Diagnostics -and $Config.Diagnostics.CudaDLLs) {
+                $Config.Diagnostics.CudaDLLs
+            } else {
+                @("cudnn64_9.dll", "cublas64_12.dll", "cudnn64_8.dll", "cublas64_11.dll")  # Fallback
+            }
             foreach ($dll in $dlls) {
-                $status = if (Get-ChildItem -Path $cudaPath -Include $dll -Recurse) { "OK" } else { "WARN" }
+                $status = if (Get-ChildItem -Path $cudaPath -Include $dll -Recurse -ErrorAction SilentlyContinue) { "OK" } else { "WARN" }
                 Write-Diagnostic "Library: $dll" $status ($null)
             }
         } else {

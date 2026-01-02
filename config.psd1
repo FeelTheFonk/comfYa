@@ -5,9 +5,9 @@
     # =============================================================================
     # METADATA
     # =============================================================================
-    Version   = "0.2.4"
+    Version   = "0.2.5"
     Schema    = 1
-    UserAgent = "comfYa/0.2.4"
+    UserAgent = "comfYa/0.2.5"
     
     # =============================================================================
     # SYSTEM REQUIREMENTS
@@ -208,6 +208,19 @@
     }
     
     # =============================================================================
+    # DIAGNOSTICS
+    # =============================================================================
+    Diagnostics = @{
+        # CUDA DLLs to verify during doctor command
+        CudaDLLs = @(
+            "cudnn64_9.dll"   # cuDNN 9.x
+            "cublas64_12.dll" # cuBLAS 12.x
+            "cudnn64_8.dll"   # cuDNN 8.x (fallback)
+            "cublas64_11.dll" # cuBLAS 11.x (fallback)
+        )
+    }
+    
+    # =============================================================================
     # SECURITY
     # =============================================================================
     Security = @{
@@ -215,5 +228,7 @@
         MinTlsVersion     = "Tls12"
         AllowPrerelease   = $true  # For nightly builds
         DefenderExclusion = $true
+        # [C3] Hash Strategy Note: VCRedist and Uv hashes are dynamic/signed,
+        # verification relies on HTTPS + publisher signatures
     }
 }

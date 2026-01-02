@@ -49,7 +49,7 @@ class Colors:
     CYAN = "\033[96m"
 
 def print_test(name: str, status: str, details: str = ""):
-    status_colors = {"OK": Colors.GREEN, "FAIL": Colors.RED, "SKIP": Colors.YELLOW}
+    status_colors = {"OK": Colors.GREEN, "FAIL": Colors.RED, "SKIP": Colors.YELLOW, "WARN": Colors.YELLOW}
     color = status_colors.get(status, Colors.RESET)
     print(f"  {name:.<25} {color}{status:4}{Colors.RESET} ({details})")
 
@@ -92,6 +92,80 @@ def test_acceleration() -> Tuple[bool, str]:
         
     return True, " | ".join(results)
 
+# [H5] New comprehensive tests
+def test_python_version(config: Dict) -> Tuple[bool, str]:
+    """Verify Python version matches config."""
+    expected = ComfyConfig.get_py_version(config)
+    actual = f"{sys.version_info.major}.{sys.version_info.minor}"
+    if actual == expected:
+        return True, f"Python {actual}"
+    elif sys.version_info.major == int(expected.split(".")[0]):
+        return True, f"Python {actual} (expected {expected}, compatible)"
+    else:
+        return False, f"Python {actual} (expected {expected})"
+
+def test_directories(root: Path, config: Dict) -> Tuple[bool, str]:
+    """Verify expected directory structure exists."""
+    dirs_config = config.get("Directories", {})
+    missing = []
+    found = 0
+    
+    # Check key directories
+    check_dirs = ["models", "output", "logs", "ComfyUI"]
+    for d in check_dirs:
+        path = root / d
+        if path.exists():
+            found += 1
+        else:
+            missing.append(d)
+    
+    if not missing:
+        return True, f"{found} directories OK"
+    elif len(missing) <= 2:
+        return True, f"{found} OK, missing: {', '.join(missing)}"
+    else:
+        return False, f"Missing: {', '.join(missing)}"
+
+def test_core_packages() -> Tuple[bool, str]:
+    """Verify core packages are installed."""
+    import importlib.util
+    core = ["torch", "numpy", "PIL", "safetensors", "aiohttp", "yaml"]
+    installed = []
+    missing = []
+    
+    for pkg in core:
+        # Handle PIL special case
+        spec_name = "pillow" if pkg == "PIL" else pkg
+        spec_name = "pyyaml" if pkg == "yaml" else spec_name
+        try:
+            if importlib.util.find_spec(pkg):
+                installed.append(pkg)
+            else:
+                missing.append(pkg)
+        except ModuleNotFoundError:
+            missing.append(pkg)
+    
+    if not missing:
+        return True, f"{len(installed)} core packages OK"
+    else:
+        return False, f"Missing: {', '.join(missing)}"
+
+def test_config_bridge(root: Path) -> Tuple[bool, str]:
+    """Verify config.json bridge exists and is valid."""
+    bridge = root / "config.json"
+    if not bridge.exists():
+        return False, "config.json not found"
+    
+    try:
+        with open(bridge, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        if "Version" in data and "Python" in data:
+            return True, f"v{data.get('Version', '?')}"
+        else:
+            return False, "Invalid structure"
+    except json.JSONDecodeError as e:
+        return False, f"JSON error: {e}"
+
 def main():
     import argparse
     parser = argparse.ArgumentParser(description="comfYa SOTA Validation")
@@ -101,27 +175,34 @@ def main():
     root = Path(args.path) if args.path else Path(__file__).parent
     config = ComfyConfig.load_bridge(root)
     
-    if args.path and not config:
-        print(f"{Colors.RED}Error: config.json not found in {args.path}{Colors.RESET}")
-        sys.exit(1)
-    
     print(f"\n{Colors.MAGENTA}--- comfYa SOTA Validation ---{Colors.RESET}\n")
     
+    # [H5] Enhanced test suite
     tests = [
+        ("Config Bridge", lambda: test_config_bridge(root), True),
+        ("Python Version", lambda: test_python_version(config), False),
         ("Hardware/CUDA", lambda: test_hardware(config), True),
         ("Acceleration", test_acceleration, False),
+        ("Core Packages", test_core_packages, False),
+        ("Directories", lambda: test_directories(root, config), False),
     ]
     
     all_passed = True
     for name, func, critical in tests:
-        passed, details = func()
-        status = "OK" if passed else ("FAIL" if critical else "SKIP")
-        print_test(name, status, details)
-        if critical and not passed:
-            all_passed = False
+        try:
+            passed, details = func()
+            status = "OK" if passed else ("FAIL" if critical else "WARN")
+            print_test(name, status, details)
+            if critical and not passed:
+                all_passed = False
+        except Exception as e:
+            print_test(name, "FAIL" if critical else "SKIP", str(e))
+            if critical:
+                all_passed = False
             
-    print(f"\n{Colors.CYAN if all_passed else Colors.RED}Result: {'SOTA READY' if all_passed else 'BLOCKING ISSUES'}{Colors.RESET}\n")
+    print(f"\n{Colors.CYAN if all_passed else Colors.RED}Result: {'SOTA READY' if all_passed else 'ISSUES DETECTED'}{Colors.RESET}\n")
     sys.exit(0 if all_passed else 1)
 
 if __name__ == "__main__":
     main()
+

@@ -18,12 +18,14 @@ git clone https://github.com/FeelTheFonk/comfYa.git
 cd comfYa
 ```
 
-### 2. Run Installer (Admin Required)
+### 2. Run Installer
 
 ```powershell
-# Right-click PowerShell → Run as Administrator
+# Run from any PowerShell window - elevation is automatic if needed
 .\comfya.ps1 setup
 ```
+
+> **Note**: If not already running as admin, the installer will automatically request elevation.
 
 The installer will:
 - Install VC++ Runtime if needed
