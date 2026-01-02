@@ -97,12 +97,19 @@ def test_python_version(config: Dict) -> Tuple[bool, str]:
     """Verify Python version matches config."""
     expected = ComfyConfig.get_py_version(config)
     actual = f"{sys.version_info.major}.{sys.version_info.minor}"
+    strict = config.get("Python", {}).get("StrictVersion", False)
+    
     if actual == expected:
         return True, f"Python {actual}"
-    elif sys.version_info.major == int(expected.split(".")[0]):
-        return True, f"Python {actual} (expected {expected}, compatible)"
+    elif not strict and sys.version_info.major == int(expected.split(".")[0]):
+        # Only accept compatible version if StrictVersion is False
+        min_ver = config.get("Python", {}).get("MinVersion", expected)
+        max_ver = config.get("Python", {}).get("MaxVersion", expected)
+        if min_ver <= actual <= max_ver:
+            return True, f"Python {actual} (in range {min_ver}-{max_ver})"
+        return False, f"Python {actual} outside range {min_ver}-{max_ver}"
     else:
-        return False, f"Python {actual} (expected {expected})"
+        return False, f"Python {actual} (expected {expected}, StrictVersion={strict})"
 
 def test_directories(root: Path, config: Dict) -> Tuple[bool, str]:
     """Verify expected directory structure exists."""

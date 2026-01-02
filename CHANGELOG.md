@@ -4,6 +4,24 @@ All notable changes to comfYa will be documented in this file.
 
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.2.6] - 2026-01-02
+### Added
+- **Extended Test Coverage**: Comprehensive tests for `SystemUtils.psm1` (18%→80%), `Logging.psm1` (50%→90%), `Package.psm1` (43%→80%).
+- **Test-UvAvailability Export**: Function now exported from `Lifecycle.psm1` for external testability.
+- **.gitkeep Files**: Created placeholder files for `models/`, `output/`, `input/`, `logs/` directories.
+- **Environment Docs**: Added `CUDA_PATH` and `HTTP_PROXY`/`HTTPS_PROXY` to README.
+
+### Changed
+- **Strict Python Validation**: `validate.py` now respects `StrictVersion` config setting and checks `MinVersion`/`MaxVersion` range.
+- **SSA Hardening**: Removed hardcoded DLL fallback array from `doctor` command; config-only enforcement.
+
+### Fixed
+- **C1**: README example version drift (0.2.4→0.2.5).
+- **C4**: `Get-SecurePath` dead code path when testing write on non-existent paths.
+- **H3**: Added `$LASTEXITCODE` verification after `git merge` and `git fetch` operations.
+- **H5**: Python version validation now fails correctly when `StrictVersion=true` and version mismatches.
+- **M5**: Validator path resolution corrected from `$PSScriptRoot` (lib/) to project root.
+
 ## [0.2.5] - 2026-01-02
 ### Added
 - **Lifecycle.Tests.ps1**: New comprehensive test coverage for the Lifecycle module (8 tests).

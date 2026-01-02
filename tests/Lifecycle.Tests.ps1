@@ -27,6 +27,7 @@ Describe "Lifecycle Module" {
             $commands.Name | Should -Contain "Start-ComfyProject"
             $commands.Name | Should -Contain "Update-ComfyProject"
             $commands.Name | Should -Contain "Invoke-ComfyClean"
+            $commands.Name | Should -Contain "Test-UvAvailability"
         }
     }
     

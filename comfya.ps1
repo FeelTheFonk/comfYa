@@ -127,15 +127,15 @@ switch ($Command) {
         Write-Step "Diagnostics" "DLL" "Verifying CUDA kernel libraries..."
         $cudaPath = $env:CUDA_PATH
         if ($cudaPath -and (Test-Path $cudaPath)) {
-            # [H8] DLLs externalized to config for SSA compliance
-            $dlls = if ($Config.Diagnostics -and $Config.Diagnostics.CudaDLLs) {
-                $Config.Diagnostics.CudaDLLs
+            # [H4] DLLs from config only (SSA compliance)
+            $dlls = $Config.Diagnostics.CudaDLLs
+            if (-not $dlls) {
+                Write-ComfyWarning "Diagnostics.CudaDLLs not defined in config.psd1"
             } else {
-                @("cudnn64_9.dll", "cublas64_12.dll", "cudnn64_8.dll", "cublas64_11.dll")  # Fallback
-            }
-            foreach ($dll in $dlls) {
-                $status = if (Get-ChildItem -Path $cudaPath -Include $dll -Recurse -ErrorAction SilentlyContinue) { "OK" } else { "WARN" }
-                Write-Diagnostic "Library: $dll" $status ($null)
+                foreach ($dll in $dlls) {
+                    $status = if (Get-ChildItem -Path $cudaPath -Include $dll -Recurse -ErrorAction SilentlyContinue) { "OK" } else { "WARN" }
+                    Write-Diagnostic "Library: $dll" $status ($null)
+                }
             }
         } else {
             Write-Diagnostic "CUDA_PATH" "SKIP" "Not found in environment"

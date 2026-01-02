@@ -150,7 +150,9 @@ function Install-ComfyProject {
     Sync-ComfyEnvironment -EnvMap $EnvMap -Persist $true
     
     if (-not $SkipValidation) {
-        $ValidatorPath = Join-Path $PSScriptRoot "..\validate.py"
+        # [M5] Resolve validator from project root, not PSScriptRoot (which is lib/)
+        $ProjectRoot = Split-Path $PSScriptRoot -Parent
+        $ValidatorPath = Join-Path $ProjectRoot "validate.py"
         if (Test-Path $ValidatorPath) {
             & $VenvPython $ValidatorPath --path $InstallPath
         }
@@ -240,13 +242,19 @@ function Update-ComfyProject {
             Push-Location $fullPath
             try {
                 & git fetch origin
+                if ($LASTEXITCODE -ne 0) { Write-ComfyWarning "$key fetch failed (exit code: $LASTEXITCODE)" }
+                
                 # [13] Non-Destructive: check for dirty state
                 $status = & git status --porcelain
                 if ($status -and -not $Force) {
                     Write-ComfyWarning "$key has local changes. Skipping hard reset. Use -Force to overwrite."
-                    & git merge origin/$($r.Branch)
+                    & git merge origin/$($r.Branch) --no-edit
+                    if ($LASTEXITCODE -ne 0) { 
+                        Write-ComfyWarning "$key merge failed (exit code: $LASTEXITCODE). Manual resolution may be required."
+                    }
                 } else {
                     & git reset --hard "origin/$($r.Branch)"
+                    if ($LASTEXITCODE -ne 0) { Write-ComfyWarning "$key reset failed (exit code: $LASTEXITCODE)" }
                 }
             } catch {
                 Write-ComfyWarning "Failed to update $key`: $_"
@@ -309,4 +317,5 @@ Export-ModuleMember -Function @(
     'Start-ComfyProject'
     'Update-ComfyProject'
     'Invoke-ComfyClean'
+    'Test-UvAvailability'
 )

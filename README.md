@@ -1,4 +1,4 @@
-# comfYa v0.2.5
+# comfYa v0.2.6
 
 > ComfyUI Automated Installer for Windows NVIDIA
 
@@ -73,7 +73,7 @@ Edit `config.psd1`:
 
 ```powershell
 @{
-    Version   = "0.2.4"
+    Version   = "0.2.6"
     Python = @{ Version = "3.12" }
     Cuda = @{ PreferredVersion = "cu128" }
     Gpu = @{ MinComputeCapability = 7.5 }
@@ -92,6 +92,8 @@ Edit `config.psd1`:
 | `PYTORCH_CUDA_ALLOC_CONF` | Memory allocation strategy |
 | `TRITON_CACHE_DIR` | Triton kernel cache location |
 | `TORCH_COMPILE_BACKEND` | Compilation backend (default: `inductor`) |
+| `CUDA_PATH` | System CUDA installation path (checked by doctor) |
+| `HTTP_PROXY` / `HTTPS_PROXY` | Proxy configuration for downloads |
 
 ## Troubleshooting
 

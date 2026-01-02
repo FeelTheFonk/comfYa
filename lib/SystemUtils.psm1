@@ -197,18 +197,20 @@ function Get-SecurePath {
         [switch]$RequireWrite
     )
     
-    $fullPath = Resolve-Path $Path -ErrorAction SilentlyContinue
-    if (-not $fullPath) {
-        # If it doesn't exist, check parent
-        $parent = Split-Path $Path -Parent
-        if (-not (Test-Path $parent)) { return $null }
-        $fullPath = $Path
+    $resolvedPath = Resolve-Path $Path -ErrorAction SilentlyContinue
+    if ($resolvedPath) {
+        $fullPath = $resolvedPath.Path
     } else {
-        $fullPath = $fullPath.Path
+        # If path doesn't exist, check parent is accessible
+        $parent = Split-Path $Path -Parent
+        if (-not $parent -or -not (Test-Path $parent)) { return $null }
+        $fullPath = $Path
     }
     
     if ($RequireWrite) {
-        $testFile = Join-Path $fullPath ".write-test-$(Get-Random)"
+        # For non-existent paths, test write on parent
+        $testDir = if (Test-Path $fullPath) { $fullPath } else { Split-Path $fullPath -Parent }
+        $testFile = Join-Path $testDir ".write-test-$(Get-Random)"
         try {
             New-Item -ItemType File -Path $testFile -ErrorAction Stop | Out-Null
             Remove-Item $testFile -Force -ErrorAction SilentlyContinue
