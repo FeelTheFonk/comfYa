@@ -62,8 +62,12 @@ function Install-Uv {
     Write-ComfyLog "Downloading uv installer..." -Level INFO
     Invoke-SafeWebRequest -Uri $url -OutFile $temp -ExpectedHash $hash -UserAgent $Config.UserAgent
     
-    # Run installer
-    powershell -ExecutionPolicy Bypass -File $temp /S # Silent install
+    # Run installer with appropriate PowerShell host
+    $hostExe = if ($PSVersionTable.PSVersion.Major -ge 6) { "pwsh.exe" } else { "powershell.exe" }
+    & $hostExe -NoProfile -ExecutionPolicy Bypass -File $temp
+    if ($LASTEXITCODE -ne 0) {
+        Write-ComfyWarning "uv installer returned exit code: $LASTEXITCODE"
+    }
     Remove-Item $temp -Force -ErrorAction SilentlyContinue
     
     # Adaptive Path Update

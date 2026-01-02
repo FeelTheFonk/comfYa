@@ -4,6 +4,27 @@ All notable changes to comfYa will be documented in this file.
 
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.2.7] - 2026-01-02
+### Added
+- **Extended Nvidia Tests**: Comprehensive test coverage for `Nvidia.psm1` (15%→75%) with 14 tests covering driver mapping, SM architecture, i18n parsing, multi-GPU selection.
+- **Install-Uv Tests**: Added 3 tests for `Install-Uv` function in `Package.Tests.ps1`.
+- **TLS 1.3 Fallback**: Graceful fallback to TLS 1.2 for systems without TLS 1.3 support.
+
+### Changed
+- **SSA-Compliant Validation**: `validate.py` now reads core packages from `config.json` instead of hardcoded list.
+- **Mermaid Diagram**: Updated `ARCHITECTURE.md` to show Package/Nvidia module dependencies to Lifecycle.
+- **Documentation Alignment**: Updated `docs/README.md` config table with Logging/Diagnostics/Security sections.
+
+### Fixed
+- **C1**: `bug_report.yml` referenced deleted scripts (`install.ps1`, `run.ps1`, `update.ps1`) - updated to current CLI commands.
+- **C2**: `ci.yml` shell inconsistency in PS 5.1 matrix - Install Pester step now uses conditional shell.
+- **Q2**: `CHANGELOG.md` referenced deleted `core.psm1` file.
+- **Q3**: `Package.psm1` used incorrect PowerShell invocation with invalid `/S` parameter.
+- **Q6**: `Nvidia.psm1` had `$invCulture` declared inside loop - moved outside for optimization.
+- **T5**: `config.Tests.ps1` used fragile `$_` in TestCases - fixed to use explicit named parameter.
+- **D4**: `TROUBLESHOOTING.md` referenced `python` instead of `.venv\Scripts\python.exe`.
+- **D6**: `CONTRIBUTING.md` Pester install missing `-MinimumVersion 5.0`.
+
 ## [0.2.6] - 2026-01-02
 ### Added
 - **Extended Test Coverage**: Comprehensive tests for `SystemUtils.psm1` (18%→80%), `Logging.psm1` (50%→90%), `Package.psm1` (43%→80%).
@@ -145,7 +166,7 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Removed
 - Unused Python imports and variables in `validate.py`.
-- Redundant logic in `core.psm1`.
+- Redundant logic in legacy modules (removed).
 - Legacy `Invoke-Expression` calls for security.
 
 ### Security

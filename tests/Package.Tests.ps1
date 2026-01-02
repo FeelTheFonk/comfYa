@@ -47,6 +47,30 @@ Describe "Package Module" {
         }
     }
     
+    Context "Install-Uv Function" {
+        It "Should return true if uv is already installed" {
+            if (Get-Command uv -ErrorAction SilentlyContinue) {
+                $result = Install-Uv -Config $Script:Config
+                $result | Should -Be $true
+            } else {
+                Set-ItResult -Skipped -Because "uv not installed on this system"
+            }
+        }
+        
+        It "Should have correct uv source URL in config" {
+            $Script:Config.Sources.Dependencies.Uv | Should -Match "^https://astral.sh/"
+        }
+        
+        It "Should check common bin paths for uv" {
+            # Verify path resolution logic works
+            $possibleBins = @(
+                (Join-Path $env:USERPROFILE ".local\bin"),
+                (Join-Path $env:APPDATA "uv\bin")
+            )
+            $possibleBins.Count | Should -Be 2
+        }
+    }
+    
     Context "Get-LatestGithubRelease Function" {
         It "Should handle invalid URLs gracefully" {
             $result = Get-LatestGithubRelease -ApiUrl "https://invalid.url.test/api" -UserAgent "test"

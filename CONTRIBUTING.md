@@ -52,7 +52,7 @@ Use the [Feature Request template](/.github/ISSUE_TEMPLATE/feature_request.yml).
 
 ```powershell
 # Install Pester
-Install-Module -Name Pester -Force -SkipPublisherCheck
+Install-Module -Name Pester -Force -SkipPublisherCheck -MinimumVersion 5.0
 
 # Run tests
 Invoke-Pester -Path ./tests -Output Detailed

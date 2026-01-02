@@ -26,6 +26,9 @@ All settings in [`config.psd1`](../config.psd1):
 | `Gpu` | Compute capability requirements |
 | `Sources` | URLs for dependencies |
 | `LaunchArgs` | ComfyUI launch options |
+| `Logging` | Log level, file rotation settings |
+| `Diagnostics` | CUDA DLLs, system checks |
+| `Security` | TLS, download verification |
 
 ## Environment Variables
 

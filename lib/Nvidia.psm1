@@ -19,11 +19,11 @@ function Get-NvidiaGpuInfo {
     
     $gpuList = @()
     $lines = $output -split "`r?`n" | Where-Object { $_.Trim() -ne "" }
+    $invCulture = [System.Globalization.CultureInfo]::InvariantCulture
     
     foreach ($line in $lines) {
         # [C4] Robust parsing: split on comma but handle quoted fields and CC with comma
         $parts = $line -split ','
-        $invCulture = [System.Globalization.CultureInfo]::InvariantCulture
         
         # Standard columns: 0:Name, 1:Driver, 2:CC, 3:Vram
         # If CC uses comma decimal (EU locales), we get extra parts

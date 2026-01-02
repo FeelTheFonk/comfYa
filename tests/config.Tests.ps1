@@ -29,9 +29,21 @@ Describe "Config Schema Integrity" {
     }
 
     Context "Mandatory Sections" {
-        $sections = "Python", "Cuda", "Gpu", "Sources", "Directories", "Environment", "LaunchArgs", "Packages", "Logging", "Security"
-        It "Should contain section: <_>" -TestCases $sections {
-            $Script:Config.ContainsKey($_) | Should -Be $true
+        $sections = @(
+            @{ Section = "Python" }
+            @{ Section = "Cuda" }
+            @{ Section = "Gpu" }
+            @{ Section = "Sources" }
+            @{ Section = "Directories" }
+            @{ Section = "Environment" }
+            @{ Section = "LaunchArgs" }
+            @{ Section = "Packages" }
+            @{ Section = "Logging" }
+            @{ Section = "Security" }
+        )
+        It "Should contain section: <Section>" -TestCases $sections {
+            param($Section)
+            $Script:Config.ContainsKey($Section) | Should -Be $true
         }
     }
 

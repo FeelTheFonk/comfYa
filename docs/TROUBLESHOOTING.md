@@ -108,7 +108,7 @@ uv pip list | findstr sage
 
 **Solution**: Verify launch command:
 ```powershell
-python ComfyUI\main.py --fast --highvram --use-sage-attention
+.venv\Scripts\python.exe ComfyUI\main.py --fast --highvram --use-sage-attention
 ```
 
 Check console for:
@@ -124,7 +124,7 @@ Using sage attention
 
 **Solution**: Use `--lowvram` instead of `--highvram`:
 ```powershell
-python ComfyUI\main.py --fast --lowvram --use-sage-attention
+.venv\Scripts\python.exe ComfyUI\main.py --fast --lowvram --use-sage-attention
 ```
 
 ---

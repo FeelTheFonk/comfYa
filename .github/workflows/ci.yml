@@ -105,7 +105,7 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       
       - name: Install Pester
-        shell: pwsh
+        shell: ${{ matrix.powershell == '5.1' && 'powershell' || 'pwsh' }}
         run: |
           Install-Module -Name Pester -Force -SkipPublisherCheck -MinimumVersion 5.0
       

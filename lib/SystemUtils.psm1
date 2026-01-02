@@ -91,8 +91,13 @@ function Invoke-SafeWebRequest {
         [int]$RetryCount = 3
     )
     
-    # [5] Security: Enforce TLS 1.3 (with 1.2 fallback for older systems if necessary, but roadmap says SOTA)
-    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls13 -bor [Net.SecurityProtocolType]::Tls12
+    # [5] Security: Enforce TLS 1.3 with 1.2 fallback for older systems
+    try {
+        [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls13 -bor [Net.SecurityProtocolType]::Tls12
+    } catch {
+        # TLS 1.3 not available on this system (Windows Server 2016, etc.)
+        [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+    }
     
     $attempt = 0
     while ($attempt -lt $RetryCount) {

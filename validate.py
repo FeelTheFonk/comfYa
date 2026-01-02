@@ -133,17 +133,27 @@ def test_directories(root: Path, config: Dict) -> Tuple[bool, str]:
     else:
         return False, f"Missing: {', '.join(missing)}"
 
-def test_core_packages() -> Tuple[bool, str]:
-    """Verify core packages are installed."""
+def test_core_packages(config: Dict) -> Tuple[bool, str]:
+    """Verify core packages are installed (SSA-compliant: reads from config)."""
     import importlib.util
-    core = ["torch", "numpy", "PIL", "safetensors", "aiohttp", "yaml"]
+    
+    # SSA: Read from config with fallback to essential defaults
+    config_core = config.get("Packages", {}).get("Core", [])
+    if config_core:
+        # Map config package names to import names
+        pkg_mapping = {
+            "pillow": "PIL",
+            "pyyaml": "yaml"
+        }
+        core = [pkg_mapping.get(p.lower(), p) for p in config_core]
+    else:
+        # Fallback if config unavailable
+        core = ["torch", "numpy", "PIL", "safetensors", "aiohttp", "yaml"]
+    
     installed = []
     missing = []
     
     for pkg in core:
-        # Handle PIL special case
-        spec_name = "pillow" if pkg == "PIL" else pkg
-        spec_name = "pyyaml" if pkg == "yaml" else spec_name
         try:
             if importlib.util.find_spec(pkg):
                 installed.append(pkg)
@@ -190,7 +200,7 @@ def main():
         ("Python Version", lambda: test_python_version(config), False),
         ("Hardware/CUDA", lambda: test_hardware(config), True),
         ("Acceleration", test_acceleration, False),
-        ("Core Packages", test_core_packages, False),
+        ("Core Packages", lambda: test_core_packages(config), False),
         ("Directories", lambda: test_directories(root, config), False),
     ]
     

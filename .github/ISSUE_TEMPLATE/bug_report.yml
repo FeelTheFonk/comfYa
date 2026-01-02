@@ -38,11 +38,13 @@ body:
   - type: dropdown
     id: script
     attributes:
-      label: Which script?
+      label: Which command?
       options:
-        - install.ps1
-        - run.ps1 / run.bat
-        - update.ps1
+        - comfya.ps1 setup
+        - comfya.ps1 run / run.bat
+        - comfya.ps1 update
+        - comfya.ps1 doctor
+        - comfya.ps1 clean
         - validate.py
         - Other
     validations:
