@@ -93,6 +93,11 @@ jobs:
         run: |
           python -m py_compile validate.py
           echo "Python syntax valid"
+      
+      - name: Run pytest
+        run: |
+          pip install pytest
+          pytest tests/test_validate.py -v
 
   test-pester:
     name: Run Pester Tests

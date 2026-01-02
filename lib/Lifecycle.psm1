@@ -62,8 +62,6 @@ function Install-ComfyProject {
         [switch]$Simulate
     )
     
-
-    
     if (-not $PSCmdlet.ShouldProcess($InstallPath, "Install ComfyUI Project (Simulate: $Simulate)")) { return }
     
     $GPU = Get-NvidiaGpuInfo -Config $Config

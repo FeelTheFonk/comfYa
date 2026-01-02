@@ -24,12 +24,21 @@ function Install-VCRedist {
     Write-Step "Install" "VCRedist" "Downloading VC++ Redist (14.4x)..."
     Invoke-SafeWebRequest -Uri $url -OutFile $temp -ExpectedHash $hash -UserAgent $Config.UserAgent
     
+    # [S1] Security: Verify Authenticode signature (Microsoft-signed binary)
+    $signature = Get-AuthenticodeSignature -FilePath $temp
+    if ($signature.Status -ne "Valid" -or $signature.SignerCertificate.Subject -notmatch "Microsoft") {
+        Remove-Item $temp -Force -ErrorAction SilentlyContinue
+        throw "VCRedist signature verification failed: $($signature.Status)"
+    }
+    Write-ComfyLog "VCRedist signature verified: $($signature.SignerCertificate.Subject)" -Level DEBUG
+    
     $proc = Start-Process -FilePath $temp -ArgumentList "/install", "/quiet", "/norestart" -Wait -PassThru
     Remove-Item $temp -Force -ErrorAction SilentlyContinue
     
     if ($proc.ExitCode -notin @(0, 3010)) { throw "VC++ Redist installation failed: $($proc.ExitCode)" }
     return $true
 }
+
 
 
 function Install-Git {

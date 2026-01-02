@@ -21,10 +21,11 @@ Describe "Nvidia Module" {
 
     Context "Get-NvidiaGpuInfo - Error Handling" {
         It "Should throw if nvidia-smi is missing" {
-            Mock Get-Command { 
-                param($Name)
-                if ($Name -eq "nvidia-smi") { return $null }
-            } -ModuleName Nvidia
+            # Mock Get-Command to return $null when checking for nvidia-smi
+            Mock Get-Command {
+                param($Name, $ErrorAction)
+                return $null
+            } -ModuleName Nvidia -ParameterFilter { $Name -eq "nvidia-smi" }
             
             { Get-NvidiaGpuInfo -Config $Script:Config } | Should -Throw "*nvidia-smi not found*"
         }

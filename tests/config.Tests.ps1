@@ -137,3 +137,26 @@ Describe "Config Schema Integrity" {
         }
     }
 }
+
+Describe "Version Synchronization" {
+    BeforeAll {
+        $Script:Root = Split-Path $PSScriptRoot -Parent
+        $Script:Config = Import-PowerShellDataFile -Path (Join-Path $Script:Root "config.psd1")
+    }
+    
+    Context "Version Consistency Across Files" {
+        It "Should have UserAgent containing Version" {
+            $Script:Config.UserAgent | Should -Match $Script:Config.Version
+        }
+        
+        It "Should have README title matching Version" {
+            $readme = Get-Content (Join-Path $Script:Root "README.md") -First 1
+            $readme | Should -Match $Script:Config.Version
+        }
+        
+        It "Should have ARCHITECTURE title matching Version" {
+            $arch = Get-Content (Join-Path $Script:Root "ARCHITECTURE.md") -First 1
+            $arch | Should -Match $Script:Config.Version
+        }
+    }
+}
