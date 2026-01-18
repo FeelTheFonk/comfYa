@@ -1,0 +1,524 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<test-results xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="nunit_schema_2.5.xsd" name="Pester" total="131" errors="0" failures="0" not-run="0" inconclusive="0" ignored="0" skipped="0" invalid="0" date="2026-01-18" time="12:11:38">
+  <environment platform="Microsoft Windows 11 Professionnel|C:\WINDOWS|\Device\Harddisk0\Partition3" cwd="C:\Users\CleS\Desktop\comfYa" clr-version="9.0.10" machine-name="DESKTOP-P6V2AAU" user-domain="DESKTOP-P6V2AAU" user="CleS" nunit-version="2.5.8.0" os-version="10.0.26200" />
+  <culture-info current-culture="fr-FR" current-uiculture="fr-FR" />
+  <test-suite type="TestFixture" name="Pester" executed="True" result="Success" success="True" time="9.9575" asserts="0" description="Pester">
+    <results>
+      <test-suite type="TestFixture" name="C:\Users\CleS\Desktop\comfYa\tests\comfya.Tests.ps1" executed="True" result="Success" success="True" time="0.42" asserts="0" description="C:\Users\CleS\Desktop\comfYa\tests\comfya.Tests.ps1">
+        <results>
+          <test-suite type="TestFixture" name="comfya.ps1 Orchestrator" executed="True" result="Success" success="True" time="0.175" asserts="0" description="comfya.ps1 Orchestrator">
+            <results>
+              <test-suite type="TestFixture" name="comfya.ps1 Orchestrator.Script Syntax" executed="True" result="Success" success="True" time="0.0987" asserts="0" description="comfya.ps1 Orchestrator.Script Syntax">
+                <results>
+                  <test-case description="Should have valid PowerShell syntax" name="comfya.ps1 Orchestrator.Script Syntax.Should have valid PowerShell syntax" time="0.0834" asserts="0" success="True" result="Success" executed="True" />
+                </results>
+              </test-suite>
+              <test-suite type="TestFixture" name="comfya.ps1 Orchestrator.Parameter Validation" executed="True" result="Success" success="True" time="0.124" asserts="0" description="comfya.ps1 Orchestrator.Parameter Validation">
+                <results>
+                  <test-case description="Should accept valid commands" name="comfya.ps1 Orchestrator.Parameter Validation.Should accept valid commands" time="0.0133" asserts="0" success="True" result="Success" executed="True" />
+                  <test-case description="Should have ValidateSet for Command parameter" name="comfya.ps1 Orchestrator.Parameter Validation.Should have ValidateSet for Command parameter" time="0.0068" asserts="0" success="True" result="Success" executed="True" />
+                  <test-case description="Should have ValidateSet for Mode parameter" name="comfya.ps1 Orchestrator.Parameter Validation.Should have ValidateSet for Mode parameter" time="0.0029" asserts="0" success="True" result="Success" executed="True" />
+                </results>
+              </test-suite>
+              <test-suite type="TestFixture" name="comfya.ps1 Orchestrator.Module Dependencies" executed="True" result="Success" success="True" time="0.1326" asserts="0" description="comfya.ps1 Orchestrator.Module Dependencies">
+                <results>
+                  <test-case description="Should reference all required modules" name="comfya.ps1 Orchestrator.Module Dependencies.Should reference all required modules" time="0.0066" asserts="0" success="True" result="Success" executed="True" />
+                </results>
+              </test-suite>
+              <test-suite type="TestFixture" name="comfya.ps1 Orchestrator.Command Routing" executed="True" result="Success" success="True" time="0.1398" asserts="0" description="comfya.ps1 Orchestrator.Command Routing">
+                <results>
+                  <test-case description="Should have switch statement for all commands" name="comfya.ps1 Orchestrator.Command Routing.Should have switch statement for all commands" time="0.0051" asserts="0" success="True" result="Success" executed="True" />
+                </results>
+              </test-suite>
+              <test-suite type="TestFixture" name="comfya.ps1 Orchestrator.Config Loading" executed="True" result="Success" success="True" time="0.1457" asserts="0" description="comfya.ps1 Orchestrator.Config Loading">
+                <results>
+                  <test-case description="Should load config.psd1 at runtime" name="comfya.ps1 Orchestrator.Config Loading.Should load config.psd1 at runtime" time="0.0038" asserts="0" success="True" result="Success" executed="True" />
+                </results>
+              </test-suite>
+              <test-suite type="TestFixture" name="comfya.ps1 Orchestrator.Version Alignment" executed="True" result="Success" success="True" time="0.1683" asserts="0" description="comfya.ps1 Orchestrator.Version Alignment">
+                <results>
+                  <test-case description="Should display version from config" name="comfya.ps1 Orchestrator.Version Alignment.Should display version from config" time="0.0039" asserts="0" success="True" result="Success" executed="True" />
+                </results>
+              </test-suite>
+            </results>
+          </test-suite>
+          <test-suite type="TestFixture" name="comfya.ps1 Security" executed="True" result="Success" success="True" time="0.1961" asserts="0" description="comfya.ps1 Security">
+            <results>
+              <test-suite type="TestFixture" name="comfya.ps1 Security.Path Validation" executed="True" result="Success" success="True" time="0.0065" asserts="0" description="comfya.ps1 Security.Path Validation">
+                <results>
+                  <test-case description="Should validate InstallPath for write operations" name="comfya.ps1 Security.Path Validation.Should validate InstallPath for write operations" time="0.0043" asserts="0" success="True" result="Success" executed="True" />
+                </results>
+              </test-suite>
+              <test-suite type="TestFixture" name="comfya.ps1 Security.Elevation Check" executed="True" result="Success" success="True" time="0.0189" asserts="0" description="comfya.ps1 Security.Elevation Check">
+                <results>
+                  <test-case description="Should check for admin rights on setup" name="comfya.ps1 Security.Elevation Check.Should check for admin rights on setup" time="0.0082" asserts="0" success="True" result="Success" executed="True" />
+                </results>
+              </test-suite>
+            </results>
+          </test-suite>
+        </results>
+      </test-suite>
+      <test-suite type="TestFixture" name="C:\Users\CleS\Desktop\comfYa\tests\config.Tests.ps1" executed="True" result="Success" success="True" time="0.2278" asserts="0" description="C:\Users\CleS\Desktop\comfYa\tests\config.Tests.ps1">
+        <results>
+          <test-suite type="TestFixture" name="Config Schema Integrity" executed="True" result="Success" success="True" time="0.183" asserts="0" description="Config Schema Integrity">
+            <results>
+              <test-suite type="TestFixture" name="Config Schema Integrity.Metadata" executed="True" result="Success" success="True" time="0.0361" asserts="0" description="Config Schema Integrity.Metadata">
+                <results>
+                  <test-case description="Should have a valid Version string" name="Config Schema Integrity.Metadata.Should have a valid Version string" time="0.0037" asserts="0" success="True" result="Success" executed="True" />
+                  <test-case description="Should have a Schema version" name="Config Schema Integrity.Metadata.Should have a Schema version" time="0.0044" asserts="0" success="True" result="Success" executed="True" />
+                  <test-case description="Should have a UserAgent matching Version" name="Config Schema Integrity.Metadata.Should have a UserAgent matching Version" time="0.0025" asserts="0" success="True" result="Success" executed="True" />
+                </results>
+              </test-suite>
+              <test-suite type="TestFixture" name="Config Schema Integrity.Mandatory Sections" executed="True" result="Success" success="True" time="0.0639" asserts="0" description="Config Schema Integrity.Mandatory Sections">
+                <results>
+                  <test-suite type="ParameterizedTest" name="Config Schema Integrity.Mandatory Sections.Should contain section: &lt;Section&gt;" executed="True" result="Success" success="True" time="0.0255" asserts="0" description="Should contain section: &lt;Section&gt;">
+                    <results>
+                      <test-case description="Should contain section: Python" name="Config Schema Integrity.Mandatory Sections.Should contain section: Python" time="0.0071" asserts="0" success="True" result="Success" executed="True" />
+                      <test-case description="Should contain section: Cuda" name="Config Schema Integrity.Mandatory Sections.Should contain section: Cuda" time="0.0019" asserts="0" success="True" result="Success" executed="True" />
+                      <test-case description="Should contain section: Gpu" name="Config Schema Integrity.Mandatory Sections.Should contain section: Gpu" time="0.003" asserts="0" success="True" result="Success" executed="True" />
+                      <test-case description="Should contain section: Sources" name="Config Schema Integrity.Mandatory Sections.Should contain section: Sources" time="0.0019" asserts="0" success="True" result="Success" executed="True" />
+                      <test-case description="Should contain section: Directories" name="Config Schema Integrity.Mandatory Sections.Should contain section: Directories" time="0.0022" asserts="0" success="True" result="Success" executed="True" />
+                      <test-case description="Should contain section: Environment" name="Config Schema Integrity.Mandatory Sections.Should contain section: Environment" time="0.0019" asserts="0" success="True" result="Success" executed="True" />
+                      <test-case description="Should contain section: LaunchArgs" name="Config Schema Integrity.Mandatory Sections.Should contain section: LaunchArgs" time="0.002" asserts="0" success="True" result="Success" executed="True" />
+                      <test-case description="Should contain section: Packages" name="Config Schema Integrity.Mandatory Sections.Should contain section: Packages" time="0.0019" asserts="0" success="True" result="Success" executed="True" />
+                      <test-case description="Should contain section: Logging" name="Config Schema Integrity.Mandatory Sections.Should contain section: Logging" time="0.0018" asserts="0" success="True" result="Success" executed="True" />
+                      <test-case description="Should contain section: Security" name="Config Schema Integrity.Mandatory Sections.Should contain section: Security" time="0.0019" asserts="0" success="True" result="Success" executed="True" />
+                    </results>
+                  </test-suite>
+                </results>
+              </test-suite>
+              <test-suite type="TestFixture" name="Config Schema Integrity.Python Configuration" executed="True" result="Success" success="True" time="0.074" asserts="0" description="Config Schema Integrity.Python Configuration">
+                <results>
+                  <test-case description="Should specify Python 3.12" name="Config Schema Integrity.Python Configuration.Should specify Python 3.12" time="0.0048" asserts="0" success="True" result="Success" executed="True" />
+                  <test-case description="Should have strict versioning enabled" name="Config Schema Integrity.Python Configuration.Should have strict versioning enabled" time="0.0032" asserts="0" success="True" result="Success" executed="True" />
+                </results>
+              </test-suite>
+              <test-suite type="TestFixture" name="Config Schema Integrity.NVIDIA Configuration" executed="True" result="Success" success="True" time="0.0917" asserts="0" description="Config Schema Integrity.NVIDIA Configuration">
+                <results>
+                  <test-case description="Should have preferred cu128" name="Config Schema Integrity.NVIDIA Configuration.Should have preferred cu128" time="0.0048" asserts="0" success="True" result="Success" executed="True" />
+                  <test-case description="Should have fallback versions" name="Config Schema Integrity.NVIDIA Configuration.Should have fallback versions" time="0.0032" asserts="0" success="True" result="Success" executed="True" />
+                  <test-case description="Should have SM architecture mapping for RTX 20/30/40/50" name="Config Schema Integrity.NVIDIA Configuration.Should have SM architecture mapping for RTX 20/30/40/50" time="0.0049" asserts="0" success="True" result="Success" executed="True" />
+                </results>
+              </test-suite>
+              <test-suite type="TestFixture" name="Config Schema Integrity.Directory Structure" executed="True" result="Success" success="True" time="0.0977" asserts="0" description="Config Schema Integrity.Directory Structure">
+                <results>
+                  <test-case description="Should have models root" name="Config Schema Integrity.Directory Structure.Should have models root" time="0.0042" asserts="0" success="True" result="Success" executed="True" />
+                </results>
+              </test-suite>
+              <test-suite type="TestFixture" name="Config Schema Integrity.Diagnostics Section" executed="True" result="Success" success="True" time="0.1068" asserts="0" description="Config Schema Integrity.Diagnostics Section">
+                <results>
+                  <test-case description="Should have Diagnostics section" name="Config Schema Integrity.Diagnostics Section.Should have Diagnostics section" time="0.0033" asserts="0" success="True" result="Success" executed="True" />
+                  <test-case description="Should have CudaDLLs list" name="Config Schema Integrity.Diagnostics Section.Should have CudaDLLs list" time="0.0036" asserts="0" success="True" result="Success" executed="True" />
+                </results>
+              </test-suite>
+              <test-suite type="TestFixture" name="Config Schema Integrity.Requirements Section" executed="True" result="Success" success="True" time="0.128" asserts="0" description="Config Schema Integrity.Requirements Section">
+                <results>
+                  <test-case description="Should have Requirements section" name="Config Schema Integrity.Requirements Section.Should have Requirements section" time="0.0035" asserts="0" success="True" result="Success" executed="True" />
+                  <test-case description="Should specify MinRamGB" name="Config Schema Integrity.Requirements Section.Should specify MinRamGB" time="0.0049" asserts="0" success="True" result="Success" executed="True" />
+                  <test-case description="Should specify MinDiskGB" name="Config Schema Integrity.Requirements Section.Should specify MinDiskGB" time="0.0027" asserts="0" success="True" result="Success" executed="True" />
+                  <test-case description="Should specify MinPsVer" name="Config Schema Integrity.Requirements Section.Should specify MinPsVer" time="0.0078" asserts="0" success="True" result="Success" executed="True" />
+                </results>
+              </test-suite>
+              <test-suite type="TestFixture" name="Config Schema Integrity.Sources Structure" executed="True" result="Success" success="True" time="0.1466" asserts="0" description="Config Schema Integrity.Sources Structure">
+                <results>
+                  <test-case description="Should have PyTorch IndexUrls for all CUDA versions" name="Config Schema Integrity.Sources Structure.Should have PyTorch IndexUrls for all CUDA versions" time="0.0069" asserts="0" success="True" result="Success" executed="True" />
+                  <test-case description="Should have valid repository URLs" name="Config Schema Integrity.Sources Structure.Should have valid repository URLs" time="0.0058" asserts="0" success="True" result="Success" executed="True" />
+                  <test-case description="Should have API URLs for dynamic resolution" name="Config Schema Integrity.Sources Structure.Should have API URLs for dynamic resolution" time="0.0036" asserts="0" success="True" result="Success" executed="True" />
+                </results>
+              </test-suite>
+              <test-suite type="TestFixture" name="Config Schema Integrity.LaunchArgs Profiles" executed="True" result="Success" success="True" time="0.1541" asserts="0" description="Config Schema Integrity.LaunchArgs Profiles">
+                <results>
+                  <test-case description="Should have all VRAM profiles" name="Config Schema Integrity.LaunchArgs Profiles.Should have all VRAM profiles" time="0.0054" asserts="0" success="True" result="Success" executed="True" />
+                </results>
+              </test-suite>
+              <test-suite type="TestFixture" name="Config Schema Integrity.Packages Structure" executed="True" result="Success" success="True" time="0.1752" asserts="0" description="Config Schema Integrity.Packages Structure">
+                <results>
+                  <test-case description="Should have Core packages list" name="Config Schema Integrity.Packages Structure.Should have Core packages list" time="0.0053" asserts="0" success="True" result="Success" executed="True" />
+                  <test-case description="Should have ML packages list" name="Config Schema Integrity.Packages Structure.Should have ML packages list" time="0.0039" asserts="0" success="True" result="Success" executed="True" />
+                  <test-case description="Should have Optimization packages" name="Config Schema Integrity.Packages Structure.Should have Optimization packages" time="0.0097" asserts="0" success="True" result="Success" executed="True" />
+                </results>
+              </test-suite>
+              <test-case description="Should load as a hashtable" name="Config Schema Integrity.Should load as a hashtable" time="0.0232" asserts="0" success="True" result="Success" executed="True" />
+            </results>
+          </test-suite>
+          <test-suite type="TestFixture" name="Version Synchronization" executed="True" result="Success" success="True" time="0.197" asserts="0" description="Version Synchronization">
+            <results>
+              <test-suite type="TestFixture" name="Version Synchronization.Version Consistency Across Files" executed="True" result="Success" success="True" time="0.0107" asserts="0" description="Version Synchronization.Version Consistency Across Files">
+                <results>
+                  <test-case description="Should have UserAgent containing Version" name="Version Synchronization.Version Consistency Across Files.Should have UserAgent containing Version" time="0.0031" asserts="0" success="True" result="Success" executed="True" />
+                  <test-case description="Should have README title matching Version" name="Version Synchronization.Version Consistency Across Files.Should have README title matching Version" time="0.0032" asserts="0" success="True" result="Success" executed="True" />
+                  <test-case description="Should have ARCHITECTURE title matching Version" name="Version Synchronization.Version Consistency Across Files.Should have ARCHITECTURE title matching Version" time="0.0024" asserts="0" success="True" result="Success" executed="True" />
+                </results>
+              </test-suite>
+            </results>
+          </test-suite>
+        </results>
+      </test-suite>
+      <test-suite type="TestFixture" name="C:\Users\CleS\Desktop\comfYa\tests\integration.Tests.ps1" executed="True" result="Success" success="True" time="1.3569" asserts="0" description="C:\Users\CleS\Desktop\comfYa\tests\integration.Tests.ps1">
+        <results>
+          <test-suite type="TestFixture" name="Pre-Installation Checks" executed="True" result="Success" success="True" time="1.2774" asserts="0" description="Pre-Installation Checks">
+            <results>
+              <test-suite type="TestFixture" name="Pre-Installation Checks.System Requirements" executed="True" result="Success" success="True" time="1.1963" asserts="0" description="Pre-Installation Checks.System Requirements">
+                <results>
+                  <test-case description="Should have PowerShell 5.1+" name="Pre-Installation Checks.System Requirements.Should have PowerShell 5.1+" time="0.0036" asserts="0" success="True" result="Success" executed="True" />
+                  <test-case description="Should have internet connectivity" name="Pre-Installation Checks.System Requirements.Should have internet connectivity" time="1.1865" asserts="0" success="True" result="Success" executed="True" />
+                  <test-case description="Should have config.psd1" name="Pre-Installation Checks.System Requirements.Should have config.psd1" time="0.0039" asserts="0" success="True" result="Success" executed="True" />
+                </results>
+              </test-suite>
+              <test-suite type="TestFixture" name="Pre-Installation Checks.NVIDIA Environment" executed="True" result="Success" success="True" time="1.2754" asserts="0" description="Pre-Installation Checks.NVIDIA Environment">
+                <results>
+                  <test-case description="Should have nvidia-smi accessible" name="Pre-Installation Checks.NVIDIA Environment.Should have nvidia-smi accessible" time="0.0383" asserts="0" success="True" result="Success" executed="True" />
+                  <test-case description="Should have compatible GPU driver" name="Pre-Installation Checks.NVIDIA Environment.Should have compatible GPU driver" time="0.0353" asserts="0" success="True" result="Success" executed="True" />
+                </results>
+              </test-suite>
+            </results>
+          </test-suite>
+          <test-suite type="TestFixture" name="Script Syntax Validation" executed="True" result="Success" success="True" time="1.286" asserts="0" description="Script Syntax Validation">
+            <results>
+              <test-suite type="ParameterizedTest" name="Script Syntax Validation.&lt;_&gt; should have valid PowerShell syntax" executed="True" result="Success" success="True" time="0.0065" asserts="0" description="&lt;_&gt; should have valid PowerShell syntax">
+                <results>
+                  <test-case description="comfya.ps1 should have valid PowerShell syntax" name="Script Syntax Validation.comfya.ps1 should have valid PowerShell syntax" time="0.0065" asserts="0" success="True" result="Success" executed="True" />
+                </results>
+              </test-suite>
+            </results>
+          </test-suite>
+          <test-suite type="TestFixture" name="Configuration Validation" executed="True" result="Success" success="True" time="1.304" asserts="0" description="Configuration Validation">
+            <results>
+              <test-case description="Should have all required top-level keys" name="Configuration Validation.Should have all required top-level keys" time="0.0065" asserts="0" success="True" result="Success" executed="True" />
+              <test-case description="Should have valid PyTorch index URLs" name="Configuration Validation.Should have valid PyTorch index URLs" time="0.0049" asserts="0" success="True" result="Success" executed="True" />
+              <test-case description="Should have valid repository URLs" name="Configuration Validation.Should have valid repository URLs" time="0.0033" asserts="0" success="True" result="Success" executed="True" />
+            </results>
+          </test-suite>
+          <test-suite type="TestFixture" name="Dry Run Installation" executed="True" result="Success" success="True" time="1.3234" asserts="0" description="Dry Run Installation">
+            <results>
+              <test-suite type="TestFixture" name="Dry Run Installation.Directory Structure" executed="True" result="Success" success="True" time="0.0173" asserts="0" description="Dry Run Installation.Directory Structure">
+                <results>
+                  <test-case description="Should be able to create test directory structure" name="Dry Run Installation.Directory Structure.Should be able to create test directory structure" time="0.015" asserts="0" success="True" result="Success" executed="True" />
+                </results>
+              </test-suite>
+            </results>
+          </test-suite>
+        </results>
+      </test-suite>
+      <test-suite type="TestFixture" name="C:\Users\CleS\Desktop\comfYa\tests\Lifecycle.Tests.ps1" executed="True" result="Success" success="True" time="0.2924" asserts="0" description="C:\Users\CleS\Desktop\comfYa\tests\Lifecycle.Tests.ps1">
+        <results>
+          <test-suite type="TestFixture" name="Lifecycle Module" executed="True" result="Success" success="True" time="0.2366" asserts="0" description="Lifecycle Module">
+            <results>
+              <test-suite type="TestFixture" name="Lifecycle Module.Module Loading" executed="True" result="Success" success="True" time="0.0214" asserts="0" description="Lifecycle Module.Module Loading">
+                <results>
+                  <test-case description="Should import successfully" name="Lifecycle Module.Module Loading.Should import successfully" time="0.0116" asserts="0" success="True" result="Success" executed="True" />
+                  <test-case description="Should export expected functions" name="Lifecycle Module.Module Loading.Should export expected functions" time="0.0077" asserts="0" success="True" result="Success" executed="True" />
+                </results>
+              </test-suite>
+              <test-suite type="TestFixture" name="Lifecycle Module.Initialize-ComfyDirectories" executed="True" result="Success" success="True" time="0.0609" asserts="0" description="Lifecycle Module.Initialize-ComfyDirectories">
+                <results>
+                  <test-case description="Should create directory structure without error" name="Lifecycle Module.Initialize-ComfyDirectories.Should create directory structure without error" time="0.0372" asserts="0" success="True" result="Success" executed="True" />
+                </results>
+              </test-suite>
+              <test-suite type="TestFixture" name="Lifecycle Module.Invoke-ComfyClean" executed="True" result="Success" success="True" time="0.0944" asserts="0" description="Lifecycle Module.Invoke-ComfyClean">
+                <results>
+                  <test-case description="Should clean specified targets without error" name="Lifecycle Module.Invoke-ComfyClean.Should clean specified targets without error" time="0.0313" asserts="0" success="True" result="Success" executed="True" />
+                </results>
+              </test-suite>
+              <test-suite type="TestFixture" name="Lifecycle Module.Start-ComfyProject" executed="True" result="Success" success="True" time="0.1691" asserts="0" description="Lifecycle Module.Start-ComfyProject">
+                <results>
+                  <test-case description="Should throw if venv not found" name="Lifecycle Module.Start-ComfyProject.Should throw if venv not found" time="0.0725" asserts="0" success="True" result="Success" executed="True" />
+                </results>
+              </test-suite>
+              <test-suite type="TestFixture" name="Lifecycle Module.VRAM Mode Selection" executed="True" result="Success" success="True" time="0.2343" asserts="0" description="Lifecycle Module.VRAM Mode Selection">
+                <results>
+                  <test-case description="Should select HighVram for 12GB+ VRAM" name="Lifecycle Module.VRAM Mode Selection.Should select HighVram for 12GB+ VRAM" time="0.0629" asserts="0" success="True" result="Success" executed="True" />
+                </results>
+              </test-suite>
+            </results>
+          </test-suite>
+          <test-suite type="TestFixture" name="Lifecycle Integration" executed="True" result="Success" success="True" time="0.2496" asserts="0" description="Lifecycle Integration">
+            <results>
+              <test-suite type="TestFixture" name="Lifecycle Integration.Full Install Flow (DryRun)" executed="True" result="Success" success="True" time="0.0099" asserts="0" description="Lifecycle Integration.Full Install Flow (DryRun)">
+                <results>
+                  <test-case description="Should validate install prerequisites" name="Lifecycle Integration.Full Install Flow (DryRun).Should validate install prerequisites" time="0.0078" asserts="0" success="True" result="Success" executed="True" />
+                </results>
+              </test-suite>
+            </results>
+          </test-suite>
+        </results>
+      </test-suite>
+      <test-suite type="TestFixture" name="C:\Users\CleS\Desktop\comfYa\tests\Logging.Tests.ps1" executed="True" result="Success" success="True" time="0.1951" asserts="0" description="C:\Users\CleS\Desktop\comfYa\tests\Logging.Tests.ps1">
+        <results>
+          <test-suite type="TestFixture" name="Logging Module" executed="True" result="Success" success="True" time="0.1569" asserts="0" description="Logging Module">
+            <results>
+              <test-suite type="TestFixture" name="Logging Module.Module Loading" executed="True" result="Success" success="True" time="0.0162" asserts="0" description="Logging Module.Module Loading">
+                <results>
+                  <test-case description="Should import successfully" name="Logging Module.Module Loading.Should import successfully" time="0.0063" asserts="0" success="True" result="Success" executed="True" />
+                  <test-case description="Should export expected functions" name="Logging Module.Module Loading.Should export expected functions" time="0.0077" asserts="0" success="True" result="Success" executed="True" />
+                </results>
+              </test-suite>
+              <test-suite type="TestFixture" name="Logging Module.Log Level Handling" executed="True" result="Success" success="True" time="0.0356" asserts="0" description="Logging Module.Log Level Handling">
+                <results>
+                  <test-case description="Should accept valid log levels" name="Logging Module.Log Level Handling.Should accept valid log levels" time="0.0119" asserts="0" success="True" result="Success" executed="True" />
+                  <test-case description="Should reject invalid log levels" name="Logging Module.Log Level Handling.Should reject invalid log levels" time="0.0054" asserts="0" success="True" result="Success" executed="True" />
+                </results>
+              </test-suite>
+              <test-suite type="TestFixture" name="Logging Module.Write-Step Function" executed="True" result="Success" success="True" time="0.0476" asserts="0" description="Logging Module.Write-Step Function">
+                <results>
+                  <test-case description="Should execute without error" name="Logging Module.Write-Step Function.Should execute without error" time="0.0057" asserts="0" success="True" result="Success" executed="True" />
+                  <test-case description="Should work with progress percentage" name="Logging Module.Write-Step Function.Should work with progress percentage" time="0.0043" asserts="0" success="True" result="Success" executed="True" />
+                </results>
+              </test-suite>
+              <test-suite type="TestFixture" name="Logging Module.Write-Fatal Function" executed="True" result="Success" success="True" time="0.0602" asserts="0" description="Logging Module.Write-Fatal Function">
+                <results>
+                  <test-case description="Should throw with message" name="Logging Module.Write-Fatal Function.Should throw with message" time="0.0056" asserts="0" success="True" result="Success" executed="True" />
+                  <test-case description="Should include suggestion in output" name="Logging Module.Write-Fatal Function.Should include suggestion in output" time="0.005" asserts="0" success="True" result="Success" executed="True" />
+                </results>
+              </test-suite>
+              <test-suite type="TestFixture" name="Logging Module.Write-Success Function" executed="True" result="Success" success="True" time="0.0672" asserts="0" description="Logging Module.Write-Success Function">
+                <results>
+                  <test-case description="Should execute without error" name="Logging Module.Write-Success Function.Should execute without error" time="0.0049" asserts="0" success="True" result="Success" executed="True" />
+                </results>
+              </test-suite>
+              <test-suite type="TestFixture" name="Logging Module.Write-ComfyWarning Function" executed="True" result="Success" success="True" time="0.085" asserts="0" description="Logging Module.Write-ComfyWarning Function">
+                <results>
+                  <test-case description="Should execute without error" name="Logging Module.Write-ComfyWarning Function.Should execute without error" time="0.0049" asserts="0" success="True" result="Success" executed="True" />
+                </results>
+              </test-suite>
+              <test-suite type="TestFixture" name="Logging Module.Write-Diagnostic Function" executed="True" result="Success" success="True" time="0.1098" asserts="0" description="Logging Module.Write-Diagnostic Function">
+                <results>
+                  <test-case description="Should execute without error for OK status" name="Logging Module.Write-Diagnostic Function.Should execute without error for OK status" time="0.0096" asserts="0" success="True" result="Success" executed="True" />
+                  <test-case description="Should execute without error for FAIL status" name="Logging Module.Write-Diagnostic Function.Should execute without error for FAIL status" time="0.0056" asserts="0" success="True" result="Success" executed="True" />
+                  <test-case description="Should handle WARN and SKIP statuses" name="Logging Module.Write-Diagnostic Function.Should handle WARN and SKIP statuses" time="0.0074" asserts="0" success="True" result="Success" executed="True" />
+                </results>
+              </test-suite>
+              <test-suite type="TestFixture" name="Logging Module.Show-ComfyHeader Function" executed="True" result="Success" success="True" time="0.1196" asserts="0" description="Logging Module.Show-ComfyHeader Function">
+                <results>
+                  <test-case description="Should display header without clearing screen" name="Logging Module.Show-ComfyHeader Function.Should display header without clearing screen" time="0.0077" asserts="0" success="True" result="Success" executed="True" />
+                </results>
+              </test-suite>
+              <test-suite type="TestFixture" name="Logging Module.Show-ComfyFooter Function" executed="True" result="Success" success="True" time="0.1272" asserts="0" description="Logging Module.Show-ComfyFooter Function">
+                <results>
+                  <test-case description="Should display footer without error" name="Logging Module.Show-ComfyFooter Function.Should display footer without error" time="0.0056" asserts="0" success="True" result="Success" executed="True" />
+                </results>
+              </test-suite>
+              <test-suite type="TestFixture" name="Logging Module.Initialize-Logging" executed="True" result="Success" success="True" time="0.144" asserts="0" description="Logging Module.Initialize-Logging">
+                <results>
+                  <test-case description="Should initialize with config" name="Logging Module.Initialize-Logging.Should initialize with config" time="0.0116" asserts="0" success="True" result="Success" executed="True" />
+                  <test-case description="Should handle missing config gracefully" name="Logging Module.Initialize-Logging.Should handle missing config gracefully" time="0.0034" asserts="0" success="True" result="Success" executed="True" />
+                </results>
+              </test-suite>
+              <test-suite type="TestFixture" name="Logging Module.Start-SandboxLogging" executed="True" result="Success" success="True" time="0.155" asserts="0" description="Logging Module.Start-SandboxLogging">
+                <results>
+                  <test-case description="Should initialize sandbox logging" name="Logging Module.Start-SandboxLogging.Should initialize sandbox logging" time="0.009" asserts="0" success="True" result="Success" executed="True" />
+                </results>
+              </test-suite>
+            </results>
+          </test-suite>
+        </results>
+      </test-suite>
+      <test-suite type="TestFixture" name="C:\Users\CleS\Desktop\comfYa\tests\Nvidia.Logic.Tests.ps1" executed="True" result="Success" success="True" time="0.1226" asserts="0" description="C:\Users\CleS\Desktop\comfYa\tests\Nvidia.Logic.Tests.ps1">
+        <results>
+          <test-suite type="TestFixture" name="Nvidia Module - Multi-Profile Logic" executed="True" result="Success" success="True" time="0.1017" asserts="0" description="Nvidia Module - Multi-Profile Logic">
+            <results>
+              <test-suite type="TestFixture" name="Nvidia Module - Multi-Profile Logic.Localized Hardware Parsing [Step 8]" executed="True" result="Success" success="True" time="0.0505" asserts="0" description="Nvidia Module - Multi-Profile Logic.Localized Hardware Parsing [Step 8]">
+                <results>
+                  <test-case description="Should handle comma-separated decimals (FR/DE/ES)" name="Nvidia Module - Multi-Profile Logic.Localized Hardware Parsing [Step 8].Should handle comma-separated decimals (FR/DE/ES)" time="0.0484" asserts="0" success="True" result="Success" executed="True" />
+                </results>
+              </test-suite>
+              <test-suite type="TestFixture" name="Nvidia Module - Multi-Profile Logic.Hardware Profile Mapping" executed="True" result="Success" success="True" time="0.0809" asserts="0" description="Nvidia Module - Multi-Profile Logic.Hardware Profile Mapping">
+                <results>
+                  <test-suite type="ParameterizedTest" name="Nvidia Module - Multi-Profile Logic.Hardware Profile Mapping.Should correctly map &lt;Name&gt; to &lt;ExpectedArch&gt;" executed="True" result="Success" success="True" time="0.0282" asserts="0" description="Should correctly map &lt;Name&gt; to &lt;ExpectedArch&gt;">
+                    <results>
+                      <test-case description="Should correctly map RTX 2080 Ti to sm75" name="Nvidia Module - Multi-Profile Logic.Hardware Profile Mapping.Should correctly map RTX 2080 Ti to sm75" time="0.0089" asserts="0" success="True" result="Success" executed="True" />
+                      <test-case description="Should correctly map RTX 3090 to sm86" name="Nvidia Module - Multi-Profile Logic.Hardware Profile Mapping.Should correctly map RTX 3090 to sm86" time="0.0066" asserts="0" success="True" result="Success" executed="True" />
+                      <test-case description="Should correctly map RTX 4080 to sm89" name="Nvidia Module - Multi-Profile Logic.Hardware Profile Mapping.Should correctly map RTX 4080 to sm89" time="0.0062" asserts="0" success="True" result="Success" executed="True" />
+                      <test-case description="Should correctly map RTX 5090 to sm100" name="Nvidia Module - Multi-Profile Logic.Hardware Profile Mapping.Should correctly map RTX 5090 to sm100" time="0.0064" asserts="0" success="True" result="Success" executed="True" />
+                    </results>
+                  </test-suite>
+                </results>
+              </test-suite>
+              <test-suite type="TestFixture" name="Nvidia Module - Multi-Profile Logic.CUDA Version Selection [Step 7]" executed="True" result="Success" success="True" time="0.0998" asserts="0" description="Nvidia Module - Multi-Profile Logic.CUDA Version Selection [Step 7]">
+                <results>
+                  <test-case description="Should map driver 570+ to cu128" name="Nvidia Module - Multi-Profile Logic.CUDA Version Selection [Step 7].Should map driver 570+ to cu128" time="0.0096" asserts="0" success="True" result="Success" executed="True" />
+                  <test-case description="Should fallback to cu121 for older driver 545" name="Nvidia Module - Multi-Profile Logic.CUDA Version Selection [Step 7].Should fallback to cu121 for older driver 545" time="0.0072" asserts="0" success="True" result="Success" executed="True" />
+                </results>
+              </test-suite>
+            </results>
+          </test-suite>
+        </results>
+      </test-suite>
+      <test-suite type="TestFixture" name="C:\Users\CleS\Desktop\comfYa\tests\Nvidia.Tests.ps1" executed="True" result="Success" success="True" time="0.2495" asserts="0" description="C:\Users\CleS\Desktop\comfYa\tests\Nvidia.Tests.ps1">
+        <results>
+          <test-suite type="TestFixture" name="Nvidia Module" executed="True" result="Success" success="True" time="0.228" asserts="0" description="Nvidia Module">
+            <results>
+              <test-suite type="TestFixture" name="Nvidia Module.Module Loading" executed="True" result="Success" success="True" time="0.0107" asserts="0" description="Nvidia Module.Module Loading">
+                <results>
+                  <test-case description="Should import successfully" name="Nvidia Module.Module Loading.Should import successfully" time="0.005" asserts="0" success="True" result="Success" executed="True" />
+                  <test-case description="Should export Get-NvidiaGpuInfo function" name="Nvidia Module.Module Loading.Should export Get-NvidiaGpuInfo function" time="0.0038" asserts="0" success="True" result="Success" executed="True" />
+                </results>
+              </test-suite>
+              <test-suite type="TestFixture" name="Nvidia Module.Get-NvidiaGpuInfo - Error Handling" executed="True" result="Success" success="True" time="0.0545" asserts="0" description="Nvidia Module.Get-NvidiaGpuInfo - Error Handling">
+                <results>
+                  <test-case description="Should throw if nvidia-smi is missing" name="Nvidia Module.Get-NvidiaGpuInfo - Error Handling.Should throw if nvidia-smi is missing" time="0.0417" asserts="0" success="True" result="Success" executed="True" />
+                </results>
+              </test-suite>
+              <test-suite type="TestFixture" name="Nvidia Module.Driver Version Mapping" executed="True" result="Success" success="True" time="0.1027" asserts="0" description="Nvidia Module.Driver Version Mapping">
+                <results>
+                  <test-case description="Should map driver 570+ to cu128" name="Nvidia Module.Driver Version Mapping.Should map driver 570+ to cu128" time="0.0138" asserts="0" success="True" result="Success" executed="True" />
+                  <test-case description="Should map driver 560-569 to cu124" name="Nvidia Module.Driver Version Mapping.Should map driver 560-569 to cu124" time="0.0211" asserts="0" success="True" result="Success" executed="True" />
+                  <test-case description="Should map driver 545-559 to cu121" name="Nvidia Module.Driver Version Mapping.Should map driver 545-559 to cu121" time="0.0111" asserts="0" success="True" result="Success" executed="True" />
+                </results>
+              </test-suite>
+              <test-suite type="TestFixture" name="Nvidia Module.SM Architecture Mapping" executed="True" result="Success" success="True" time="0.1568" asserts="0" description="Nvidia Module.SM Architecture Mapping">
+                <results>
+                  <test-suite type="ParameterizedTest" name="Nvidia Module.SM Architecture Mapping.Should correctly map &lt;Name&gt; (CC &lt;CC&gt;) to &lt;ExpectedArch&gt;" executed="True" result="Success" success="True" time="0.0518" asserts="0" description="Should correctly map &lt;Name&gt; (CC &lt;CC&gt;) to &lt;ExpectedArch&gt;">
+                    <results>
+                      <test-case description="Should correctly map RTX 2080 Ti (CC 7.5) to sm75" name="Nvidia Module.SM Architecture Mapping.Should correctly map RTX 2080 Ti (CC 7.5) to sm75" time="0.0133" asserts="0" success="True" result="Success" executed="True" />
+                      <test-case description="Should correctly map RTX 3090 (CC 8.6) to sm86" name="Nvidia Module.SM Architecture Mapping.Should correctly map RTX 3090 (CC 8.6) to sm86" time="0.0113" asserts="0" success="True" result="Success" executed="True" />
+                      <test-case description="Should correctly map RTX 4090 (CC 8.9) to sm89" name="Nvidia Module.SM Architecture Mapping.Should correctly map RTX 4090 (CC 8.9) to sm89" time="0.0165" asserts="0" success="True" result="Success" executed="True" />
+                      <test-case description="Should correctly map RTX 5090 (CC 10.0) to sm100" name="Nvidia Module.SM Architecture Mapping.Should correctly map RTX 5090 (CC 10.0) to sm100" time="0.0107" asserts="0" success="True" result="Success" executed="True" />
+                    </results>
+                  </test-suite>
+                </results>
+              </test-suite>
+              <test-suite type="TestFixture" name="Nvidia Module.Compute Capability Validation" executed="True" result="Success" success="True" time="0.1726" asserts="0" description="Nvidia Module.Compute Capability Validation">
+                <results>
+                  <test-case description="Should reject GPU below minimum CC requirement" name="Nvidia Module.Compute Capability Validation.Should reject GPU below minimum CC requirement" time="0.0128" asserts="0" success="True" result="Success" executed="True" />
+                </results>
+              </test-suite>
+              <test-suite type="TestFixture" name="Nvidia Module.Localized Parsing (Internationalization)" executed="True" result="Success" success="True" time="0.1864" asserts="0" description="Nvidia Module.Localized Parsing (Internationalization)">
+                <results>
+                  <test-case description="Should handle comma-separated decimals (FR/DE/ES locales)" name="Nvidia Module.Localized Parsing (Internationalization).Should handle comma-separated decimals (FR/DE/ES locales)" time="0.0119" asserts="0" success="True" result="Success" executed="True" />
+                </results>
+              </test-suite>
+              <test-suite type="TestFixture" name="Nvidia Module.Multi-GPU Selection" executed="True" result="Success" success="True" time="0.2013" asserts="0" description="Nvidia Module.Multi-GPU Selection">
+                <results>
+                  <test-case description="Should select GPU with highest compute capability" name="Nvidia Module.Multi-GPU Selection.Should select GPU with highest compute capability" time="0.0128" asserts="0" success="True" result="Success" executed="True" />
+                </results>
+              </test-suite>
+              <test-suite type="TestFixture" name="Nvidia Module.VRAM Reporting" executed="True" result="Success" success="True" time="0.2261" asserts="0" description="Nvidia Module.VRAM Reporting">
+                <results>
+                  <test-case description="Should correctly report VRAM in MB" name="Nvidia Module.VRAM Reporting.Should correctly report VRAM in MB" time="0.0226" asserts="0" success="True" result="Success" executed="True" />
+                </results>
+              </test-suite>
+            </results>
+          </test-suite>
+        </results>
+      </test-suite>
+      <test-suite type="TestFixture" name="C:\Users\CleS\Desktop\comfYa\tests\Package.Tests.ps1" executed="True" result="Success" success="True" time="6.6337" asserts="0" description="C:\Users\CleS\Desktop\comfYa\tests\Package.Tests.ps1">
+        <results>
+          <test-suite type="TestFixture" name="Package Module" executed="True" result="Success" success="True" time="6.5998" asserts="0" description="Package Module">
+            <results>
+              <test-suite type="TestFixture" name="Package Module.Module Loading" executed="True" result="Success" success="True" time="0.0127" asserts="0" description="Package Module.Module Loading">
+                <results>
+                  <test-case description="Should import successfully" name="Package Module.Module Loading.Should import successfully" time="0.0057" asserts="0" success="True" result="Success" executed="True" />
+                  <test-case description="Should export expected functions" name="Package Module.Module Loading.Should export expected functions" time="0.0051" asserts="0" success="True" result="Success" executed="True" />
+                </results>
+              </test-suite>
+              <test-suite type="TestFixture" name="Package Module.Install-Git Function" executed="True" result="Success" success="True" time="0.0297" asserts="0" description="Package Module.Install-Git Function">
+                <results>
+                  <test-case description="Should not throw when git is already installed" name="Package Module.Install-Git Function.Should not throw when git is already installed" time="0.0074" asserts="0" success="True" result="Success" executed="True" />
+                  <test-case description="Should return boolean" name="Package Module.Install-Git Function.Should return boolean" time="0.0079" asserts="0" success="True" result="Success" executed="True" />
+                </results>
+              </test-suite>
+              <test-suite type="TestFixture" name="Package Module.Install-Uv Function" executed="True" result="Success" success="True" time="0.0475" asserts="0" description="Package Module.Install-Uv Function">
+                <results>
+                  <test-case description="Should return true if uv is already installed" name="Package Module.Install-Uv Function.Should return true if uv is already installed" time="0.0093" asserts="0" success="True" result="Success" executed="True" />
+                  <test-case description="Should have correct uv source URL in config" name="Package Module.Install-Uv Function.Should have correct uv source URL in config" time="0.0036" asserts="0" success="True" result="Success" executed="True" />
+                  <test-case description="Should check common bin paths for uv" name="Package Module.Install-Uv Function.Should check common bin paths for uv" time="0.0029" asserts="0" success="True" result="Success" executed="True" />
+                </results>
+              </test-suite>
+              <test-suite type="TestFixture" name="Package Module.Get-LatestGithubRelease Function" executed="True" result="Success" success="True" time="6.562" asserts="0" description="Package Module.Get-LatestGithubRelease Function">
+                <results>
+                  <test-case description="Should handle invalid URLs gracefully" name="Package Module.Get-LatestGithubRelease Function.Should handle invalid URLs gracefully" time="6.307" asserts="0" success="True" result="Success" executed="True" />
+                  <test-case description="Should return release info for valid API" name="Package Module.Get-LatestGithubRelease Function.Should return release info for valid API" time="0.2049" asserts="0" success="True" result="Success" executed="True" />
+                </results>
+              </test-suite>
+              <test-suite type="TestFixture" name="Package Module.Invoke-PostInstallCleanup Function" executed="True" result="Success" success="True" time="6.5782" asserts="0" description="Package Module.Invoke-PostInstallCleanup Function">
+                <results>
+                  <test-case description="Should execute without error" name="Package Module.Invoke-PostInstallCleanup Function.Should execute without error" time="0.0077" asserts="0" success="True" result="Success" executed="True" />
+                  <test-case description="Should clean temp files if they exist" name="Package Module.Invoke-PostInstallCleanup Function.Should clean temp files if they exist" time="0.0063" asserts="0" success="True" result="Success" executed="True" />
+                </results>
+              </test-suite>
+              <test-suite type="TestFixture" name="Package Module.Install-VCRedist Function" executed="True" result="Success" success="True" time="6.5914" asserts="0" description="Package Module.Install-VCRedist Function">
+                <results>
+                  <test-case description="Should return true if VCRedist already installed" name="Package Module.Install-VCRedist Function.Should return true if VCRedist already installed" time="0.0106" asserts="0" success="True" result="Success" executed="True" />
+                </results>
+              </test-suite>
+              <test-suite type="TestFixture" name="Package Module.Install-SageAttention Function" executed="True" result="Success" success="True" time="6.5978" asserts="0" description="Package Module.Install-SageAttention Function">
+                <results>
+                  <test-case description="Should have valid pattern matching logic" name="Package Module.Install-SageAttention Function.Should have valid pattern matching logic" time="0.0043" asserts="0" success="True" result="Success" executed="True" />
+                </results>
+              </test-suite>
+            </results>
+          </test-suite>
+          <test-suite type="TestFixture" name="Package Module - Fallback Logic" executed="True" result="Success" success="True" time="6.6095" asserts="0" description="Package Module - Fallback Logic">
+            <results>
+              <test-suite type="TestFixture" name="Package Module - Fallback Logic.SageAttention Fallback URLs" executed="True" result="Success" success="True" time="0.0079" asserts="0" description="Package Module - Fallback Logic.SageAttention Fallback URLs">
+                <results>
+                  <test-case description="Should have valid fallback wheel URLs in config" name="Package Module - Fallback Logic.SageAttention Fallback URLs.Should have valid fallback wheel URLs in config" time="0.006" asserts="0" success="True" result="Success" executed="True" />
+                </results>
+              </test-suite>
+            </results>
+          </test-suite>
+        </results>
+      </test-suite>
+      <test-suite type="TestFixture" name="C:\Users\CleS\Desktop\comfYa\tests\SystemUtils.Tests.ps1" executed="True" result="Success" success="True" time="0.4594" asserts="0" description="C:\Users\CleS\Desktop\comfYa\tests\SystemUtils.Tests.ps1">
+        <results>
+          <test-suite type="TestFixture" name="SystemUtils Module" executed="True" result="Success" success="True" time="0.4187" asserts="0" description="SystemUtils Module">
+            <results>
+              <test-suite type="TestFixture" name="SystemUtils Module.Module Loading" executed="True" result="Success" success="True" time="0.0188" asserts="0" description="SystemUtils Module.Module Loading">
+                <results>
+                  <test-case description="Should import successfully" name="SystemUtils Module.Module Loading.Should import successfully" time="0.0082" asserts="0" success="True" result="Success" executed="True" />
+                  <test-case description="Should export expected functions" name="SystemUtils Module.Module Loading.Should export expected functions" time="0.0082" asserts="0" success="True" result="Success" executed="True" />
+                </results>
+              </test-suite>
+              <test-suite type="TestFixture" name="SystemUtils Module.Test-Administrator" executed="True" result="Success" success="True" time="0.0326" asserts="0" description="SystemUtils Module.Test-Administrator">
+                <results>
+                  <test-case description="Should verify PowerShell version" name="SystemUtils Module.Test-Administrator.Should verify PowerShell version" time="0.0066" asserts="0" success="True" result="Success" executed="True" />
+                  <test-case description="Should detect administrator privileges" name="SystemUtils Module.Test-Administrator.Should detect administrator privileges" time="0.0049" asserts="0" success="True" result="Success" executed="True" />
+                </results>
+              </test-suite>
+              <test-suite type="TestFixture" name="SystemUtils Module.Test-SystemRequirement" executed="True" result="Success" success="True" time="0.0729" asserts="0" description="SystemUtils Module.Test-SystemRequirement">
+                <results>
+                  <test-case description="Should return RAM and disk info" name="SystemUtils Module.Test-SystemRequirement.Should return RAM and disk info" time="0.038" asserts="0" success="True" result="Success" executed="True" />
+                </results>
+              </test-suite>
+              <test-suite type="TestFixture" name="SystemUtils Module.Get-SecurePath" executed="True" result="Success" success="True" time="0.096" asserts="0" description="SystemUtils Module.Get-SecurePath">
+                <results>
+                  <test-case description="Should return null for non-existent path with non-existent parent" name="SystemUtils Module.Get-SecurePath.Should return null for non-existent path with non-existent parent" time="0.0071" asserts="0" success="True" result="Success" executed="True" />
+                  <test-case description="Should return path for existing directory" name="SystemUtils Module.Get-SecurePath.Should return path for existing directory" time="0.0051" asserts="0" success="True" result="Success" executed="True" />
+                  <test-case description="Should validate write permission when requested" name="SystemUtils Module.Get-SecurePath.Should validate write permission when requested" time="0.0049" asserts="0" success="True" result="Success" executed="True" />
+                  <test-case description="Should handle new path with existing parent" name="SystemUtils Module.Get-SecurePath.Should handle new path with existing parent" time="0.0037" asserts="0" success="True" result="Success" executed="True" />
+                </results>
+              </test-suite>
+              <test-suite type="TestFixture" name="SystemUtils Module.Update-EnvironmentPath" executed="True" result="Success" success="True" time="0.1038" asserts="0" description="SystemUtils Module.Update-EnvironmentPath">
+                <results>
+                  <test-case description="Should refresh environment path without error" name="SystemUtils Module.Update-EnvironmentPath.Should refresh environment path without error" time="0.0056" asserts="0" success="True" result="Success" executed="True" />
+                </results>
+              </test-suite>
+              <test-suite type="TestFixture" name="SystemUtils Module.Export-ComfyConfig" executed="True" result="Success" success="True" time="0.2546" asserts="0" description="SystemUtils Module.Export-ComfyConfig">
+                <results>
+                  <test-case description="Should export config to JSON file" name="SystemUtils Module.Export-ComfyConfig.Should export config to JSON file" time="0.0268" asserts="0" success="True" result="Success" executed="True" />
+                  <test-case description="Should skip write if content unchanged" name="SystemUtils Module.Export-ComfyConfig.Should skip write if content unchanged" time="0.1218" asserts="0" success="True" result="Success" executed="True" />
+                </results>
+              </test-suite>
+              <test-suite type="TestFixture" name="SystemUtils Module.Resolve-ComfyEnvironment" executed="True" result="Success" success="True" time="0.2664" asserts="0" description="SystemUtils Module.Resolve-ComfyEnvironment">
+                <results>
+                  <test-case description="Should resolve environment placeholders" name="SystemUtils Module.Resolve-ComfyEnvironment.Should resolve environment placeholders" time="0.0095" asserts="0" success="True" result="Success" executed="True" />
+                </results>
+              </test-suite>
+              <test-suite type="TestFixture" name="SystemUtils Module.Sync-ComfyEnvironment" executed="True" result="Success" success="True" time="0.2766" asserts="0" description="SystemUtils Module.Sync-ComfyEnvironment">
+                <results>
+                  <test-case description="Should set environment variables" name="SystemUtils Module.Sync-ComfyEnvironment.Should set environment variables" time="0.008" asserts="0" success="True" result="Success" executed="True" />
+                </results>
+              </test-suite>
+              <test-suite type="TestFixture" name="SystemUtils Module.Invoke-SafeWebRequest" executed="True" result="Success" success="True" time="0.4166" asserts="0" description="SystemUtils Module.Invoke-SafeWebRequest">
+                <results>
+                  <test-case description="Should handle invalid URLs gracefully after retries" name="SystemUtils Module.Invoke-SafeWebRequest.Should handle invalid URLs gracefully after retries" time="0.1376" asserts="0" success="True" result="Success" executed="True" />
+                </results>
+              </test-suite>
+            </results>
+          </test-suite>
+        </results>
+      </test-suite>
+    </results>
+  </test-suite>
+</test-results>

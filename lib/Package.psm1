@@ -200,8 +200,8 @@ function Install-SageAttention {
     )
     
     $sageApi = $Config.Sources.APIs.SageAttention
-    $pySuffix = "cp" + ($Config.Python.Version -replace '\.', '')
-    $sagePattern = "$($GPU.CudaVersion).*$pySuffix.*win_amd64"
+    # [SOTA] SageAttention uses ABI3 stable wheels (cp39-abi3) since v2.2.0-windows.post4
+    $sagePattern = "$($GPU.CudaVersion).*abi3.*win_amd64"
     
     Write-Step "Install" "Sage" "Discovering SageAttention asset for $sagePattern"
     $dynamicSageUrl = Get-LatestGithubRelease -ApiUrl $sageApi -MatchPattern $sagePattern -UserAgent $Config.UserAgent
@@ -217,8 +217,8 @@ function Install-SageAttention {
     }
     
     # Fallback to static config
-    $SageKey = "$($GPU.CudaVersion)_py$($Config.Python.Version -replace '\.', '')"
-    $fallbackUrl = $Config.Sources.FallbackWheels.SageAttention[$SageKey]
+    # [SOTA] ABI3 wheels are Python-version independent
+    $fallbackUrl = $Config.Sources.FallbackWheels.SageAttention[$GPU.CudaVersion]
     
     if ($fallbackUrl) {
         Write-ComfyWarning "GitHub API failed, using static fallback for SageAttention."

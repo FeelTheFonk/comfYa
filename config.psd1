@@ -101,15 +101,12 @@
             UvHash       = $null  # Dynamic installer script, verification not possible
         }
         
-        # Fallback wheel URLs (updated periodically)
+        # Fallback wheel URLs (updated 2026-01-18)
+        # [SOTA] SageAttention v2.2.0-windows.post4 uses ABI3 stable (Python 3.9+, PyTorch >= 2.9)
         FallbackWheels = @{
             SageAttention = @{
-                cu128_py312 = "https://github.com/woct0rdho/SageAttention/releases/download/v2.2.0-windows/sageattention-2.2.0+cu128torch2.8.0-cp312-cp312-win_amd64.whl"
-                cu124_py312 = "https://github.com/woct0rdho/SageAttention/releases/download/v2.2.0-windows/sageattention-2.2.0+cu124torch2.8.0-cp312-cp312-win_amd64.whl"
-                cu121_py312 = "https://github.com/woct0rdho/SageAttention/releases/download/v2.2.0-windows/sageattention-2.2.0+cu121torch2.5.0-cp312-cp312-win_amd64.whl"
-                cu128_py311 = "https://github.com/woct0rdho/SageAttention/releases/download/v2.2.0-windows/sageattention-2.2.0+cu128torch2.8.0-cp311-cp311-win_amd64.whl"
-                cu124_py311 = "https://github.com/woct0rdho/SageAttention/releases/download/v2.2.0-windows/sageattention-2.2.0+cu124torch2.8.0-cp311-cp311-win_amd64.whl"
-                cu121_py311 = "https://github.com/woct0rdho/SageAttention/releases/download/v2.2.0-windows/sageattention-2.2.0+cu121torch2.5.0-cp311-cp311-win_amd64.whl"
+                cu128 = "https://github.com/woct0rdho/SageAttention/releases/download/v2.2.0-windows.post4/sageattention-2.2.0%2Bcu128torch2.9.0andhigher.post4-cp39-abi3-win_amd64.whl"
+                cu130 = "https://github.com/woct0rdho/SageAttention/releases/download/v2.2.0-windows.post4/sageattention-2.2.0%2Bcu130torch2.9.0andhigher.post4-cp39-abi3-win_amd64.whl"
             }
         }
     }

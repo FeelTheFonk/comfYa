@@ -108,7 +108,13 @@ function Install-ComfyProject {
     Write-Step "Install" "App" "Cloning ComfyUI Core"
     $Repo = $Config.Sources.Repositories.ComfyUI
     $AppPath = Join-Path $InstallPath $Repo.Path
-    if (-not (Test-Path $AppPath)) {
+    $AppGitPath = Join-Path $AppPath ".git"
+    # [FIX] Check for .git to detect actual clone, not just pre-created directory
+    if (-not (Test-Path $AppGitPath)) {
+        # Remove empty shell directory if it exists
+        if ((Test-Path $AppPath) -and -not (Get-ChildItem $AppPath -File -Recurse)) {
+            Remove-Item $AppPath -Recurse -Force -ErrorAction SilentlyContinue
+        }
         try {
             & git clone --depth 1 $Repo.Url $AppPath
             if ($LASTEXITCODE -ne 0) { throw "git clone failed (exit code: $LASTEXITCODE)" }
@@ -127,7 +133,12 @@ function Install-ComfyProject {
     Write-Step "Install" "Manager" "Cloning ComfyUI-Manager"
     $Manager = $Config.Sources.Repositories.ComfyUIManager
     $ManagerPath = Join-Path $InstallPath $Manager.Path
-    if (-not (Test-Path $ManagerPath)) {
+    $ManagerGitPath = Join-Path $ManagerPath ".git"
+    # [FIX] Check for .git to detect actual clone
+    if (-not (Test-Path $ManagerGitPath)) {
+        if ((Test-Path $ManagerPath) -and -not (Get-ChildItem $ManagerPath -File -Recurse)) {
+            Remove-Item $ManagerPath -Recurse -Force -ErrorAction SilentlyContinue
+        }
         try {
             & git clone --depth 1 -b $Manager.Branch $Manager.Url $ManagerPath
             if ($LASTEXITCODE -ne 0) { Write-ComfyWarning "ComfyUI-Manager clone failed (exit code: $LASTEXITCODE)" }
