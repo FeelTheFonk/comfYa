@@ -61,24 +61,23 @@ jobs:
       - name: Create archive
         run: |
           VERSION=${{ steps.version.outputs.version }}
-          mkdir -p dist
+          mkdir -p dist release_staging/lib release_staging/docs
           
-          # Create ZIP
-          zip -r dist/comfYa-${VERSION}.zip . \
-            -x ".git/*" \
-            -x ".github/*" \
-            -x ".venv/*" \
-            -x "ComfyUI/*" \
-            -x "__pycache__/*" \
-            -x "*.log" \
-            -x ".gitignore" \
-            -x ".agent/*" \
-            -x "tests/*" \
-            -x "testResults.xml" \
-            -x ".triton_cache/*" \
-            -x "CONTRIBUTING.md" \
-            -x "ARCHITECTURE.md" \
-            -x "docs/README.md"
+          # Copy essential files to staging
+          cp comfya.ps1 run.bat validate.py config.psd1 LICENSE README.md release_staging/
+          cp lib/*.psm1 release_staging/lib/
+          cp docs/QUICK_START.md docs/TROUBLESHOOTING.md release_staging/docs/
+          
+          # Create minimal ZIP with maximum compression
+          cd release_staging
+          zip -9r ../dist/comfYa-${VERSION}.zip .
+          cd ..
+          
+          # Show archive contents and size
+          echo "=== Archive Contents ==="
+          unzip -l dist/comfYa-${VERSION}.zip
+          echo "=== Archive Size ==="
+          ls -lh dist/
       
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
