@@ -24,19 +24,19 @@ jobs:
       contents: read
     steps:
       - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@v4
       
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@9e3d5f470505cfde37a6d610da14c49845344384 # v3.28.10
+        uses: github/codeql-action/init@v3
         with:
           languages: python
           queries: security-and-quality
       
       - name: Autobuild
-        uses: github/codeql-action/autobuild@9e3d5f470505cfde37a6d610da14c49845344384 # v3.28.10
+        uses: github/codeql-action/autobuild@v3
       
       - name: Perform Analysis
-        uses: github/codeql-action/analyze@9e3d5f470505cfde37a6d610da14c49845344384 # v3.28.10
+        uses: github/codeql-action/analyze@v3
         with:
           category: "/language:python"
 
@@ -45,11 +45,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
       
       - name: TruffleHog Scan
-        uses: trufflesecurity/trufflehog@7e78a12569a376a9a8e3cc8dff08b8e0f0c97d8a # v3.88.0
+        uses: trufflesecurity/trufflehog@v3
         with:
           extra_args: --only-verified
