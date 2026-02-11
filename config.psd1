@@ -148,7 +148,7 @@
     LaunchArgs = @{
         Default = @(
             "--fast"
-            "--use-sage-attention"
+            #"--use-sage-attention"
         )
         HighVram = @(
             "--fast"

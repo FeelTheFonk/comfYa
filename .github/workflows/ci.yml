@@ -89,6 +89,11 @@ jobs:
           ruff check . --output-format=github
           ruff check . --statistics
       
+      - name: Run ruff (Security)
+        run: |
+          ruff check . --select S --output-format=github || true
+          echo "Security check complete. Review annotations for S-prefixed codes."
+      
       - name: Validate Python Syntax
         run: |
           python -m py_compile validate.py

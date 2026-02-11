@@ -86,6 +86,8 @@ input/
 # Installation logs
 logs/
 !logs/.gitkeep
+testResults.xml
+
 
 # Local configuration overrides
 *.local
