@@ -1,4 +1,4 @@
-# comfYa v0.2.8
+# comfYa v0.3.0
 
 > ComfyUI Automated Installer for Windows NVIDIA
 
@@ -73,7 +73,7 @@ Edit `config.psd1`:
 
 ```powershell
 @{
-    Version   = "0.2.8"
+    Version   = "0.3.0"
     Python = @{ Version = "3.12" }
     Cuda = @{ PreferredVersion = "cu128" }
     Gpu = @{ MinComputeCapability = 7.5 }
