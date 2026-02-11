@@ -61,12 +61,11 @@ jobs:
       - name: Create archive
         run: |
           VERSION=${{ steps.version.outputs.version }}
-          mkdir -p dist release_staging/lib release_staging/docs
+          mkdir -p dist release_staging/lib
           
           # Copy essential files to staging
           cp comfya.ps1 run.bat validate.py config.psd1 LICENSE README.md release_staging/
           cp lib/*.psm1 release_staging/lib/
-          cp docs/QUICK_START.md docs/TROUBLESHOOTING.md release_staging/docs/
           
           # Create minimal ZIP with maximum compression
           cd release_staging

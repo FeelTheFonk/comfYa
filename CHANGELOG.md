@@ -3,6 +3,18 @@
 All notable changes to comfYa will be documented in this file.
 
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+				
+## [0.3.0] - 2026-02-11
+### Added
+- **CI/CD Security**: Integrated `ruff` with Bandit rules (S-series) for immediate security feedback in PRs.
+- **Robust Scanning**: fallback mechanisms for `security-scan` workflow to support private repositories without GHAS.
+
+### Changed
+- **Release Optimization**: Lightweight release artifact (excluded documentation and tests) for faster deployment.
+- **Dependency Checks**: ongoing updates to `dependency-check.yml`.
+
+### Fixed
+- **CI/CD**: Resolved CodeQL "Code Scanning not enabled" failure by adding graceful error handling.
 
 ## [0.2.8] - 2026-01-02
 ### Added
